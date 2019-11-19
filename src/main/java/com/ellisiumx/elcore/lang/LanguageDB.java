@@ -1,4 +1,4 @@
-package com.ellisiumx.ELCore.Lang;
+package com.ellisiumx.elcore.lang;
 
 import java.util.HashMap;
 

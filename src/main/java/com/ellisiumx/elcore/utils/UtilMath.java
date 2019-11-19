@@ -1,4 +1,4 @@
-package com.ellisiumx.ELCore.Utils;
+package com.ellisiumx.elcore.utils;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;

@@ -1,6 +1,6 @@
-package com.ellisiumx.ELCore.Updater.Event;
+package com.ellisiumx.elcore.updater.event;
 
-import com.ellisiumx.ELCore.Updater.UpdateType;
+import com.ellisiumx.elcore.updater.UpdateType;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 

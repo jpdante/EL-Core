@@ -1,6 +1,5 @@
-package com.ellisiumx.ELCore;
+package com.ellisiumx.elcore;
 
-import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ELCore extends JavaPlugin {

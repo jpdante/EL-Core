@@ -1,4 +1,4 @@
-package com.ellisiumx.ELCore.Utils;
+package com.ellisiumx.elcore.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

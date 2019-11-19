@@ -1,6 +1,6 @@
-package com.ellisiumx.ELCore.Updater;
+package com.ellisiumx.elcore.updater;
 
-import com.ellisiumx.ELCore.Utils.UtilTime;
+import com.ellisiumx.elcore.utils.UtilTime;
 
 public enum UpdateType
 {

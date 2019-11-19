@@ -1,6 +1,6 @@
-package com.ellisiumx.ELCore.Updater;
+package com.ellisiumx.elcore.updater;
 
-import com.ellisiumx.ELCore.Updater.Event.UpdateEvent;
+import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Updater implements Runnable {

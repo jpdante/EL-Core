@@ -2,7 +2,7 @@ package com.ellisiumx.elcore.utils;
 
 import org.bukkit.ChatColor;
 
-public class UtilColors {
+public class UtilChat {
     public static String Scramble = "§k";
     public static String Bold = "§l";
     public static String Strike = "§m";

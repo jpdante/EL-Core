@@ -1,85 +1,85 @@
 package com.ellisiumx.elcore.utils;
 
+import com.ellisiumx.elcore.permissions.Rank;
 import org.bukkit.ChatColor;
 
 public class UtilMessage {
     public static String main(String module, String body) {
-        return UtilColors.cWhite + "[" + UtilColors.mHead + module + UtilColors.cWhite + "] " + UtilColors.mBody + body;
+        return UtilChat.cWhite + "[" + UtilChat.mHead + module + UtilChat.cWhite + "] " + UtilChat.mBody + body;
     }
 
     public static String tute(String sender, String body) {
-        return UtilColors.cGold + sender + "> " + UtilColors.cWhite + body;
+        return UtilChat.cGold + sender + "> " + UtilChat.cWhite + body;
     }
 
     public static String te(String message) {
-        return UtilColors.cYellow + message + UtilColors.cWhite;
+        return UtilChat.cYellow + message + UtilChat.cWhite;
     }
 
     public static String game(String elem) {
-        return UtilColors.mGame + elem + UtilColors.mBody;
+        return UtilChat.mGame + elem + UtilChat.mBody;
     }
 
     public static String ta(String message) {
-        return UtilColors.cGreen + message + UtilColors.cWhite;
+        return UtilChat.cGreen + message + UtilChat.cWhite;
     }
 
     public static String ts(String message) {
-        return UtilColors.cGold + message + UtilColors.cWhite;
+        return UtilChat.cGold + message + UtilChat.cWhite;
     }
 
     public static String sys(String head, String body) {
-        return UtilColors.sysHead + head + "> " + UtilColors.sysBody + body;
+        return UtilChat.sysHead + head + "> " + UtilChat.sysBody + body;
     }
 
     public static String elem(String elem) {
-        return UtilColors.mElem + elem + ChatColor.RESET + UtilColors.mBody;
+        return UtilChat.mElem + elem + ChatColor.RESET + UtilChat.mBody;
     }
 
     public static String name(String elem) {
-        return UtilColors.mElem + elem + UtilColors.mBody;
+        return UtilChat.mElem + elem + UtilChat.mBody;
     }
 
     public static String count(String elem) {
-        return UtilColors.mCount + elem + UtilColors.mBody;
+        return UtilChat.mCount + elem + UtilChat.mBody;
     }
 
     public static String item(String elem) {
-        return UtilColors.mItem + elem + UtilColors.mBody;
+        return UtilChat.mItem + elem + UtilChat.mBody;
     }
 
     public static String link(String elem) {
-        return UtilColors.mLink + elem + UtilColors.mBody;
+        return UtilChat.mLink + elem + UtilChat.mBody;
     }
 
     public static String skill(String elem) {
-        return UtilColors.mSkill + elem + UtilColors.mBody;
+        return UtilChat.mSkill + elem + UtilChat.mBody;
     }
 
     public static String skill(String a, String b) {
 
-        return UtilColors.cYellow + " " + UtilColors.cGreen + b + UtilColors.mBody;
+        return UtilChat.cYellow + " " + UtilChat.cGreen + b + UtilChat.mBody;
     }
 
     public static String time(String elem) {
-        return UtilColors.mTime + elem + UtilColors.mBody;
+        return UtilChat.mTime + elem + UtilChat.mBody;
     }
 
     public static String desc(String head, String body) {
-        return UtilColors.descHead + head + ": " + UtilColors.descBody + body;
+        return UtilChat.descHead + head + ": " + UtilChat.descBody + body;
     }
 
     public static String wField(String field, String data) {
-        return UtilColors.wFrame + "[" + UtilColors.wField + field + UtilColors.wFrame + "] " + UtilColors.mBody + data + " ";
+        return UtilChat.wFrame + "[" + UtilChat.wField + field + UtilChat.wFrame + "] " + UtilChat.mBody + data + " ";
     }
 
     public static String help(String cmd, String body, Rank rank) {
-        return rank.GetColor() + cmd + " " + UtilColors.mBody + body + " " + rank(rank);
+        return rank.GetColor() + cmd + " " + UtilChat.mBody + body + " " + rank(rank);
     }
 
     public static String rank(Rank rank) {
-        if (rank == Rank.NONE)
+        if (rank == Rank.ALL)
             return rank.GetColor() + "Player";
-
         return rank.GetTag(false, false);
     }
 
@@ -92,7 +92,7 @@ public class UtilMessage {
         while (indent.length() < a)
             indent += ChatColor.GRAY + ">";
 
-        return indent + UtilColors.listTitle + variable + ": " + UtilColors.listValue + value;
+        return indent + UtilChat.listTitle + variable + ": " + UtilChat.listValue + value;
     }
 
     public static String value(String variable, String value, boolean on) {
@@ -104,32 +104,32 @@ public class UtilMessage {
         while (indent.length() < a)
             indent += ChatColor.GRAY + ">";
 
-        if (on) return indent + UtilColors.listTitle + variable + ": " + UtilColors.listValueOn + value;
-        else return indent + UtilColors.listTitle + variable + ": " + UtilColors.listValueOff + value;
+        if (on) return indent + UtilChat.listTitle + variable + ": " + UtilChat.listValueOn + value;
+        else return indent + UtilChat.listTitle + variable + ": " + UtilChat.listValueOff + value;
     }
 
     public static String ed(boolean var) {
         if (var)
-            return UtilColors.listValueOn + "Enabled" + UtilColors.mBody;
-        return UtilColors.listValueOff + "Disabled" + UtilColors.mBody;
+            return UtilChat.listValueOn + "Enabled" + UtilChat.mBody;
+        return UtilChat.listValueOff + "Disabled" + UtilChat.mBody;
     }
 
     public static String oo(boolean var) {
         if (var)
-            return UtilColors.listValueOn + "On" + UtilColors.mBody;
-        return UtilColors.listValueOff + "Off" + UtilColors.mBody;
+            return UtilChat.listValueOn + "On" + UtilChat.mBody;
+        return UtilChat.listValueOff + "Off" + UtilChat.mBody;
     }
 
     public static String tf(boolean var) {
         if (var)
-            return UtilColors.listValueOn + "True" + UtilColors.mBody;
-        return UtilColors.listValueOff + "False" + UtilColors.mBody;
+            return UtilChat.listValueOn + "True" + UtilChat.mBody;
+        return UtilChat.listValueOff + "False" + UtilChat.mBody;
     }
 
     public static String oo(String variable, boolean value) {
         if (value)
-            return UtilColors.listValueOn + variable + UtilColors.mBody;
-        return UtilColors.listValueOff + variable + UtilColors.mBody;
+            return UtilChat.listValueOn + variable + UtilChat.mBody;
+        return UtilChat.listValueOff + variable + UtilChat.mBody;
     }
 
     public static String combine(String[] args, int start, String color, boolean comma) {

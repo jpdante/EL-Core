@@ -4,19 +4,19 @@ import java.util.HashMap;
 
 public class LanguageDB {
 
-    public final String Locale;
-    public final String Language;
+    public final String locale;
+    public final String language;
     private HashMap<String, String> translation;
 
     public LanguageDB() {
-        Locale = "en_US";
-        Language = "English";
+        locale = "en_US";
+        language = "English";
         translation = new HashMap<String, String>();
     }
 
     public LanguageDB(String locale, String language) {
-        Locale = locale;
-        Language = language;
+        this.locale = locale;
+        this.language = language;
         translation = new HashMap<String, String>();
     }
 

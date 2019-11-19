@@ -29,7 +29,17 @@ public class LagMeter implements Listener {
 
     @EventHandler
     public void onPlayerCommandPreProcess(PlayerCommandPreprocessEvent event) {
-        if (!InternalPlayerCache.playerProfiles.containsKey(event.getPlayer().getUniqueId())) return;
+        if (event.getMessage().trim().equalsIgnoreCase("/lag")) {
+            sendUpdate(event.getPlayer());
+            event.setCancelled(true);
+        } else if (event.getMessage().trim().equalsIgnoreCase("/monitor")) {
+            if (_monitoring.contains(event.getPlayer()))
+                _monitoring.remove(event.getPlayer());
+            else
+                _monitoring.add(event.getPlayer());
+            event.setCancelled(true);
+        }
+        /*if (!InternalPlayerCache.playerProfiles.containsKey(event.getPlayer().getUniqueId())) return;
         PlayerProfile profile = InternalPlayerCache.playerProfiles.get(event.getPlayer().getUniqueId());
         if (profile.profileData.rank == Rank.ADMIN || profile.profileData.rank == Rank.DEVELOPER) {
             if (event.getMessage().trim().equalsIgnoreCase("/lag")) {
@@ -42,7 +52,7 @@ public class LagMeter implements Listener {
                     _monitoring.add(event.getPlayer());
                 event.setCancelled(true);
             }
-        }
+        }*/
     }
 
     @EventHandler

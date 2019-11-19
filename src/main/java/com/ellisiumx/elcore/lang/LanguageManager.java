@@ -3,31 +3,35 @@ package com.ellisiumx.elcore.lang;
 import java.util.HashMap;
 
 public class LanguageManager {
-
+    private static LanguageManager context;
     private HashMap<String, LanguageDB> languages;
 
     public LanguageManager() {
-        languages = new HashMap<String, LanguageDB>();
+        context = this;
+        this.languages = new HashMap<String, LanguageDB>();
     }
 
-    public void addLanguage(LanguageDB langDB) {
-        languages.clear();
-
+    public static void addLanguage(LanguageDB langDB) {
+        context.languages.clear();
+        context.languages.put(langDB.locale, langDB);
     }
 
-    public void removeLanguage(LanguageDB langDB) {
-        languages.remove(langDB.Locale);
+    public static void removeLanguage(LanguageDB langDB) {
+        context.languages.remove(langDB.locale);
     }
 
-    public void getLanguage() {
-
-    }
-
-    public String getTranslation(String lang, String msgKey) {
-        if(!languages.containsKey(lang)) {
-            return languages.get("en_US").getTranslation(msgKey);
+    public static LanguageDB getLanguage(String lang) {
+        if(!context.languages.containsKey(lang)) {
+            return context.languages.get("en_US");
         }
-        return languages.get(lang).getTranslation(msgKey);
+        return context.languages.get(lang);
+    }
+
+    public static String getTranslation(String lang, String msgKey) {
+        if(!context.languages.containsKey(lang)) {
+            return context.languages.get("en_US").getTranslation(msgKey);
+        }
+        return context.languages.get(lang).getTranslation(msgKey);
     }
 
 }

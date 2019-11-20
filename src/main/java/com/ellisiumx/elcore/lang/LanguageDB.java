@@ -6,42 +6,42 @@ public class LanguageDB {
 
     public final String locale;
     public final String language;
-    private HashMap<String, String> translation;
+    public final HashMap<String, String> translations;
 
     public LanguageDB() {
-        locale = "en_US";
-        language = "English";
-        translation = new HashMap<String, String>();
+        this.locale = "en_US";
+        this.language = "English";
+        this.translations = new HashMap<String, String>();
     }
 
     public LanguageDB(String locale, String language) {
         this.locale = locale;
         this.language = language;
-        translation = new HashMap<String, String>();
+        this.translations = new HashMap<String, String>();
     }
 
     public boolean insertTranslation(String key, String value) {
-        if(this.translation.containsKey(key)) return false;
-        this.translation.put(key, value);
+        if(this.translations.containsKey(key)) return false;
+        this.translations.put(key, value);
         return true;
     }
 
     public boolean removeTranslation(String key) {
-        if(!this.translation.containsKey(key)) return false;
-        this.translation.remove(key);
+        if(!this.translations.containsKey(key)) return false;
+        this.translations.remove(key);
         return true;
     }
 
     public String getTranslation(String key) {
-        if(!this.translation.containsKey(key)) return "§cmissing var " + key + "§f";
-        return this.translation.get(key);
+        if(!this.translations.containsKey(key)) return "missing var " + key;
+        return this.translations.get(key);
     }
 
     public String[] getKeys() {
-        return (String[]) this.translation.keySet().toArray();
+        return (String[]) this.translations.keySet().toArray();
     }
 
     public String[] getValues() {
-        return (String[]) this.translation.values().toArray();
+        return (String[]) this.translations.values().toArray();
     }
 }

@@ -1,14 +1,10 @@
 database:
-  needed: false
-  type: "mysql"
-  filename: "XCore.db"
   host: "127.0.0.1"
   port: "3306"
-  database: "database"
-  username: "username"
-  password: "password"
+  database: "elcore"
+  username: "root"
+  password: "default"
 redis:
-  needed: false
   host: "127.0.0.1"
   port: "6379"
   database: 0
@@ -19,5 +15,5 @@ memoryfixer:
 chat:
   needed: false
   announce_vip_join: false
-injector:
-  enabled: true
+languages:
+  - "en_US.json"

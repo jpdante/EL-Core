@@ -7,8 +7,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="ELCore" />
-        <module name="EL-Core" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="EL-Core" target="7" />
+    </bytecodeTargetLevel>
   </component>
 </project>

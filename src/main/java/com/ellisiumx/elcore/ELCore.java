@@ -13,7 +13,6 @@ import java.util.logging.Level;
 public class ELCore extends JavaPlugin {
 
     private static ELCore context;
-    public CoreConfiguration config;
 
     @Override
     public void onLoad() {
@@ -28,33 +27,8 @@ public class ELCore extends JavaPlugin {
         this.getServer().setWhitelist(true);
         saveDefaultConfig();
         reloadConfig();
-        config = new CoreConfiguration(context);
-        /*if(config.Database_Enabled) {
-            if(config.Database_Type.equalsIgnoreCase("mysql")) {
-                database = new MySQL(config.Database_Host, config.Database_Port, config.Database_Database, config.Database_Username, config.Database_Password);
-                Bukkit.getLogger().log(Level.INFO, "[XCore] Using MySQL");
-            } else if(config.Database_Type.equalsIgnoreCase("sqlite")) {
-                database = new SQLite(config.Database_Filename);
-                Bukkit.getLogger().log(Level.INFO, "[XCore] Using SQLite");
-            }
-            try {
-                database.openConnection();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                Bukkit.shutdown();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                Bukkit.shutdown();
-            }
-            defaultDataProvider = new DataProvider(database);
-            dataManager = new DataManager(defaultDataProvider);
-        }
-        if(config.Redis_Enabled) {
-            Bukkit.getLogger().log(Level.INFO, "[XCore] Using Redis");
-            Bukkit.getServer().getPluginManager().registerEvents(new RedisManager(), plugin);
-            RedisManager.getContext().Connect(config.Redis_Host, config.Redis_Port, config.Redis_Password, config.Redis_Database);
-        }*/
-        new DBPool("jdbc:mysql://" + config.Database_Host + ":" + config.Database_Port + "/" + config.Database_Database, config.Database_Username, config.Database_Password);
+        new CoreConfiguration();
+        new DBPool("jdbc:mysql://" + CoreConfiguration.Database_Host + ":" + CoreConfiguration.Database_Port + "/" + CoreConfiguration.Database_Database, CoreConfiguration.Database_Username, CoreConfiguration.Database_Password);
         new Updater(context);
         //new InternalPlayerCache();
         new LanguageManager();
@@ -64,9 +38,9 @@ public class ELCore extends JavaPlugin {
         //this.getServer().getPluginManager().registerEvents(new onPlayerChat(), plugin);
         //this.getServer().getPluginManager().registerEvents(new onPlayerCommandPreProcess(), plugin);
         this.getServer().getPluginManager().registerEvents(new LagMeter(context), context);
-        if(config.MemoryFixer_Enabled) {
+        if(CoreConfiguration.MemoryFixer_Enabled) {
             MemoryFix.last_failed = false;
-            MemoryFix.min_memory = config.MemoryFixer_Min;
+            MemoryFix.min_memory = CoreConfiguration.MemoryFixer_Min;
             this.getServer().getPluginManager().registerEvents(new MemoryFix(), context);
         }
         this.getServer().setWhitelist(false);

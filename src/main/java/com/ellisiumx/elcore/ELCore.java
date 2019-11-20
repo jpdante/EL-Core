@@ -1,6 +1,7 @@
 package com.ellisiumx.elcore;
 
 import com.ellisiumx.elcore.configuration.CoreConfiguration;
+import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.memory.MemoryFix;
 import com.ellisiumx.elcore.monitor.LagMeter;
@@ -53,6 +54,7 @@ public class ELCore extends JavaPlugin {
             Bukkit.getServer().getPluginManager().registerEvents(new RedisManager(), plugin);
             RedisManager.getContext().Connect(config.Redis_Host, config.Redis_Port, config.Redis_Password, config.Redis_Database);
         }*/
+        new DBPool("jdbc:mysql://" + config.Database_Host + ":" + config.Database_Port + "/" + config.Database_Database, config.Database_Username, config.Database_Password);
         new Updater(context);
         //new InternalPlayerCache();
         new LanguageManager();

@@ -74,13 +74,13 @@ public class UtilMessage {
     }
 
     public static String help(String cmd, String body, Rank rank) {
-        return rank.GetColor() + cmd + " " + UtilChat.mBody + body + " " + rank(rank);
+        return rank.getColor() + cmd + " " + UtilChat.mBody + body + " " + rank(rank);
     }
 
     public static String rank(Rank rank) {
         if (rank == Rank.ALL)
-            return rank.GetColor() + "Player";
-        return rank.GetTag(false, false);
+            return rank.getColor() + "Player";
+        return rank.getTag(false, false);
     }
 
     public static String value(String variable, String value) {

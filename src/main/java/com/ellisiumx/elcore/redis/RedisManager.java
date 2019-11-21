@@ -1,21 +1,28 @@
 package com.ellisiumx.elcore.redis;
 
-import com.ellisiumx.elcore.account.PlayerAccount;
-import com.ellisiumx.elcore.permissions.Rank;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import com.ellisiumx.elcore.configuration.CoreConfiguration;
 import org.bukkit.event.Listener;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.exceptions.JedisDataException;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Level;
 
 public class RedisManager implements Listener {
-    private static RedisManager instance;
+
+    private static RedisManager context;
+    private ConnectionData masterConnection;
+    private ConnectionData slaveConnection;
+
+    public RedisManager() {
+        context = this;
+        masterConnection = new ConnectionData(CoreConfiguration.Redis_Host, Integer.parseInt(CoreConfiguration.Redis_Port), ConnectionData.ConnectionType.MASTER, null);
+        slaveConnection = masterConnection;
+    }
+
+    public static ConnectionData getMasterConnection() {
+        return context.masterConnection;
+    }
+
+    public static ConnectionData getSlaveConnection() {
+        return context.slaveConnection;
+    }
+    /*private static RedisManager instance;
     private JedisPool pool;
     private Jedis jedis;
 
@@ -66,7 +73,7 @@ public class RedisManager implements Listener {
 
     public boolean hasPlayer(UUID uuid) {
         return jedis.exists("minecraft:xcore:" + uuid.toString());
-    }
+    }*/
 
     /*public void addPlayer(UUID uuid, PlayerAccount account) {
         Map<String, String> userProperties = new HashMap<String, String>();

@@ -1,27 +1,20 @@
 package com.ellisiumx.elcore.database;
 
-public class DatabaseRunnable
-{
-	private Runnable _runnable;
-	private int _failedAttempts = 0;
+public class DatabaseRunnable<T> {
+	private Runnable runnable;
+	private boolean success;
 	
 	public DatabaseRunnable(Runnable runnable)
 	{
-		_runnable = runnable;
+		runnable = runnable;
 	}
 	
-	public void run()
+	public void run(T data)
 	{
-		_runnable.run();
+		runnable.run();
 	}
 	
-	public void incrementFailCount()
-	{
-		_failedAttempts++;
-	}
-	
-	public int getFailedCounts()
-	{
-		return _failedAttempts;
+	public void setSuccess(boolean success) {
+		this.success = success;
 	}
 }

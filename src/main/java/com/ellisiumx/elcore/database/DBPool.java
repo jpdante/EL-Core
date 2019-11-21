@@ -1,13 +1,13 @@
 package com.ellisiumx.elcore.database;
 
-        import javax.sql.DataSource;
-        import java.sql.Connection;
+import javax.sql.DataSource;
+import java.sql.Connection;
 
-        import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 public final class DBPool {
 
-    private static DataSource database;
+    public static DataSource Default;
 
     public static DataSource openDataSource(String url, String username, String password) {
         BasicDataSource source = new BasicDataSource();
@@ -26,10 +26,6 @@ public final class DBPool {
     }
 
     public DBPool(String url, String username, String password) {
-        database = openDataSource(url, username, password);
-    }
-
-    public static DataSource getDatabase() {
-        return database;
+        Default = openDataSource(url, username, password);
     }
 }

@@ -23,9 +23,10 @@ public enum Rank {
 
     YOUTUBE("YouTube", ChatColor.RED),
     TWITCH("Twitch", ChatColor.DARK_PURPLE),
-    LEGEND("Legend", ChatColor.GREEN),
-    HERO("Hero", ChatColor.LIGHT_PURPLE),
-    ULTRA("Ultra", ChatColor.AQUA),
+    VIP("Vip", ChatColor.GREEN),
+    VIP_PLUS("Vip+", ChatColor.LIGHT_PURPLE),
+    MVP("MVP", ChatColor.AQUA),
+    MVP_PLUS("MVP+", ChatColor.AQUA),
     ALL("", ChatColor.WHITE);
 
     private ChatColor Color;
@@ -36,15 +37,15 @@ public enum Rank {
         Name = name;
     }
 
-    public boolean Has(Rank rank) {
-        return Has(null, rank, false);
+    public boolean has(Rank rank) {
+        return has(null, rank, false);
     }
 
-    public boolean Has(Player player, Rank rank, boolean inform) {
-        return Has(player, rank, null, inform);
+    public boolean has(Player player, Rank rank, boolean inform) {
+        return has(player, rank, null, inform);
     }
 
-    public boolean Has(Player player, Rank rank, Rank[] specific, boolean inform) {
+    public boolean has(Player player, Rank rank, Rank[] specific, boolean inform) {
         if (specific != null) {
             for (Rank curRank : specific) {
                 if (compareTo(curRank) == 0) {
@@ -59,11 +60,10 @@ public enum Rank {
                     UtilChat.mHead + rank.Name.toUpperCase() +
                     UtilChat.mBody + "].");
         }
-
         return false;
     }
 
-    public String GetTag(boolean bold, boolean uppercase) {
+    public String getTag(boolean bold, boolean uppercase) {
         if (Name.equalsIgnoreCase("ALL"))
             return "";
 
@@ -75,7 +75,7 @@ public enum Rank {
         else return Color + name;
     }
 
-    public ChatColor GetColor() {
+    public ChatColor getColor() {
         return Color;
     }
 }

@@ -1,4 +1,4 @@
-package com.ellisiumx.elcore.account;
+package com.ellisiumx.elcore.preferences;
 
 public class AccountPreferences {
 

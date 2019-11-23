@@ -1,6 +1,6 @@
 package com.ellisiumx.elcore.utils;
 
-import jsonchat.JsonMessage;
+import com.ellisiumx.elcore.jsonchat.JsonMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 

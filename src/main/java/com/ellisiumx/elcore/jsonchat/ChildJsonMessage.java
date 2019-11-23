@@ -1,4 +1,4 @@
-package jsonchat;
+package com.ellisiumx.elcore.jsonchat;
 
 public class ChildJsonMessage extends JsonMessage {
     private JsonMessage _parent;

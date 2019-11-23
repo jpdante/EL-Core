@@ -1,4 +1,4 @@
-package jsonchat;
+package com.ellisiumx.elcore.jsonchat;
 
 import com.ellisiumx.elcore.utils.UtilServer;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;

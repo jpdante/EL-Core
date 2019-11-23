@@ -1,4 +1,4 @@
-package jsonchat;
+package com.ellisiumx.elcore.jsonchat;
 
 public enum ClickEvent {
     RUN_COMMAND("run_command"),

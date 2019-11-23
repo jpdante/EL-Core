@@ -2,8 +2,11 @@ package com.ellisiumx.elcore;
 
 import com.ellisiumx.elcore.account.ClientManager;
 import com.ellisiumx.elcore.account.CoreClient;
+import com.ellisiumx.elcore.blockrestore.BlockRestore;
 import com.ellisiumx.elcore.configuration.CoreConfiguration;
 import com.ellisiumx.elcore.database.DBPool;
+import com.ellisiumx.elcore.explosion.Explosion;
+import com.ellisiumx.elcore.hologram.HologramManager;
 import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.memory.MemoryFix;
 import com.ellisiumx.elcore.monitor.LagMeter;
@@ -39,6 +42,9 @@ public class ELCore extends JavaPlugin {
         new ClientManager(context);
         new PunishSystem(context);
         new LanguageManager();
+        new HologramManager(context);
+        new BlockRestore(context);
+        new Explosion(context);
         // UTILS
         new MemoryFix(context);
         new LagMeter(context);

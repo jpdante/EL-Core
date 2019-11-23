@@ -1,4 +1,4 @@
-package jsonchat;
+package com.ellisiumx.elcore.jsonchat;
 
 public enum HoverEvent {
     SHOW_TEXT("show_text"),

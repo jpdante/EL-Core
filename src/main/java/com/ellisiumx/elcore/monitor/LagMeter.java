@@ -1,7 +1,6 @@
 package com.ellisiumx.elcore.monitor;
 
-import com.ellisiumx.elcore.ELCore;
-import com.ellisiumx.elcore.account.ClientManager;
+import com.ellisiumx.elcore.account.CoreClientManager;
 import com.ellisiumx.elcore.account.CoreClient;
 import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
@@ -35,14 +34,14 @@ public class LagMeter implements Listener {
     @EventHandler
     public void onPlayerCommandPreProcess(PlayerCommandPreprocessEvent event) {
         if (event.getMessage().trim().equalsIgnoreCase("/lag")) {
-            CoreClient client = ClientManager.get(event.getPlayer());
+            CoreClient client = CoreClientManager.get(event.getPlayer());
             if(client == null) return;
             if (client.getRank() == Rank.ADMIN || client.getRank() == Rank.DEVELOPER) {
                 sendUpdate(event.getPlayer());
                 event.setCancelled(true);
             }
         } else if (event.getMessage().trim().equalsIgnoreCase("/monitor")) {
-            CoreClient client = ClientManager.get(event.getPlayer());
+            CoreClient client = CoreClientManager.get(event.getPlayer());
             if(client == null) return;
             if (client.getRank() == Rank.ADMIN || client.getRank() == Rank.DEVELOPER) {
                 if (_monitoring.contains(event.getPlayer()))

@@ -8,9 +8,6 @@ import com.ellisiumx.elcore.punish.event.PlayerPreLoginApproved;
 import com.ellisiumx.elcore.redis.DataRepository;
 import com.ellisiumx.elcore.redis.RedisDataRepository;
 import com.ellisiumx.elcore.redis.RedisManager;
-import com.ellisiumx.elcore.updater.UpdateType;
-import com.ellisiumx.elcore.updater.event.UpdateEvent;
-import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -19,7 +16,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,9 +23,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ClientManager implements Listener {
+public class CoreClientManager implements Listener {
 
-    private static ClientManager context;
+    private static CoreClientManager context;
 
     private AccountRepository repository;
     private HashMap<String, CoreClient> clientList;
@@ -41,7 +37,8 @@ public class ClientManager implements Listener {
     private static AtomicInteger clientsProcessing = new AtomicInteger(0);
     private static HashMap<String, Object> clientLoginLock = new HashMap<>();
 
-    public ClientManager(JavaPlugin plugin) {
+    public CoreClientManager(JavaPlugin plugin) {
+        context = this;
         repository = new AccountRepository(ELCore.getContext());
         cacheDataRepository = new RedisDataRepository(RedisManager.getMasterConnection(), ClientCache.class, "accounts");
         clientList = new HashMap<String, CoreClient>();

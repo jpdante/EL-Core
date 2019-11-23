@@ -1,6 +1,6 @@
 package com.ellisiumx.elcore.preferences;
 
-public class AccountPreferences {
+public class UserPreferences {
 
     private String language = "en-US";
     private boolean filterChat = true;
@@ -18,9 +18,9 @@ public class AccountPreferences {
     private boolean friendDisplayInventoryUI = true;
     private boolean updated = false;
 
-    public AccountPreferences() {}
+    public UserPreferences() {}
 
-    public AccountPreferences(String lang, boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean g, boolean h, boolean i, boolean j, boolean k, boolean l, boolean m) {
+    public UserPreferences(String lang, boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean g, boolean h, boolean i, boolean j, boolean k, boolean l, boolean m) {
         language = lang;
         filterChat = a;
         hubGames = b;

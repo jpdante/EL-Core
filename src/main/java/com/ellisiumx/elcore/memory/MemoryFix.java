@@ -1,5 +1,8 @@
 package com.ellisiumx.elcore.memory;
 
+import com.ellisiumx.elcore.ELCore;
+import com.ellisiumx.elcore.configuration.CoreConfiguration;
+import com.ellisiumx.elcore.redis.ConnectionData;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import net.minecraft.server.v1_8_R3.*;
@@ -10,15 +13,21 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Field;
-import java.util.Iterator;
 import java.util.logging.Level;
 
 public class MemoryFix implements Listener {
-    private static Field _intHashMap;
-    public static long min_memory = 1024;
-    public static boolean last_failed = false;
+    private Field _intHashMap;
+    public long min_memory = 1024;
+    public boolean last_failed = false;
+
+    public MemoryFix(Plugin plugin) {
+        last_failed = false;
+        min_memory = CoreConfiguration.MemoryFixer_Min;
+        Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
+    }
 
     @EventHandler
     public void fixInventoryLeaks(UpdateEvent event) {
@@ -26,13 +35,7 @@ public class MemoryFix implements Listener {
         for (World world : Bukkit.getWorlds()) {
             for (Object tileEntity : ((CraftWorld) world).getHandle().tileEntityList) {
                 if (tileEntity instanceof IInventory) {
-                    Iterator<HumanEntity> entityIterator = ((IInventory) tileEntity).getViewers().iterator();
-                    while (entityIterator.hasNext()) {
-                        HumanEntity entity = entityIterator.next();
-                        if (entity instanceof CraftPlayer && !((CraftPlayer) entity).isOnline()) {
-                            entityIterator.remove();
-                        }
-                    }
+                    ((IInventory) tileEntity).getViewers().removeIf(entity -> entity instanceof CraftPlayer && !((CraftPlayer) entity).isOnline());
                 }
             }
         }
@@ -43,6 +46,7 @@ public class MemoryFix implements Listener {
     @EventHandler
     public void fixGarbageCollector(UpdateEvent event) {
         if (event.getType() != UpdateType.MIN_01) return;
+        if (!CoreConfiguration.MemoryFixer_Enabled) return;
         if (((Runtime.getRuntime().freeMemory() / 1024) / 1024) < min_memory) {
             Bukkit.getLogger().log(Level.INFO, "############################################ Memory Fixer ############################################");
             Bukkit.getLogger().log(Level.INFO, "ELCore has detected that there is little memory in the system.");

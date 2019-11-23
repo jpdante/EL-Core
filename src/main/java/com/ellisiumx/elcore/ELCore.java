@@ -8,6 +8,7 @@ import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.memory.MemoryFix;
 import com.ellisiumx.elcore.monitor.LagMeter;
 import com.ellisiumx.elcore.punish.PunishSystem;
+import com.ellisiumx.elcore.redis.RedisManager;
 import com.ellisiumx.elcore.updater.Updater;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -30,18 +31,17 @@ public class ELCore extends JavaPlugin {
         this.getServer().setWhitelist(true);
         saveDefaultConfig();
         reloadConfig();
+        // REQUIRED
+        new Updater(context);
         new CoreConfiguration();
         new DBPool("jdbc:mysql://" + CoreConfiguration.Database_Host + "/" + CoreConfiguration.Database_Database, CoreConfiguration.Database_Username, CoreConfiguration.Database_Password);
-        new Updater(context);
+        new RedisManager();
+        new ClientManager(context);
+        new PunishSystem(context);
         new LanguageManager();
-        this.getServer().getPluginManager().registerEvents(new PunishSystem(), context);
-        this.getServer().getPluginManager().registerEvents(new ClientManager(), context);
-        this.getServer().getPluginManager().registerEvents(new LagMeter(context), context);
-        if(CoreConfiguration.MemoryFixer_Enabled) {
-            MemoryFix.last_failed = false;
-            MemoryFix.min_memory = CoreConfiguration.MemoryFixer_Min;
-            this.getServer().getPluginManager().registerEvents(new MemoryFix(), context);
-        }
+        // UTILS
+        new MemoryFix(context);
+        new LagMeter(context);
         this.getServer().setWhitelist(false);
         this.getLogger().log(Level.INFO, "[ELCore] Enabled!");
     }

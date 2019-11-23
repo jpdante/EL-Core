@@ -12,6 +12,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerPreLoginEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Timestamp;
 
@@ -19,8 +20,9 @@ public class PunishSystem implements Listener {
 
     private PunishRepository repository;
 
-    public PunishSystem() {
+    public PunishSystem(JavaPlugin plugin) {
         repository = new PunishRepository(ELCore.getContext());
+        Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

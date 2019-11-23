@@ -28,6 +28,7 @@ com/ellisiumx/elcore/punish/PunishSystem.class
 com/ellisiumx/elcore/utils/UtilTime$TimeUnit.class
 com/ellisiumx/elcore/utils/UtilGear.class
 com/ellisiumx/elcore/utils/UtilPlayer$Vector3D.class
+com/ellisiumx/elcore/account/ClientCache.class
 com/ellisiumx/elcore/redis/ConnectionData.class
 com/ellisiumx/elcore/utils/UtilChat.class
 com/ellisiumx/elcore/database/RepositoryBase.class

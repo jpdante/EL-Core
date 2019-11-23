@@ -1,8 +1,12 @@
 package com.ellisiumx.elcore.monitor;
 
+import com.ellisiumx.elcore.ELCore;
+import com.ellisiumx.elcore.account.CoreClient;
+import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.utils.UtilMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,40 +23,34 @@ public class LagMeter implements Listener {
     private double _ticksPerSecond;
     private double _ticksPerSecondAverage;
     private long _lastAverage;
-    private long _lastTick = 0;
-    private HashSet<Player> _monitoring = new HashSet<Player>();
+    private HashSet<Player> _monitoring = new HashSet<>();
 
     public LagMeter(JavaPlugin plugin) {
         _lastRun = System.currentTimeMillis();
         _lastAverage = System.currentTimeMillis();
+        Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler
     public void onPlayerCommandPreProcess(PlayerCommandPreprocessEvent event) {
         if (event.getMessage().trim().equalsIgnoreCase("/lag")) {
-            sendUpdate(event.getPlayer());
-            event.setCancelled(true);
-        } else if (event.getMessage().trim().equalsIgnoreCase("/monitor")) {
-            if (_monitoring.contains(event.getPlayer()))
-                _monitoring.remove(event.getPlayer());
-            else
-                _monitoring.add(event.getPlayer());
-            event.setCancelled(true);
-        }
-        /*if (!InternalPlayerCache.playerProfiles.containsKey(event.getPlayer().getUniqueId())) return;
-        PlayerProfile profile = InternalPlayerCache.playerProfiles.get(event.getPlayer().getUniqueId());
-        if (profile.profileData.rank == Rank.ADMIN || profile.profileData.rank == Rank.DEVELOPER) {
-            if (event.getMessage().trim().equalsIgnoreCase("/lag")) {
+            CoreClient client = ELCore.getContext().getClientManager().get(event.getPlayer());
+            if(client == null) return;
+            if (client.getRank() == Rank.ADMIN || client.getRank() == Rank.DEVELOPER) {
                 sendUpdate(event.getPlayer());
                 event.setCancelled(true);
-            } else if (event.getMessage().trim().equalsIgnoreCase("/monitor")) {
+            }
+        } else if (event.getMessage().trim().equalsIgnoreCase("/monitor")) {
+            CoreClient client = ELCore.getContext().getClientManager().get(event.getPlayer());
+            if(client == null) return;
+            if (client.getRank() == Rank.ADMIN || client.getRank() == Rank.DEVELOPER) {
                 if (_monitoring.contains(event.getPlayer()))
                     _monitoring.remove(event.getPlayer());
                 else
                     _monitoring.add(event.getPlayer());
                 event.setCancelled(true);
             }
-        }*/
+        }
     }
 
     @EventHandler

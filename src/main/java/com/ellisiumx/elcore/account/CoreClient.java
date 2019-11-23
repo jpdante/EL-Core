@@ -17,6 +17,12 @@ public class CoreClient {
         this.name = name;
     }
 
+    public CoreClient(ClientCache cache) {
+        this.accountId = cache.accountId;
+        this.name = cache.name;
+        this.rank = cache.rank;
+    }
+
     public int getAccountId() {
         return accountId;
     }

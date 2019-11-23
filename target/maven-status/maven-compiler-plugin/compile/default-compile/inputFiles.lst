@@ -34,5 +34,6 @@
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/database/RepositoryBase.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/updater/Updater.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/punish/event/PlayerPreLoginApproved.java
+/home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/account/ClientCache.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/database/DBPool.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/punish/repository/PunishRepository.java

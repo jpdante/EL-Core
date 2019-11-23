@@ -68,6 +68,13 @@ public class ClientManager implements Listener {
         ELCore.getContext().getServer().getPluginManager().callEvent(new ClientUnloadEvent(name));
     }
 
+    public static void del(Player player) {
+        synchronized (context.clientLock) {
+            context.clientList.remove(player.getName());
+        }
+        ELCore.getContext().getServer().getPluginManager().callEvent(new ClientUnloadEvent(player.getName()));
+    }
+
     public static CoreClient get(String name) {
         synchronized (context.clientLock) {
             return context.clientList.get(name);
@@ -143,5 +150,10 @@ public class ClientManager implements Listener {
             }
             event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "This server is full and no longer accepts players.");
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void Quit(PlayerQuitEvent event) {
+        del(event.getPlayer());
     }
 }

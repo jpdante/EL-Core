@@ -1,6 +1,9 @@
 package com.ellisiumx.elcore.preferences;
 
-public class UserPreferences {
+import com.ellisiumx.elcore.redis.Data;
+import com.google.gson.annotations.Expose;
+
+public class UserPreferences implements Data {
 
     private String language = "en-US";
     private boolean filterChat = true;
@@ -16,11 +19,15 @@ public class UserPreferences {
     private boolean ignoreVelocity = false;
     private boolean pendingFriendRequests = true;
     private boolean friendDisplayInventoryUI = true;
+    @Expose(serialize = false)
     private boolean updated = false;
+    @Expose(serialize = false)
+    private String uuid = "";
 
     public UserPreferences() {}
 
-    public UserPreferences(String lang, boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean g, boolean h, boolean i, boolean j, boolean k, boolean l, boolean m) {
+    public UserPreferences(String uuid, String lang, boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean g, boolean h, boolean i, boolean j, boolean k, boolean l, boolean m) {
+        this.uuid = uuid;
         language = lang;
         filterChat = a;
         hubGames = b;
@@ -169,5 +176,14 @@ public class UserPreferences {
 
     public void resetUpdateTrigger() {
         this.updated = false;
+    }
+
+    public void setUUID(String uuid) {
+        this.uuid = uuid;
+    }
+
+    @Override
+    public String getDataId() {
+        return uuid;
     }
 }

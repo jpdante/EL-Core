@@ -1,0 +1,10 @@
+mine-reseter:
+  enabled: true
+  mines:
+    0:
+      point1: "world,-3,0,3,0,0"
+      point2: "world,-32,20,26,0,0"
+      delay: 60
+      ores:
+        - "0.5,1:0"
+        - "0.5,3:0"

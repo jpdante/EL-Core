@@ -43,13 +43,12 @@ public class MapUtil {
         c.initLighting();
     }*/
 
-    /*public static void QuickChangeBlockAt(Location location, Material setTo) {
+    public static void QuickChangeBlockAt(Location location, Material setTo) {
         QuickChangeBlockAt(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ(), setTo);
     }
 
     public static void QuickChangeBlockAt(Location location, int id, byte data) {
-        QuickChangeBlockAt(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ(), id,
-                data);
+        QuickChangeBlockAt(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ(), id, data);
     }
 
     public static void QuickChangeBlockAt(World world, int x, int y, int z, Material setTo) {
@@ -61,12 +60,12 @@ public class MapUtil {
     }
 
     public static void QuickChangeBlockAt(World world, int x, int y, int z, int id, int data) {
-        Chunk chunk = world.getChunkAt(x >> 4, z >> 4);
-        net.minecraft.server.v1_8_R3.Chunk c = ((CraftChunk) chunk).getHandle();
-        c.a(new BlockPosition(x & 0xF, y, z & 0xF), Block.getById(id));
-        c.a(x & 0xF, y, z & 0xF, Block.getById(id), data);
-        ((CraftWorld) world).getHandle().notify(x, y, z);
-    }*/
+        net.minecraft.server.v1_8_R3.Chunk chunk = ((CraftChunk) world.getChunkAt(x >> 4, z >> 4)).getHandle();
+        BlockPosition bp = new BlockPosition(x, y, z);
+        int combined = id + (data << 12);
+        chunk.a(new BlockPosition(x & 0xF, y, z & 0xF), Block.getByCombinedId(combined));
+        world.refreshChunk(x >> 4, z >> 4);
+    }
 
     public static int GetHighestBlockInCircleAt(World world, int bx, int bz, int radius) {
         int count = 0;

@@ -7,6 +7,7 @@
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilGear.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilServer.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/redis/Utility.java
+/home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/preferences/PreferencesManager.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/jsonchat/Color.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilMessage.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/blockrestore/BlockRestoreData.java
@@ -18,6 +19,7 @@
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilText.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/scoreboard/PlayerScoreboard.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilTabTitle.java
+/home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/preferences/UserPreferences.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/account/repository/AccountRepository.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/updater/UpdateType.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/scoreboard/elements/ScoreboardElementText.java
@@ -41,15 +43,16 @@
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilBlockText.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilTextMiddle.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilPlayer.java
+/home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilGson.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/entity/DummyEntity.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilSound.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/MapUtil.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/blockrestore/BlockRestore.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/lang/LanguageManager.java
+/home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/preferences/PreferencesRepository.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilTextBottom.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilAction.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/monitor/LagMeter.java
-/home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/preferences/AccountPreferences.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/jsonchat/ChildJsonMessage.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilTextTop.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/hologram/Hologram.java

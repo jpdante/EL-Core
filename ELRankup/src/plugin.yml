@@ -1,0 +1,5 @@
+name: ELRankup
+main: com.ellisiumx.elrankup.ELRankup
+version: 1.0
+author: Ellisiumx
+depend: [ELCore]

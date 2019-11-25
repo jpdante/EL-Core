@@ -9,6 +9,7 @@ import com.ellisiumx.elcore.hologram.HologramManager;
 import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.memory.MemoryFix;
 import com.ellisiumx.elcore.monitor.LagMeter;
+import com.ellisiumx.elcore.preferences.PreferencesManager;
 import com.ellisiumx.elcore.punish.PunishSystem;
 import com.ellisiumx.elcore.redis.RedisManager;
 import com.ellisiumx.elcore.scoreboard.ScoreboardManager;
@@ -40,6 +41,7 @@ public class ELCore extends JavaPlugin {
         new DBPool("jdbc:mysql://" + CoreConfiguration.Database_Host + "/" + CoreConfiguration.Database_Database, CoreConfiguration.Database_Username, CoreConfiguration.Database_Password);
         new RedisManager();
         new CoreClientManager(context);
+        new PreferencesManager(context);
         new PunishSystem(context);
         new LanguageManager();
         new HologramManager(context);

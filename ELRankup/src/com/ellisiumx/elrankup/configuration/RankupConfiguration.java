@@ -12,17 +12,22 @@ import java.util.List;
 
 public class RankupConfiguration {
 
-    public static boolean Mines_Enabled;
+    public static boolean MinesEnabled;
+    public static List<Integer> AlertTimes;
     public static List<MineData> Mines;
 
     public RankupConfiguration() {
-        Mines_Enabled = ELRankup.getContext().getConfig().getBoolean("mines.enabled");
+        MinesEnabled = ELRankup.getContext().getConfig().getBoolean("mine-reseter.enabled");
+        AlertTimes = ELRankup.getContext().getConfig().getIntegerList("mine-reseter.alert-times");
         Mines = new ArrayList<>();
         for(String key : ELRankup.getContext().getConfig().getConfigurationSection("mine-reseter.mines").getKeys(false)) {
+            String name = ELRankup.getContext().getConfig().getString("mine-reseter.mines." + key + ".name");
+            boolean enabled = ELRankup.getContext().getConfig().getBoolean("mine-reseter.mines." + key + ".enabled");
+            int alertArea = ELRankup.getContext().getConfig().getInt("mine-reseter.mines." + key + ".alert-area");
             Location point1 = stringToLocation(ELRankup.getContext().getConfig().getString("mine-reseter.mines." + key + ".point1"));
             Location point2 = stringToLocation(ELRankup.getContext().getConfig().getString("mine-reseter.mines." + key + ".point2"));
             int delay = ELRankup.getContext().getConfig().getInt("mine-reseter.mines." + key + ".delay");
-            MineData mineData = new MineData(point1, point2, delay);
+            MineData mineData = new MineData(name, enabled, alertArea, point1, point2, delay);
             for(String ore : ELRankup.getContext().getConfig().getStringList("mine-reseter.mines." + key + ".ores")) {
                 String[] datas = ore.split(",", 2);
                 String[] item = datas[1].split(":", 2);

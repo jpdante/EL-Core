@@ -22,7 +22,7 @@ public class PreferencesManager implements Listener {
     private static PreferencesManager context;
 
     private PreferencesRepository repository;
-    private HashMap<Player, UserPreferences> userPreferences;
+    private HashMap<String, UserPreferences> userPreferences;
     private HashMap<String, UserPreferences> saveBuffer = new HashMap<>();
     private DataRepository<UserPreferences> cacheDataRepository;
 
@@ -37,11 +37,15 @@ public class PreferencesManager implements Listener {
     }
 
     public static void savePreferences(Player caller) {
-        context.saveBuffer.put(caller.getUniqueId().toString(), context.userPreferences.get(caller));
+        context.saveBuffer.put(caller.getUniqueId().toString(), context.userPreferences.get(caller.getName()));
     }
 
-    public UserPreferences getPreferences(Player caller) {
-        return userPreferences.get(caller);
+    public static UserPreferences getPreferences(Player caller) {
+        return context.userPreferences.get(caller.getName());
+    }
+
+    public static UserPreferences getPreferences(String playerName) {
+        return context.userPreferences.get(playerName);
     }
 
     @EventHandler
@@ -62,7 +66,7 @@ public class PreferencesManager implements Listener {
 
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) {
-        userPreferences.put(event.getPlayer(), null);
+        userPreferences.put(event.getPlayer().getName(), null);
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), new Runnable() {
             public void run() {
                 UserPreferences preferences = cacheDataRepository.getElement(event.getPlayer().getUniqueId().toString());
@@ -71,8 +75,8 @@ public class PreferencesManager implements Listener {
                     preferences.setUUID(event.getPlayer().getUniqueId().toString());
                     cacheDataRepository.addElement(preferences, 3600);
                 }
-                if(userPreferences.containsKey(event.getPlayer())) {
-                    userPreferences.replace(event.getPlayer(), preferences);
+                if(userPreferences.containsKey(event.getPlayer().getName())) {
+                    userPreferences.replace(event.getPlayer().getName(), preferences);
                 };
             }
         });
@@ -82,7 +86,7 @@ public class PreferencesManager implements Listener {
 
     @EventHandler
     public void playerQuit(PlayerQuitEvent event) {
-        userPreferences.remove(event.getPlayer());
+        userPreferences.remove(event.getPlayer().getName());
     }
 
     /*@EventHandler(priority = EventPriority.LOWEST)

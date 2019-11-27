@@ -1,7 +1,5 @@
 package com.ellisiumx.elrankup.mine;
 
-import com.ellisiumx.elcore.ELCore;
-import com.ellisiumx.elcore.utils.MapUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -24,11 +22,17 @@ public class MineData {
     private Location point1;
     private Location point2;
 
+    public String name;
+    public Location middle;
+    public int alertArea;
     public boolean enabled;
     public int delay;
     public int currentDelay;
 
-    public MineData(Location point1, Location point2, int delay) {
+    public MineData(String name, boolean enabled, int alertArea, Location point1, Location point2, int delay) {
+        this.name = name;
+        this.enabled = enabled;
+        this.alertArea = alertArea;
         setPoints(point1, point2);
         if(delay <= 4) this.delay = 5;
         else this.delay = delay;
@@ -66,6 +70,8 @@ public class MineData {
             p2.setZ(z);
         }
 
+        middle = new Location(p1.getWorld(), (minX - maxX) / 2F, (minY - maxY) / 2F, (minZ - maxZ) / 2F);
+
         this.point1 = p1;
         this.world = p1.getWorld();
         this.minX = p1.getBlockX();
@@ -88,7 +94,6 @@ public class MineData {
     }
 
     public void fillMine() {
-        Bukkit.broadcastMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "Resetting!!!");
         List<CompositionEntry> probabilityMap = mapComposition(blocks);
         for (int x = minX; x <= maxX; ++x) {
             for (int y = minY; y <= maxY; ++y) {

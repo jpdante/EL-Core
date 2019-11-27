@@ -1,27 +1,35 @@
 package com.ellisiumx.elcore.lang;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.HashMap;
 
 public class LanguageDB {
 
-    public final String locale;
-    public final String language;
-    public final HashMap<String, String> translations;
+    private String filename;
+    private String locale;
+    private String language;
+    private HashMap<String, String> translations;
+    @Expose(serialize = false)
+    private boolean updated;
 
     public LanguageDB() {
         this.locale = "en_US";
         this.language = "English";
-        this.translations = new HashMap<String, String>();
+        this.translations = new HashMap<>();
+        updated = false;
     }
 
     public LanguageDB(String locale, String language) {
         this.locale = locale;
         this.language = language;
-        this.translations = new HashMap<String, String>();
+        this.translations = new HashMap<>();
+        updated = false;
     }
 
     public boolean insertTranslation(String key, String value) {
         if(this.translations.containsKey(key)) return false;
+        this.updated = true;
         this.translations.put(key, value);
         return true;
     }
@@ -43,5 +51,39 @@ public class LanguageDB {
 
     public String[] getValues() {
         return (String[]) this.translations.values().toArray();
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.updated = true;
+        this.locale = locale;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.updated = true;
+        this.language = language;
+    }
+
+    public boolean wasUpdated() {
+        return this.updated;
+    }
+
+    public void resetUpdate() {
+        this.updated = false;
     }
 }

@@ -1,7 +1,21 @@
 mine-reseter:
   enabled: true
+  alert-times:
+    - 180
+    - 120
+    - 60
+    - 30
+    - 10
+    - 5
+    - 4
+    - 3
+    - 2
+    - 1
   mines:
     0:
+      name: "Mina 1"
+      enabled: true
+      alert-area: 200
       point1: "world,-3,0,3,0,0"
       point2: "world,-32,20,26,0,0"
       delay: 60

@@ -19,13 +19,14 @@ public class ELRankup extends JavaPlugin {
     @Override
     public void onEnable() {
         this.getLogger().log(Level.INFO, "[ELRankup] Enabling...");
-        this.getServer().setWhitelist(true);
         saveDefaultConfig();
         reloadConfig();
         new RankupConfiguration();
-        new MineReset(context);
-        MineReset.start();
-        this.getServer().setWhitelist(false);
+        if(RankupConfiguration.MinesEnabled) {
+            this.getLogger().log(Level.INFO, "[ELRankup] Starting Mine Reseter...");
+            new MineReset(context);
+            MineReset.start();
+        }
         this.getLogger().log(Level.INFO, "[ELRankup] Enabled!");
     }
 

@@ -36,7 +36,7 @@ public class PastedBlock {
                 PastedBlock block;
                 boolean hasTime = true;
                 long start = System.currentTimeMillis();
-                while ((block = queue.poll()) != null && hasTime) {
+                while (hasTime && (block = queue.poll()) != null) {
                     hasTime = System.currentTimeMillis() - start < 10;
                     MapUtil.QuickChangeBlockAt(world, block.x, block.y, block.z, block.id, block.data);
                 }

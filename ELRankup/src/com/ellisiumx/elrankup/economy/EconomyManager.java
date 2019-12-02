@@ -1,7 +1,6 @@
 package com.ellisiumx.elrankup.economy;
 
 import com.ellisiumx.elcore.ELCore;
-import com.ellisiumx.elcore.preferences.UserPreferences;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elcore.utils.UtilLog;
@@ -10,15 +9,12 @@ import com.ellisiumx.elrankup.economy.command.EcoCommand;
 import com.ellisiumx.elrankup.economy.command.MoneyCommand;
 import com.ellisiumx.elrankup.economy.command.PayCommand;
 import com.ellisiumx.elrankup.economy.repository.EconomyRepository;
-import com.mysql.jdbc.log.LogUtils;
 import net.milkbowl.vault.economy.Economy;
 import net.minecraft.server.v1_8_R3.Tuple;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -63,9 +59,10 @@ public class EconomyManager implements Listener {
         if (event.getType() != UpdateType.SLOW) return;
         if (buffer.empty()) return;
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
-            try {
-                Connection connection = repository.getInternalConnection();
-                PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO economy (uuid, name, balance) VALUES (?, ?, ?)");
+            try (
+                    Connection connection = repository.getInternalConnection();
+                    PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO economy (uuid, name, balance) VALUES (?, ?, ?)");
+            ){
                 while (!buffer.empty()) {
                     Tuple<String, String> data = buffer.pop();
                     statement.setString(1, data.a());
@@ -75,7 +72,6 @@ public class EconomyManager implements Listener {
                     UtilLog.log(Level.INFO, "Ensuring that player " + data.b() + " has an economy account...");
                 }
                 statement.executeBatch();
-                connection.close();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

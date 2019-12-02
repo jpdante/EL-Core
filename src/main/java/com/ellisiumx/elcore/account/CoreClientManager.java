@@ -30,12 +30,11 @@ public class CoreClientManager implements Listener {
 
     private AccountRepository repository;
     private HashMap<String, CoreClient> clientList;
-    private HashSet<String> duplicateLoginGlitchPreventionList;
     private final Object clientLock = new Object();
     private RedisDataRepository<ClientCache> cacheDataRepository;
-
     private static AtomicInteger clientsConnecting = new AtomicInteger(0);
     private static AtomicInteger clientsProcessing = new AtomicInteger(0);
+    private HashMap<String, ILoginProcessor> loginProcessors = new HashMap<>();
     private static HashMap<String, Object> clientLoginLock = new HashMap<>();
 
     public CoreClientManager(JavaPlugin plugin) {
@@ -43,7 +42,6 @@ public class CoreClientManager implements Listener {
         repository = new AccountRepository(ELCore.getContext());
         cacheDataRepository = new RedisDataRepository<>(RedisManager.getMasterConnection(), ClientCache.class, "accounts");
         clientList = new HashMap<>();
-        duplicateLoginGlitchPreventionList = new HashSet<>();
         Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -102,7 +100,7 @@ public class CoreClientManager implements Listener {
             }
             try {
                 clientsProcessing.incrementAndGet();
-                if (!loadClient(add(event.getName()), event.getUniqueId(), event.getAddress().getHostAddress()))
+                if (!loadClient(add(event.getName()), event.getUniqueId()))
                     event.disallow(Result.KICK_OTHER, "There was a problem logging you in.");
             } catch (Exception exception) {
                 event.disallow(Result.KICK_OTHER, "Error retrieving information from web, please retry in a minute.");
@@ -166,24 +164,16 @@ public class CoreClientManager implements Listener {
         }*/
     }
 
-    private boolean loadClient(final CoreClient client, final UUID uuid, String ipAddress) {
-        TimingManager.start(client.getPlayerName() + " LoadClient Total.");
+    private boolean loadClient(final CoreClient client, final UUID uuid) {
+        TimingManager.start(client.getPlayerName() + " load client");
         long timeStart = System.currentTimeMillis();
         clientLoginLock.put(client.getPlayerName(), new Object());
-        ClientToken token = null;
-        Gson gson = new Gson();
         runAsync(() -> {
-            client.setAccountId(repository.login(loginProcessors, uuid.toString(), client.getPlayerName()));
+            if(!repository.login(client, loginProcessors, uuid.toString())) {
+                System.out.println("[ClientManager] Catastrophic failure to load player!");
+            }
             clientLoginLock.remove(client.getPlayerName());
         });
-        TimingManager.start(client.getPlayerName() + " GetClient.");
-        String response = repository.getClient(client.getPlayerName(), uuid, ipAddress);
-        TimingManager.stop(client.getPlayerName() + " GetClient.");
-        token = gson.fromJson(response, ClientToken.class);
-        client.setRank(Rank.valueOf(token.Rank));
-        // _repository.updateMysqlRank(uuid.toString(), token.Rank, token.RankPerm, new Timestamp(Date.parse(token.RankExpire)).toString());
-        // JSON sql response
-        Bukkit.getServer().getPluginManager().callEvent(new ClientWebResponseEvent(response, uuid));
         while (clientLoginLock.containsKey(client.getPlayerName()) && System.currentTimeMillis() - timeStart < 15000) {
             try {
                 Thread.sleep(2);
@@ -191,13 +181,13 @@ public class CoreClientManager implements Listener {
                 e.printStackTrace();
             }
         }
-        if (_clientLoginLock.containsKey(client.GetPlayerName())) {
-            System.out.println("MYSQL TOO LONG TO LOGIN....");
+        if (clientLoginLock.containsKey(client.getPlayerName())) {
+            System.out.println("[ClientManager] MYSQL TOOK TOO LONG TO LOGIN...");
         }
-        TimingManager.stop(client.getPlayerName() + " LoadClient Total.");
-        System.out.println(client.getPlayerName() + "'s account id = " + client.getAccountId());
-        if (client.getAccountId() > 0) accountCacheRepository.addElement(new AccountCache(uuid, client.getAccountId()));
-        return !_clientLoginLock.containsKey(client.GetPlayerName());
+        TimingManager.stop(client.getPlayerName() + " load client");
+        System.out.println("[ClientManager] [" + client.getPlayerName() + "'s account id = " + client.getAccountId() + "]");
+        if (client.getAccountId() > 0) cacheDataRepository.addElement(new ClientCache(client.getAccountId(), uuid.toString(), client.getPlayerName(), client.getRank()));
+        return !clientLoginLock.containsKey(client.getPlayerName());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -221,5 +211,9 @@ public class CoreClientManager implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void Quit(PlayerQuitEvent event) {
         del(event.getPlayer());
+    }
+
+    public void addStoredProcedureLoginProcessor(ILoginProcessor processor) {
+        loginProcessors.put(processor.getName(), processor);
     }
 }

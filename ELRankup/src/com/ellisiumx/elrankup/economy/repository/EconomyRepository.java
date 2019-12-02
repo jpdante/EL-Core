@@ -1,21 +1,11 @@
 package com.ellisiumx.elrankup.economy.repository;
 
-import com.ellisiumx.elcore.ELCore;
 import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elcore.database.RepositoryBase;
-import com.ellisiumx.elcore.permissions.Rank;
-import com.ellisiumx.elcore.preferences.UserPreferences;
 import net.minecraft.server.v1_8_R3.Tuple;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import javax.xml.transform.Result;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.*;
 
 public class EconomyRepository extends RepositoryBase {
 
@@ -33,13 +23,14 @@ public class EconomyRepository extends RepositoryBase {
 
     public boolean hasAccountByUUID(String uuid) {
         boolean hasAccount = false;
-        try {
-            Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT id FROM economy WHERE uuid = ? LIMIT 1;");
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("SELECT id FROM economy WHERE uuid = ? LIMIT 1;")
+        ) {
             statement.setString(1, uuid);
-            ResultSet resultSet = statement.executeQuery();
-            hasAccount = resultSet.next();
-            connection.close();
+            try (ResultSet resultSet = statement.executeQuery()) {
+                hasAccount = resultSet.next();
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -48,13 +39,14 @@ public class EconomyRepository extends RepositoryBase {
 
     public boolean hasAccountByName(String playerName) {
         boolean hasAccount = false;
-        try {
-            Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT id FROM economy WHERE name LIKE ? LIMIT 1;");
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("SELECT id FROM economy WHERE name LIKE ? LIMIT 1;")
+        ) {
             statement.setString(1, playerName);
-            ResultSet resultSet = statement.executeQuery();
-            hasAccount = resultSet.next();
-            connection.close();
+            try (ResultSet resultSet = statement.executeQuery()) {
+                hasAccount = resultSet.next();
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -63,16 +55,16 @@ public class EconomyRepository extends RepositoryBase {
 
     public Double getBalanceByName(String playerName) {
         Double balance = null;
-        try {
-            Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT balance FROM economy WHERE name LIKE ? LIMIT 1;");
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("SELECT balance FROM economy WHERE name LIKE ? LIMIT 1;")
+        ) {
             statement.setString(1, playerName);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                balance = resultSet.getDouble(1);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while(resultSet.next()) {
+                    balance = resultSet.getDouble(1);
+                }
             }
-            resultSet.close();
-            connection.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -81,15 +73,16 @@ public class EconomyRepository extends RepositoryBase {
 
     public Double getBalanceByUUID(String uuid) {
         Double balance = null;
-        try {
-            Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT balance FROM economy WHERE uuid = ? LIMIT 1;");
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("SELECT balance FROM economy WHERE uuid = ? LIMIT 1;")
+        ) {
             statement.setString(1, uuid);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                balance = resultSet.getDouble(1);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while(resultSet.next()) {
+                    balance = resultSet.getDouble(1);
+                }
             }
-            resultSet.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -97,94 +90,92 @@ public class EconomyRepository extends RepositoryBase {
     }
 
     public void depositAmountByName(String playerName, double amount) {
-        try {
-            Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement("UPDATE economy SET balance = balance + ? WHERE name LIKE ?;");
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("UPDATE economy SET balance = balance + ? WHERE name LIKE ?;")
+        ) {
             statement.setDouble(1, amount);
             statement.setString(2, playerName);
             statement.executeUpdate();
-            connection.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
     public void depositAmountByUUID(String uuid, double amount) {
-        try {
-            Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement("UPDATE economy SET balance = balance + ? WHERE uuid = ?;");
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("UPDATE economy SET balance = balance + ? WHERE uuid = ?;")
+        ) {
             statement.setDouble(1, amount);
             statement.setString(2, uuid);
             statement.executeUpdate();
-            connection.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
     public void withdrawAmountByName(String playerName, double amount) {
-        try {
-            Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement("UPDATE economy SET balance = balance - ? WHERE name LIKE ?;");
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("UPDATE economy SET balance = balance - ? WHERE name LIKE ?;")
+        ) {
             statement.setDouble(1, amount);
             statement.setString(2, playerName);
             statement.executeUpdate();
-            connection.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
     public void withdrawAmountByUUID(String uuid, double amount) {
-        try {
-            Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement("UPDATE economy SET balance = balance - ? WHERE uuid = ?;");
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("UPDATE economy SET balance = balance - ? WHERE uuid = ?;")
+        ) {
             statement.setDouble(1, amount);
             statement.setString(2, uuid);
             statement.executeUpdate();
-            connection.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
     public Tuple<Boolean, Boolean> payAmount(String fromUUID, String toPlayerName, double amount) {
-        Connection connection = getConnection();
-        try {
+        Tuple<Boolean, Boolean> response = null;
+        try (Connection connection = getConnection()) {
             connection.setAutoCommit(false);
-            PreparedStatement statement = connection.prepareStatement(
-                    "SET @hasAccount = EXISTS(SELECT id FROM economy WHERE name LIKE ?);" +
-                    "SET @hasBalance = EXISTS(SELECT id FROM economy WHERE uuid = ? AND balance >= ?);" +
-                    "UPDATE economy SET balance = balance - ? WHERE @hasAccount = 1 AND @hasBalance = 1 AND uuid = ?;" +
-                    "UPDATE economy SET balance = balance + ? WHERE @hasAccount = 1 AND @hasBalance = 1 AND name LIKE ?;" +
-                    "SELECT @hasAccount, @hasBalance;"
-            );
-            statement.setString(1, toPlayerName);
-            statement.setString(2, fromUUID);
-            statement.setDouble(3, amount);
-            statement.setDouble(4, amount);
-            statement.setString(5, fromUUID);
-            statement.setDouble(6, amount);
-            statement.setString(7, toPlayerName);
-            ResultSet resultSet = statement.executeQuery();
-            connection.commit();
-            boolean hasAccount = false;
-            boolean hasBalance = false;
-            if (resultSet.next()) {
-                hasAccount = resultSet.getBoolean(1);
-                hasBalance = resultSet.getBoolean(2);
-            }
-            connection.close();
-            return new Tuple<>(hasAccount, hasBalance);
-        } catch (Exception ex) {
-            try {
+            try (Statement statement = connection.createStatement()) {
+                boolean hasAccount = false;
+                boolean hasBalance = false;
+
+                try (ResultSet resultSet = statement.executeQuery("SELECT IF(EXISTS(SELECT id FROM economy WHERE name LIKE '" + toPlayerName + "'),1,0) AS result;")) {
+                    while(resultSet.next()) {
+                        hasAccount = resultSet.getBoolean(1);
+                    }
+                }
+
+                try (ResultSet resultSet = statement.executeQuery("SELECT IF(EXISTS(SELECT id FROM economy WHERE uuid = '" + fromUUID + "' AND balance >= " + amount + "),1,0) AS result;")) {
+                    while(resultSet.next()) {
+                        hasBalance = resultSet.getBoolean(1);
+                    }
+                }
+
+                if(hasAccount && hasBalance) {
+                    statement.executeUpdate("UPDATE economy SET balance = balance - " + amount + " WHERE uuid = '" + fromUUID + "';");
+                    statement.executeUpdate("UPDATE economy SET balance = balance + " + amount + " WHERE name LIKE '" + toPlayerName + "';");
+                }
+
+                connection.commit();
+                response = new Tuple<>(hasAccount, hasBalance);
+            } catch (Exception ex) {
                 connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
+                ex.printStackTrace();
             }
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return null;
+        return response;
     }
 
     public Connection getInternalConnection() {

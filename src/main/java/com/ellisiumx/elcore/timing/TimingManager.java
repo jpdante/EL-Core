@@ -90,7 +90,7 @@ public class TimingManager implements Listener {
     public static void stop(String title) {
         if (!Debug) return;
         synchronized (timingLock) {
-            System.out.println("]==[TIMING]==[" + title + " took " + (System.currentTimeMillis() - timingList.get(title)) + "ms");
+            System.out.println("[TIMING] [" + title + " took " + (System.currentTimeMillis() - timingList.get(title)) + "ms]");
             timingList.remove(title);
         }
     }

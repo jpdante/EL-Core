@@ -1,7 +1,5 @@
 package com.ellisiumx.elrankup.mine;
 
-import com.ellisiumx.elcore.account.CoreClient;
-import com.ellisiumx.elcore.account.CoreClientManager;
 import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.preferences.PreferencesManager;

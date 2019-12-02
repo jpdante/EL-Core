@@ -6,27 +6,21 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public enum Rank {
-    LT("LT", ChatColor.DARK_RED),
     OWNER("Owner", ChatColor.DARK_RED),
     DEVELOPER("Dev", ChatColor.RED),
     ADMIN("Admin", ChatColor.RED),
-    JNR_DEV("Jr.Dev", ChatColor.RED),
-    SNR_MODERATOR("Sr.Mod", ChatColor.GOLD),
     MODERATOR("Mod", ChatColor.GOLD),
-    HELPER("Trainee", ChatColor.DARK_AQUA),
+    HELPER("Helper", ChatColor.DARK_AQUA),
     MAPLEAD("MapLead", ChatColor.DARK_PURPLE),
     MAPDEV("Builder", ChatColor.BLUE),
-
     EVENT("Event", ChatColor.WHITE),
-
-    //Staff ^^
 
     YOUTUBE("YouTube", ChatColor.RED),
     TWITCH("Twitch", ChatColor.DARK_PURPLE),
-    VIP("Vip", ChatColor.GREEN),
-    VIP_PLUS("Vip+", ChatColor.LIGHT_PURPLE),
-    MVP("MVP", ChatColor.AQUA),
     MVP_PLUS("MVP+", ChatColor.AQUA),
+    MVP("MVP", ChatColor.AQUA),
+    VIP_PLUS("Vip+", ChatColor.LIGHT_PURPLE),
+    VIP("Vip", ChatColor.GREEN),
     ALL("", ChatColor.WHITE);
 
     private ChatColor Color;

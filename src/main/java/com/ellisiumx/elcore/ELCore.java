@@ -27,14 +27,12 @@ public class ELCore extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        this.getLogger().log(Level.INFO, "[ELCore] Loading...");
-        this.context = this;
-        this.getLogger().log(Level.INFO, "[ELCore] Loaded!");
+        context = this;
+        this.getLogger().log(Level.INFO, "Loaded!");
     }
 
     @Override
     public void onEnable() {
-        this.getLogger().log(Level.INFO, "[ELCore] Enabling...");
         this.getServer().setWhitelist(true);
         saveDefaultConfig();
         reloadConfig();
@@ -57,19 +55,19 @@ public class ELCore extends JavaPlugin {
         new MemoryFix(context);
         new LagMeter(context);
         this.getServer().setWhitelist(false);
-        this.getLogger().log(Level.INFO, "[ELCore] Enabled!");
+        this.getLogger().log(Level.INFO, "Enabled!");
     }
 
     @Override
     public void onDisable() {
-        this.getLogger().log(Level.INFO, "[ELCore] Unloading...");
+        this.getLogger().log(Level.INFO, "Unloading...");
         /*if(config.Database_Enabled) {
             dataManager.shutdown();
         }
         if(config.Redis_Enabled) {
             RedisManager.getContext().Disconnect();
         }*/
-        this.getLogger().log(Level.INFO, "[ELCore] Unloaded!");
+        this.getLogger().log(Level.INFO, "Unloaded!");
     }
 
     public static ELCore getContext() {

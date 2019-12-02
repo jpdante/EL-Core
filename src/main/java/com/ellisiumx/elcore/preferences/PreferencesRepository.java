@@ -26,9 +26,10 @@ public class PreferencesRepository extends RepositoryBase {
     }
 
     public void saveUserPreferences(HashMap<String, UserPreferences> preferences) {
-        try {
-            Connection connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO accountPreferences (uuid, preferences) VALUES (?, ?) ON DUPLICATE KEY UPDATE preferences = ?;");
+        try (
+                Connection connection = getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO accountPreferences (uuid, preferences) VALUES (?, ?) ON DUPLICATE KEY UPDATE preferences = ?;");
+        ){
             for (Map.Entry<String, UserPreferences> entry : preferences.entrySet()) {
                 preparedStatement.setString(1, entry.getKey());
                 String json = UtilGson.serialize(entry.getValue());
@@ -36,7 +37,7 @@ public class PreferencesRepository extends RepositoryBase {
                 preparedStatement.setString(3, json);
                 preparedStatement.addBatch();
             }
-            int[] rowsAffected = preparedStatement.executeBatch();
+            preparedStatement.executeBatch();
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -44,13 +45,15 @@ public class PreferencesRepository extends RepositoryBase {
 
     public UserPreferences loadClientInformation(String uuid) {
         UserPreferences userPreferences = null;
-        try {
-            Connection connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT preferences FROM accountPreferences WHERE uuid = ?;");
+        try (
+                Connection connection = getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement("SELECT preferences FROM accountPreferences WHERE uuid = ? LIMIT 1;");
+        ){
             preparedStatement.setString(1, uuid);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                userPreferences = UtilGson.deserialize(resultSet.getString(1), UserPreferences.class);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    userPreferences = UtilGson.deserialize(resultSet.getString(1), UserPreferences.class);
+                }
             }
         } catch (Exception exception) {
             exception.printStackTrace();

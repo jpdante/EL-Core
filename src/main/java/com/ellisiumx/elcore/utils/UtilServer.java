@@ -14,6 +14,10 @@ public class UtilServer {
         return Bukkit.getServer();
     }
 
+    public static void shutdown() {
+        getServer().shutdown();
+    }
+
     public static void broadcast(String message) {
         for (Player cur : getPlayers())
             UtilPlayer.message(cur, message);

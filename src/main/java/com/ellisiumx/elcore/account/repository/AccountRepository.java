@@ -11,16 +11,96 @@ import java.sql.*;
 public class AccountRepository extends RepositoryBase {
 
     public AccountRepository(JavaPlugin plugin) {
-        super(plugin, DBPool.Default);
+        super(plugin, DBPool.Core);
     }
 
     @Override
-    protected void initialize() { }
+    protected void initialize() {
+    }
 
     @Override
-    protected void update() { }
+    protected void update() {
+    }
 
-    public CoreClient executeLogin(String uuid, String playerName) {
+    public void updateName(String uuid, String playerName) {
+        try {
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement("UPDATE accounts SET name = ? WHERE uuid = ?;");
+            statement.setString(1, playerName);
+            statement.setString(2, uuid);
+            statement.executeUpdate();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public int login(HashMap<String, ILoginProcessor> loginProcessors, String uuid, String name) {
+        int accountId = -1;
+        try (
+                Connection connection = getConnection();
+                Statement statement = connection.createStatement()
+        ) {
+            statement.execute("SELECT id FROM accounts WHERE accounts.uuid = '" + uuid + "' LIMIT 1;");
+            ResultSet resultSet = statement.getResultSet();
+            while (resultSet.next()) {
+                accountId = resultSet.getInt(1);
+            }
+            if (accountId == -1) {
+                final List<Integer> tempList = new ArrayList<Integer>(1);
+                executeInsert(ACCOUNT_LOGIN_NEW, new ResultSetCallable() {
+                    @Override
+                    public void processResultSet(ResultSet resultSet) throws SQLException {
+                        while (resultSet.next()) {
+                            tempList.add(resultSet.getInt(1));
+                        }
+                    }
+                }, new ColumnVarChar("uuid", 100, uuid), new ColumnVarChar("name", 100, name));
+                accountId = tempList.get(0);
+            }
+            String loginString = "UPDATE accounts SET name='" + name + "', lastLogin=now() WHERE id = '" + accountId + "';";
+            for (ILoginProcessor loginProcessor : loginProcessors.values()) {
+                loginString += loginProcessor.getQuery(accountId, uuid, name);
+            }
+            statement.execute(loginString);
+			/*
+			while (true)
+			{
+				if (statementStatus)
+				{
+					System.out.println("ResultSet : " + statement.getResultSet().getMetaData().getColumnCount() + " columns:");
+
+					for (int i = 0; i < statement.getResultSet().getMetaData().getColumnCount(); i++)
+					{
+						System.out.println(statement.getResultSet().getMetaData().getColumnName(i + 1));
+					}
+				}
+				else
+				{
+                    if (statement.getUpdateCount() == -1)
+                        break;
+
+					System.out.println("Update statement : " + statement.getUpdateCount() + " rows affected.");
+				}
+
+				statementStatus = statement.getMoreResults();
+			}
+
+			System.out.println("Done");
+			*/
+            statement.getUpdateCount();
+            statement.getMoreResults();
+            for (ILoginProcessor loginProcessor : loginProcessors.values()) {
+                loginProcessor.processLoginResultSet(name, accountId, statement.getResultSet());
+                statement.getMoreResults();
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+
+        return accountId;
+    }
+
+    /*public CoreClient executeLogin(String uuid, String playerName) {
         CoreClient client;
         try {
             client = new CoreClient(playerName);
@@ -53,5 +133,7 @@ public class AccountRepository extends RepositoryBase {
             return null;
         }
         return client;
-    }
+    }*/
+
+
 }

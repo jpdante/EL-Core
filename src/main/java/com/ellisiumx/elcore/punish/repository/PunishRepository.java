@@ -10,7 +10,7 @@ import java.sql.*;
 public class PunishRepository extends RepositoryBase {
 
     public PunishRepository(JavaPlugin plugin) {
-        super(plugin, DBPool.Default);
+        super(plugin, DBPool.Core);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class PunishRepository extends RepositoryBase {
             statement.setString(2, name);
             ResultSet resultSet = statement.executeQuery();
             if(resultSet.next()) {
-                return new Pair<String, Timestamp>(resultSet.getString(0), resultSet.getTimestamp(1));
+                return new Pair<>(resultSet.getString(0), resultSet.getTimestamp(1));
             }
         } catch (SQLException e) {
             e.printStackTrace();

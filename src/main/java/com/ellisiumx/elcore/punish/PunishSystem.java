@@ -27,15 +27,20 @@ public class PunishSystem implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void AsyncLogin(AsyncPlayerPreLoginEvent event) {
-        Pair<String, Timestamp> ban = repository.isBanned(event.getUniqueId().toString(), event.getName());
+        event.allow();
+        return;
+        /*Pair<String, Timestamp> ban = repository.isBanned(event.getUniqueId().toString(), event.getName());
+        Bukkit.broadcastMessage("[ELBans] " + System.currentTimeMillis());
         if(ban != null) {
             String message = ban.getLeft();
             if(ban.getRight() != null) {
                 message += ChatColor.GREEN + " Expire: " + ChatColor.WHITE + "[" + ChatColor.BLUE + ban.getRight().toString() + ChatColor.WHITE + "]";
             }
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, message);
+        } else {
+            Bukkit.broadcastMessage("[ELBans] " + System.currentTimeMillis());
         }
-        Bukkit.getServer().getPluginManager().callEvent(new PlayerPreLoginApproved(event));
+        event.allow();*/
+        //Bukkit.getServer().getPluginManager().callEvent(new PlayerPreLoginApproved(event));
     }
-
 }

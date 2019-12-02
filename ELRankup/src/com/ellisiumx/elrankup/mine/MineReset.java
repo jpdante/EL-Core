@@ -10,6 +10,7 @@ import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elcore.utils.UtilPlayer;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
+import com.ellisiumx.elrankup.mine.command.MineResetCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -30,6 +31,7 @@ public class MineReset implements Listener {
             languageDB.insertTranslation("MineResetAlert", "&f[&aELRankup&f] &bMine %MineName% reseted!");
         }
         if(LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
+        new MineResetCommand(plugin);
     }
 
     public static void start() {

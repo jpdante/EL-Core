@@ -15,6 +15,7 @@ import com.ellisiumx.elcore.punish.PunishSystem;
 import com.ellisiumx.elcore.recharge.Recharge;
 import com.ellisiumx.elcore.redis.RedisManager;
 import com.ellisiumx.elcore.scoreboard.ScoreboardManager;
+import com.ellisiumx.elcore.timing.TimingManager;
 import com.ellisiumx.elcore.updater.Updater;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -39,12 +40,13 @@ public class ELCore extends JavaPlugin {
         reloadConfig();
         // REQUIRED
         new Updater(context);
+        new TimingManager(context);
         new CoreConfiguration();
-        new DBPool("jdbc:mysql://" + CoreConfiguration.Database_Host + "/" + CoreConfiguration.Database_Database, CoreConfiguration.Database_Username, CoreConfiguration.Database_Password);
+        new DBPool("jdbc:mysql://" + CoreConfiguration.Database_Host, CoreConfiguration.Database_Username, CoreConfiguration.Database_Password);
         new RedisManager();
         new CoreClientManager(context);
         new PreferencesManager(context);
-        new PunishSystem(context);
+        //new PunishSystem(context);
         new LanguageManager();
         new HologramManager(context);
         new BlockRestore(context);

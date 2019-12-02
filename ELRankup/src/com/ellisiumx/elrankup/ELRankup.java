@@ -1,6 +1,8 @@
 package com.ellisiumx.elrankup;
 
+import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
+import com.ellisiumx.elrankup.economy.EconomyManager;
 import com.ellisiumx.elrankup.mine.MineReset;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -22,11 +24,13 @@ public class ELRankup extends JavaPlugin {
         saveDefaultConfig();
         reloadConfig();
         new RankupConfiguration();
+        DBPool.registerDataSource("rankup", "elrankup");
         if(RankupConfiguration.MinesEnabled) {
             this.getLogger().log(Level.INFO, "[ELRankup] Starting Mine Reseter...");
             new MineReset(context);
             MineReset.start();
         }
+        new EconomyManager(context);
         this.getLogger().log(Level.INFO, "[ELRankup] Enabled!");
     }
 

@@ -6,7 +6,7 @@ import com.google.gson.stream.JsonReader;
 
 public class UtilGson {
 
-    private static Gson gson = new GsonBuilder().create();
+    private static Gson gson = new GsonBuilder().setPrettyPrinting().create();
     public static Gson getGson() {
         return gson;
     }

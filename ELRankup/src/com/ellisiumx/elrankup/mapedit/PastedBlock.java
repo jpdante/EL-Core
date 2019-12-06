@@ -1,4 +1,4 @@
-package com.ellisiumx.elrankup.mine;
+package com.ellisiumx.elrankup.mapedit;
 
 import com.ellisiumx.elcore.utils.MapUtil;
 import com.ellisiumx.elrankup.ELRankup;

@@ -6,13 +6,7 @@ import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.utils.UtilChat;
 import com.ellisiumx.elcore.utils.UtilMessage;
 import com.ellisiumx.elcore.utils.UtilNBT;
-import com.ellisiumx.elrankup.mapedit.MapEditManager;
-import com.ellisiumx.elrankup.mapedit.PlayerPoints;
-import com.ellisiumx.elrankup.mine.BlockData;
-import com.ellisiumx.elrankup.mine.MineData;
-import com.ellisiumx.elrankup.mine.PastedBlock;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import com.ellisiumx.elrankup.mapedit.*;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -20,9 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class MapEditCommand extends CommandBase {
@@ -37,7 +29,7 @@ public class MapEditCommand extends CommandBase {
     @Override
     public void execute(Player caller, String[] args) {
         if(args != null && args.length > 0) {
-            if(args.length == 1 && args[0] != null && !args[0].isEmpty()) {
+            if(args.length == 1) {
                 switch (args[0]) {
                     case "s":
                     case "set":
@@ -55,11 +47,11 @@ public class MapEditCommand extends CommandBase {
                         caller.sendMessage(UtilMessage.main("MapEdit", UtilChat.cGold + "Here is your tool :)"));
                         break;
                 }
-            } else if(args.length == 2 && args[0] != null && !args[0].isEmpty() && args[1] != null && !args[1].isEmpty()) {
+            } else {
                 switch (args[0]) {
                     case "s":
                     case "set":
-                        setBlocks(caller, args[1]);
+                        setBlocks(caller, args);
                         break;
                     case "t":
                     case "tool":
@@ -76,8 +68,6 @@ public class MapEditCommand extends CommandBase {
                         caller.setItemInHand(itemStack);
                         break;
                 }
-            } else {
-
             }
         } else {
             caller.sendMessage(UtilMessage.main("MapEdit", UtilChat.cRed + "Invalid arguments!"));
@@ -85,7 +75,7 @@ public class MapEditCommand extends CommandBase {
         }
     }
 
-    public void setBlocks(Player player, String args) {
+    public void setBlocks(Player player, String[] args) {
         PlayerPoints points = MapEditManager.getPlayerPoints(player);
 
         if(points.getPoint1() == null) {
@@ -98,58 +88,40 @@ public class MapEditCommand extends CommandBase {
             return;
         }
 
-        Location p1 = points.getPoint1().clone();
-        Location p2 = points.getPoint2().clone();
-
-        if(p1.getWorld() != p2.getWorld()) {
+        if(points.getPoint1().getWorld() != points.getPoint2().getWorld()) {
             player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cRed + "The points are not in the same world!"));
             return;
         }
 
-        if (p1.getX() > p2.getX()) {
-            double x = p1.getX();
-            p1.setX(p2.getX());
-            p2.setX(x);
-        }
-        if (p1.getY() > p2.getY()) {
-            double y = p1.getY();
-            p1.setY(p2.getY());
-            p2.setY(y);
-        }
-        if (p1.getZ() > p2.getZ()) {
-            double z = p1.getZ();
-            p1.setZ(p2.getZ());
-            p2.setZ(z);
-        }
-
-        HashMap<BlockData, Double> blocks = new HashMap<>();
+        ArrayList<BlockData> blocks = new ArrayList<>();
         try {
-            String[] blockArgs = args.split(",");
+            String[] blockArgs = args[0].split(",");
             for(String blockRaw : blockArgs) {
                 int id = getMaterial(blockRaw);
                 if(id == -1) throw new Exception();
-                blocks.put(new BlockData(id, getData(blockRaw)), 1d / (double) blockArgs.length);
+                blocks.add(new BlockData(id, getData(blockRaw)));
             }
         } catch (Exception ex) {
             player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cRed + "An error occurred converting text to blocks."));
             return;
         }
 
-        List<MineData.CompositionEntry> probabilityMap = MineData.mapComposition(blocks);
-        for (int x = p1.getBlockX(); x <= p2.getBlockX(); ++x) {
-            for (int y = p1.getBlockY(); y <= p2.getBlockY(); ++y) {
-                for (int z = p1.getBlockZ(); z <= p2.getBlockZ(); ++z) {
-                    double r = rand.nextDouble();
-                    for (MineData.CompositionEntry ce : probabilityMap) {
-                        if (r <= ce.chance) {
-                            PastedBlock.BlockQueue.getQueue(p1.getWorld()).add(new PastedBlock(x, y, z, ce.block.id, ce.block.data));
-                            break;
-                        }
-                    }
-                }
+        boolean async = true;
+        for(String argument : args) {
+            if (argument.contains("nonasync")) {
+                async = false;
+                break;
             }
         }
-        player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cGreen + "The blocks are being set asynchronously!"));
+
+        try {
+            MapEditor.setRetangle(points.getPoint1(), points.getPoint2(), async, blocks.toArray(new BlockData[0]));
+            if(async) player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cGreen + "The blocks are being set asynchronously!"));
+            else player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cGreen + "The blocks have been successfully set!"));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cRed + "Failed to set blocks! -> " + ex.getMessage()));
+        }
     }
 
     public int getMaterial(String s) {

@@ -1,7 +1,7 @@
 package com.ellisiumx.elrankup.configuration;
 
 import com.ellisiumx.elrankup.ELRankup;
-import com.ellisiumx.elrankup.mine.BlockData;
+import com.ellisiumx.elrankup.mapedit.BlockData;
 import com.ellisiumx.elrankup.mine.MineData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -38,7 +38,23 @@ public class RankupConfiguration {
     }
 
     public static void save() {
-
+        ELRankup.getContext().getConfig().set("mine-reseter.mines", null);
+        int index = 0;
+        for (MineData mine : Mines) {
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".name", mine.name);
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".enabled", mine.enabled);
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".alert-area", mine.alertArea);
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".point1", locationToString(mine.getPoint1()));
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".point2", locationToString(mine.getPoint2()));
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".delay", mine.delay);
+            List<String> ores = new ArrayList<>();
+            for(BlockData blockData : mine.getBlocks().keySet()) {
+                ores.add(mine.getBlocks().get(blockData) + "," + blockData.id + ":" + blockData.data);
+            }
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".ores", ores);
+            index++;
+        }
+        ELRankup.getContext().saveConfig();
     }
 
     public static String locationToString(Location location) {

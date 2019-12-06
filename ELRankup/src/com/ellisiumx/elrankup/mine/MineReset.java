@@ -59,7 +59,7 @@ public class MineReset implements Listener {
             }
             if(mineData.currentDelay <= 0) {
                 mineData.currentDelay = mineData.delay;
-                mineData.fillMine();
+                mineData.reset();
                 if(mineData.alertArea != -1) {
                     sendMessage(UtilPlayer.getNearby(mineData.middle, mineData.alertArea), mineData, "MineResetAlert");
                 } else {

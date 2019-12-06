@@ -3,138 +3,245 @@ package com.ellisiumx.elrankup.mine.command;
 import com.ellisiumx.elcore.command.CommandBase;
 import com.ellisiumx.elcore.command.CommandCenter;
 import com.ellisiumx.elcore.permissions.Rank;
+import com.ellisiumx.elcore.utils.UtilChat;
+import com.ellisiumx.elcore.utils.UtilMessage;
+import com.ellisiumx.elrankup.configuration.RankupConfiguration;
+import com.ellisiumx.elrankup.mapedit.BlockData;
+import com.ellisiumx.elrankup.mapedit.MapEditManager;
+import com.ellisiumx.elrankup.mapedit.PlayerPoints;
+import com.ellisiumx.elrankup.mine.MineData;
+import net.minecraft.server.v1_8_R3.ExceptionEntityNotFound;
+import net.minecraft.server.v1_8_R3.ExceptionWorldConflict;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MineResetCommand extends CommandBase {
 
     public MineResetCommand(JavaPlugin javaPlugin) {
-        super(javaPlugin, Rank.DEVELOPER, "minereset");
+        super(javaPlugin, Rank.DEVELOPER, "minereset", "mr");
         this.setCommandCenter(CommandCenter.context);
         CommandCenter.addCommand(this);
     }
 
     @Override
     public void execute(Player caller, String[] args) {
-
-        /*if (args == null || args.length == 0 || (args[0].equalsIgnoreCase("kick") && args.length < 2)) {
-            UtilPlayer.message(caller, F.main("Party", "Listing Party Commands;"));
-            UtilPlayer.message(caller, F.value(0, "/party <Player>", "Join/Create/Invite Player"));
-            UtilPlayer.message(caller, F.value(0, "/party leave", "Leave your current Party"));
-            UtilPlayer.message(caller, F.value(0, "/party kick <Player>", "Kick player from your Party"));
-
-            return;
-        }
-
-        // Callers Party
-        Party party = Plugin.GetParty(caller);
-
-        // Leave
-        if (args[0].equalsIgnoreCase("leave")) {
-            if (party == null) {
-                UtilPlayer.message(caller, F.main("Party", "You are not in a Party."));
-            } else {
-                party.LeaveParty(caller);
+        if(args != null && args.length > 0) {
+            switch (args[0]) {
+                case "l":
+                case "list":
+                    list(caller, args);
+                    break;
+                case "c":
+                case "create":
+                    create(caller, args);
+                    break;
+                case "d":
+                case "delete":
+                    delete(caller, args);
+                    break;
+                case "r":
+                case "reset":
+                    reset(caller, args);
+                    break;
+                case "s":
+                case "set":
+                    set(caller, args);
+                    break;
+                case "g":
+                case "get":
+                    get(caller, args);
+                    break;
             }
-
-            return;
+        } else {
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr list"));
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr create <name>"));
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr delete <name>"));
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr reset <name>"));
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr set <mine> <field> <value>"));
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr get <mine> <field>"));
         }
+    }
 
-        // Leave
-        if (args[0].equalsIgnoreCase("kick")) {
-            if (party == null) {
-                UtilPlayer.message(caller, F.main("Party", "You are not in a Party."));
-            } else {
-                if (party.GetLeader().equals(caller.getName())) {
-                    String target = UtilPlayer.searchCollection(caller, args[1], party.GetPlayers(), "Party ", true);
-                    if (target == null)
-                        return;
+    public PlayerPoints getPoints(Player caller) throws ExceptionEntityNotFound, ExceptionWorldConflict {
+        PlayerPoints points = MapEditManager.getPlayerPoints(caller);
 
-                    if (target.equals(caller.getName())) {
-                        UtilPlayer.message(caller, F.main("Party", "You cannot kick yourself from the Party."));
-                        return;
-                    }
+        if(points.getPoint1() == null)
+            throw new ExceptionEntityNotFound("Point 1 is not defined!");
 
-                    party.KickParty(target);
-                } else {
-                    UtilPlayer.message(caller, F.main("Party", "You are not the Party Leader."));
+        if(points.getPoint2() == null)
+            throw new ExceptionEntityNotFound("Point 2 is not defined!");
+
+        if(points.getPoint1().getWorld() != points.getPoint2().getWorld())
+            throw new ExceptionWorldConflict("The points are not in the same world!");
+
+        return points;
+    }
+
+    public void list(Player caller, String[] args) {
+        for(int i = 0; i < RankupConfiguration.Mines.size(); i++) {
+            MineData mineData = RankupConfiguration.Mines.get(i);
+            if(mineData.enabled) caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "#" + i + " " + mineData.name));
+            else caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "#" + i + " " + mineData.name));
+        }
+    }
+
+    public void create(Player caller, String[] args) {
+        if(args.length == 2) {
+            try {
+                PlayerPoints points = getPoints(caller);
+                MineData mineData = new MineData(args[1], false, -1, points.getPoint1(), points.getPoint2(), 30);
+                RankupConfiguration.Mines.add(mineData);
+                RankupConfiguration.save();
+                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "'" + mineData.name + "' created!"));
+            } catch (Exception ex) {
+                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + ex.getMessage()));
+            }
+        } else {
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr create <name>"));
+        }
+    }
+
+    public void delete(Player caller, String[] args) {
+        if(args.length == 2) {
+            boolean deleted = false;
+            for(int i = 0; i < RankupConfiguration.Mines.size(); i++) {
+                if(RankupConfiguration.Mines.get(i).name.equals(args[1])) {
+                    RankupConfiguration.Mines.remove(i);
+                    deleted = true;
+                    caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "'" + args[1] + "' deleted!"));
+                    break;
                 }
             }
-
-            return;
+            if(!deleted) caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "'" + args[1] + "' not found!"));
+            if(deleted) RankupConfiguration.save();
+        } else {
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr delete <name>"));
         }
+    }
 
-        // Main
-        Player target = UtilPlayer.searchOnline(caller, args[0], true);
-        if (target == null)
-            return;
-
-        if (target.equals(caller)) {
-            UtilPlayer.message(caller, F.main("Party", "You cannot Party with yourself."));
-            return;
-        }
-
-        // Preference check
-        if (!Plugin.getPreferenceManager().Get(target).PartyRequests) {
-            UtilPlayer.message(
-                    caller,
-                    F.main("Party", "You may not party with " + F.name(UtilEnt.getName(target))
-                            + "! They are not accepting party requests!"));
-            return;
-        }
-
-        // Invite or Suggest
-        if (party != null) {
-            if (party.GetPlayers().size() + party.GetInvitees().size() >= 16) {
-                UtilPlayer.message(caller, "Your party cannot be larger than 16 players.");
-                caller.playSound(caller.getLocation(), Sound.NOTE_BASS, 1f, 1.5f);
-            }
-            // Decline
-            else if (party.GetPlayers().contains(target.getName())) {
-                UtilPlayer.message(caller, F.main("Party", F.name(target.getName()) + " is already in the Party."));
-                caller.playSound(caller.getLocation(), Sound.NOTE_BASS, 1f, 1.5f);
-            }
-            // Decline
-            else if (party.GetInvitees().contains(target.getName())) {
-                UtilPlayer.message(caller, F.main("Party", F.name(target.getName()) + " is already invited to the Party."));
-                caller.playSound(caller.getLocation(), Sound.NOTE_BASS, 1f, 1.5f);
-            }
-            // Invite
-            else if (party.GetLeader().equals(caller.getName())) {
-                party.InviteParty(target, Plugin.GetParty(target) != null);
-            }
-            // Suggest
-            else {
-                party.Announce(F.name(caller.getName()) + " suggested " + F.name(target.getName()) + " be invited to the Party.");
-
-                Player leader = Bukkit.getPlayerExact(party.GetLeader());
-
-                if (leader != null) {
-                    ChildJsonMessage message = new JsonMessage("").extra(C.mHead + "Party> " + C.mBody + "Type ");
-
-                    message.add(F.link("/party " + target.getName())).click(ClickEvent.RUN_COMMAND, "/party " + target.getName());
-
-                    message.add(C.mBody + " to invite them.");
-
-                    message.sendToPlayer(leader);
-                }
-            }
-        }
-        // Create or Join
-        else {
-            Party targetParty = Plugin.GetParty(target);
-
-            // Try to Join
-            if (targetParty != null) {
-                if (targetParty.GetInvitees().contains(caller.getName())) {
-                    targetParty.JoinParty(caller);
+    public void reset(Player caller, String[] args) {
+        if(args.length == 2) {
+            for(int i = 0; i < RankupConfiguration.Mines.size(); i++) {
+                if(RankupConfiguration.Mines.get(i).name.equals(args[1])) {
+                    RankupConfiguration.Mines.get(i).reset();
+                    caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "'" + args[1] + "' reseted!"));
                     return;
                 }
             }
-
-            // Create
-            party = Plugin.CreateParty(caller);
-            party.InviteParty(target, Plugin.GetParty(target) != null);
-        }*/
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "'" + args[1] + "' not found!"));
+        } else {
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr reset <name>"));
+        }
     }
+
+    public void set(Player caller, String[] args) {
+        if(args.length == 4) {
+            for(int i = 0; i < RankupConfiguration.Mines.size(); i++) {
+                if(RankupConfiguration.Mines.get(i).name.equals(args[1])) {
+                    MineData mineData = RankupConfiguration.Mines.get(i);
+                    switch (args[2].toLowerCase()) {
+                        case "name":
+                            mineData.name = args[3];
+                            RankupConfiguration.save();
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Name set: " + mineData.name));
+                            return;
+                        case "delay":
+                            try {
+                                mineData.delay = Integer.parseInt(args[3]);
+                                RankupConfiguration.save();
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Delay set: " + mineData.delay));
+                            } catch (NumberFormatException ex) {
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "Failed to parse " + args[3]));
+                            }
+                            return;
+                        case "alertarea":
+                            try {
+                                mineData.alertArea = Integer.parseInt(args[3]);
+                                RankupConfiguration.save();
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Alert Area set: " + mineData.alertArea));
+                            } catch (NumberFormatException ex) {
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "Failed to parse " + args[3]));
+                            }
+                            return;
+                        case "enabled":
+                            try {
+                                mineData.enabled = Boolean.parseBoolean(args[3]);
+                                RankupConfiguration.save();
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Enabled set: " + mineData.enabled));
+                            } catch (NumberFormatException ex) {
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "Failed to parse " + args[3]));
+                            }
+                            return;
+                        case "points":
+                            try {
+                                PlayerPoints points = getPoints(caller);
+                                mineData.setPoints(points.getPoint1(), points.getPoint2());
+                                RankupConfiguration.save();
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point1 set: " + RankupConfiguration.locationToString(mineData.getPoint1())));
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point2 set: " + RankupConfiguration.locationToString(mineData.getPoint2())));
+                            } catch (Exception ex) {
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + ex.getMessage()));
+                            }
+                            return;
+                        case "ores":
+                            int index = 0;
+                            for(BlockData blockData : mineData.getBlocks().keySet()) {
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "#" + index + " Ore: " + blockData.id + ":" + blockData.data + " - " + (mineData.getBlocks().get(blockData) * 100 ) + "%"));
+                                index++;
+                            }
+                            return;
+                        default:
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "Unknown field '" + args[2] + "'!"));
+                            return;
+                    }
+                }
+            }
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "'" + args[1] + "' not found!"));
+        } else {
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr get <name> <field>"));
+        }
+    }
+
+    public void get(Player caller, String[] args) {
+        if(args.length == 3) {
+            for(int i = 0; i < RankupConfiguration.Mines.size(); i++) {
+                if(RankupConfiguration.Mines.get(i).name.equals(args[1])) {
+                    MineData mineData = RankupConfiguration.Mines.get(i);
+                    switch (args[2].toLowerCase()) {
+                        case "name":
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Name: " + mineData.name));
+                            return;
+                        case "delay":
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Delay: " + mineData.delay));
+                            return;
+                        case "currentdelay":
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Current Delay: " + mineData.currentDelay));
+                            return;
+                        case "alertarea":
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Alert Area: " + mineData.alertArea));
+                            return;
+                        case "enabled":
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Enabled: " + mineData.enabled));
+                            return;
+                        case "points":
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point1: " + RankupConfiguration.locationToString(mineData.getPoint1())));
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point2: " + RankupConfiguration.locationToString(mineData.getPoint2())));
+                            return;
+                        case "addores":
+                            for(BlockData blockData : mineData.getBlocks().keySet()) {
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Ore: " + blockData.id + ":" + blockData.data + " - " + (mineData.getBlocks().get(blockData) * 100 ) + "%"));
+                            }
+                            return;
+                        default:
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "Unknown field '" + args[2] + "'!"));
+                            return;
+                    }
+                }
+            }
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "'" + args[1] + "' not found!"));
+        } else {
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr get <name> <field>"));
+        }
+    }
+
 }

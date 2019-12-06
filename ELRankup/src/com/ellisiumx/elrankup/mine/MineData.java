@@ -1,7 +1,12 @@
 package com.ellisiumx.elrankup.mine;
 
+import com.ellisiumx.elrankup.mapedit.BlockData;
+import com.ellisiumx.elrankup.mapedit.CompositionEntry;
+import com.ellisiumx.elrankup.mapedit.MapEditor;
+import com.ellisiumx.elrankup.mapedit.PastedBlock;
+import net.minecraft.server.v1_8_R3.ExceptionWorldConflict;
+import net.minecraft.server.v1_8_R3.Tuple;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -53,36 +58,28 @@ public class MineData {
         return point2;
     }
 
-    public void setPoints(Location p1, Location p2) {
-        if (p1.getX() > p2.getX()) {
-            double x = p1.getX();
-            p1.setX(p2.getX());
-            p2.setX(x);
-        }
-        if (p1.getY() > p2.getY()) {
-            double y = p1.getY();
-            p1.setY(p2.getY());
-            p2.setY(y);
-        }
-        if (p1.getZ() > p2.getZ()) {
-            double z = p1.getZ();
-            p1.setZ(p2.getZ());
-            p2.setZ(z);
-        }
+    public void setPoints(Location point1, Location point2) {
+        try {
+            Tuple<Location, Location> points = MapEditor.getSetterPoints(point1, point2);
+            Location p1 = points.a();
+            Location p2 = points.b();
 
-        middle = new Location(p1.getWorld(), (minX - maxX) / 2F, (minY - maxY) / 2F, (minZ - maxZ) / 2F);
+            this.point1 = p1;
+            this.world = p1.getWorld();
+            this.minX = p1.getBlockX();
+            this.minY = p1.getBlockY();
+            this.minZ = p1.getBlockZ();
 
-        this.point1 = p1;
-        this.world = p1.getWorld();
-        this.minX = p1.getBlockX();
-        this.minY = p1.getBlockY();
-        this.minZ = p1.getBlockZ();
+            this.point2 = p2;
+            this.world = p2.getWorld();
+            this.maxX = p2.getBlockX();
+            this.maxY = p2.getBlockY();
+            this.maxZ = p2.getBlockZ();
 
-        this.point2 = p2;
-        this.world = p2.getWorld();
-        this.maxX = p2.getBlockX();
-        this.maxY = p2.getBlockY();
-        this.maxZ = p2.getBlockZ();
+            this.middle = new Location(p1.getWorld(), (minX - maxX) / 2F, (minY - maxY) / 2F, (minZ - maxZ) / 2F);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public boolean isInside(Player p) {
@@ -93,8 +90,8 @@ public class MineData {
                 && (l.getZ() >= minZ && l.getZ() <= maxZ);
     }
 
-    public void fillMine() {
-        List<CompositionEntry> probabilityMap = mapComposition(blocks);
+    public void reset() {
+        List<CompositionEntry> probabilityMap = CompositionEntry.mapComposition(blocks);
         for (int x = minX; x <= maxX; ++x) {
             for (int y = minY; y <= maxY; ++y) {
                 for (int z = minZ; z <= maxZ; ++z) {
@@ -119,64 +116,5 @@ public class MineData {
             }
         }
     }
-
-    public static class CompositionEntry {
-        public BlockData block;
-        public double chance;
-
-        public CompositionEntry(BlockData block, double chance) {
-            this.block = block;
-            this.chance = chance;
-        }
-    }
-
-    public static ArrayList<CompositionEntry> mapComposition(Map<BlockData, Double> compositionIn) {
-        ArrayList<CompositionEntry> probabilityMap = new ArrayList<CompositionEntry>();
-        Map<BlockData, Double> composition = new HashMap<BlockData, Double>(compositionIn);
-        double max = 0;
-        for (Map.Entry<BlockData, Double> entry : composition.entrySet()) {
-            max += entry.getValue();
-        }
-        //Pad the remaining percentages with air
-        if (max < 1) {
-            composition.put(new BlockData(0), 1 - max);
-            max = 1;
-        }
-        double i = 0;
-        for (Map.Entry<BlockData, Double> entry : composition.entrySet()) {
-            double v = entry.getValue() / max;
-            i += v;
-            probabilityMap.add(new CompositionEntry(entry.getKey(), i));
-        }
-        return probabilityMap;
-    }
-        /*public void fillMine() {
-        List<CompositionEntry> probabilityMap = mapComposition(blocks);
-        for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-            Location l = p.getLocation();
-            if (isInside(p)) {
-                p.teleport(new Location(world, l.getX(), maxY + 2D, l.getZ()));
-            }
-        }
-        for (int x = minX; x <= maxX; ++x) {
-            for (int y = minY; y <= maxY; ++y) {
-                for (int z = minZ; z <= maxZ; ++z) {
-                    if (world.getBlockTypeIdAt(x, y, z) == 0) {
-                        if (y == maxY) {
-                            MapUtil.QuickChangeBlockAt(world, x, y, z, 166, (byte) 0);
-                            continue;
-                        }
-                        double r = rand.nextDouble();
-                        for (CompositionEntry ce : probabilityMap) {
-                            if (r <= ce.chance) {
-                                MapUtil.QuickChangeBlockAt(world, x, y, z, ce.block.id, ce.block.data);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }*/
 
 }

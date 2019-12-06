@@ -7,11 +7,9 @@ import com.ellisiumx.elcore.utils.UtilChat;
 import com.ellisiumx.elcore.utils.UtilMessage;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.mapedit.BlockData;
-import com.ellisiumx.elrankup.mapedit.MapEditManager;
 import com.ellisiumx.elrankup.mapedit.PlayerPoints;
 import com.ellisiumx.elrankup.mine.MineData;
-import net.minecraft.server.v1_8_R3.ExceptionEntityNotFound;
-import net.minecraft.server.v1_8_R3.ExceptionWorldConflict;
+import com.ellisiumx.elrankup.utils.UtilCheck;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -62,21 +60,6 @@ public class MineResetCommand extends CommandBase {
         }
     }
 
-    public PlayerPoints getPoints(Player caller) throws ExceptionEntityNotFound, ExceptionWorldConflict {
-        PlayerPoints points = MapEditManager.getPlayerPoints(caller);
-
-        if(points.getPoint1() == null)
-            throw new ExceptionEntityNotFound("Point 1 is not defined!");
-
-        if(points.getPoint2() == null)
-            throw new ExceptionEntityNotFound("Point 2 is not defined!");
-
-        if(points.getPoint1().getWorld() != points.getPoint2().getWorld())
-            throw new ExceptionWorldConflict("The points are not in the same world!");
-
-        return points;
-    }
-
     public void list(Player caller, String[] args) {
         for(int i = 0; i < RankupConfiguration.Mines.size(); i++) {
             MineData mineData = RankupConfiguration.Mines.get(i);
@@ -88,7 +71,7 @@ public class MineResetCommand extends CommandBase {
     public void create(Player caller, String[] args) {
         if(args.length == 2) {
             try {
-                PlayerPoints points = getPoints(caller);
+                PlayerPoints points = UtilCheck.getPoints(caller);
                 MineData mineData = new MineData(args[1], false, -1, points.getPoint1(), points.getPoint2(), 30);
                 RankupConfiguration.Mines.add(mineData);
                 RankupConfiguration.save();
@@ -174,7 +157,7 @@ public class MineResetCommand extends CommandBase {
                             return;
                         case "points":
                             try {
-                                PlayerPoints points = getPoints(caller);
+                                PlayerPoints points = UtilCheck.getPoints(caller);
                                 mineData.setPoints(points.getPoint1(), points.getPoint2());
                                 RankupConfiguration.save();
                                 caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point1 set: " + RankupConfiguration.locationToString(mineData.getPoint1())));
@@ -184,11 +167,13 @@ public class MineResetCommand extends CommandBase {
                             }
                             return;
                         case "ores":
-                            int index = 0;
-                            for(BlockData blockData : mineData.getBlocks().keySet()) {
-                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "#" + index + " Ore: " + blockData.id + ":" + blockData.data + " - " + (mineData.getBlocks().get(blockData) * 100 ) + "%"));
-                                index++;
+                            mineData.getBlocks().clear();
+                            for(String data : args[3].split(";")) {
+                                String[] datas = args[3].split(",", 2);
+                                String[] item = datas[1].split(":", 2);
+                                mineData.getBlocks().put(new BlockData(Integer.parseInt(item[0]), Byte.parseByte(item[1])), Double.parseDouble(datas[0]));
                             }
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Ores set!"));
                             return;
                         default:
                             caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "Unknown field '" + args[2] + "'!"));
@@ -227,9 +212,11 @@ public class MineResetCommand extends CommandBase {
                             caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point1: " + RankupConfiguration.locationToString(mineData.getPoint1())));
                             caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point2: " + RankupConfiguration.locationToString(mineData.getPoint2())));
                             return;
-                        case "addores":
+                        case "ores":
+                            int index = 0;
                             for(BlockData blockData : mineData.getBlocks().keySet()) {
-                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Ore: " + blockData.id + ":" + blockData.data + " - " + (mineData.getBlocks().get(blockData) * 100 ) + "%"));
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "#" + index + " Ore: " + blockData.id + ":" + blockData.data + " - " + (mineData.getBlocks().get(blockData) * 100 ) + "%"));
+                                index++;
                             }
                             return;
                         default:

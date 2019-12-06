@@ -22,3 +22,38 @@ mine-reseter:
       ores:
         - "0.5,1:0"
         - "0.5,3:0"
+machines:
+  fuel:
+    id: "163:1"
+    name: "&a&lFuel"
+    lore:
+      - "&7Liters: &a%liters%"
+  types:
+    0:
+      name: "Type1"
+      price: 8000.00
+      drop:
+        id: "151:1"
+        name: "&a&lDrop Type1"
+        price: 1000.00
+        lore:
+          - "&7Curent: &a%amount%"
+          - "&7Sell price: &a$%price%"
+          - ""
+          - "&7Click to sell!"
+      levels:
+        0:
+          delay: 10
+          quantity: 1
+        1:
+          delay: 8
+          quantity: 2
+        2:
+          delay: 6
+          quantity: 3
+        3:
+          delay: 4
+          quantity: 4
+        4:
+          delay: 2
+          quantity: 5

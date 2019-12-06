@@ -7,6 +7,8 @@ import com.ellisiumx.elcore.utils.UtilChat;
 import com.ellisiumx.elcore.utils.UtilMessage;
 import com.ellisiumx.elcore.utils.UtilNBT;
 import com.ellisiumx.elrankup.mapedit.*;
+import com.ellisiumx.elrankup.utils.UtilCheck;
+import net.minecraft.server.v1_8_R3.ExceptionWorldConflict;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -76,51 +78,27 @@ public class MapEditCommand extends CommandBase {
     }
 
     public void setBlocks(Player player, String[] args) {
-        PlayerPoints points = MapEditManager.getPlayerPoints(player);
-
-        if(points.getPoint1() == null) {
-            player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cRed + "Point 1 is not defined!"));
-            return;
-        }
-
-        if(points.getPoint2() == null) {
-            player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cRed + "Point 2 is not defined!"));
-            return;
-        }
-
-        if(points.getPoint1().getWorld() != points.getPoint2().getWorld()) {
-            player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cRed + "The points are not in the same world!"));
-            return;
-        }
-
-        ArrayList<BlockData> blocks = new ArrayList<>();
         try {
-            String[] blockArgs = args[0].split(",");
+            PlayerPoints points = UtilCheck.getPoints(player);
+            ArrayList<BlockData> blocks = new ArrayList<>();
+            String[] blockArgs = args[1].split(",");
             for(String blockRaw : blockArgs) {
                 int id = getMaterial(blockRaw);
-                if(id == -1) throw new Exception();
+                if(id == -1) throw new ExceptionWorldConflict("An error occurred converting text to blocks.");
                 blocks.add(new BlockData(id, getData(blockRaw)));
             }
-        } catch (Exception ex) {
-            player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cRed + "An error occurred converting text to blocks."));
-            return;
-        }
-
-        boolean async = true;
-        for(String argument : args) {
-            if (argument.contains("nonasync")) {
-                async = false;
-                break;
+            boolean async = true;
+            for(String argument : args) {
+                if (argument.contains("nonasync")) {
+                    async = false;
+                    break;
+                }
             }
-        }
-
-        try {
             MapEditor.setRetangle(points.getPoint1(), points.getPoint2(), async, blocks.toArray(new BlockData[0]));
             if(async) player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cGreen + "The blocks are being set asynchronously!"));
             else player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cGreen + "The blocks have been successfully set!"));
         } catch (Exception ex) {
-            ex.printStackTrace();
-            player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cRed + "Failed to set blocks! -> " + ex.getMessage()));
+            player.sendMessage(UtilMessage.main("MapEdit", UtilChat.cRed + ex.getMessage()));
         }
     }
 

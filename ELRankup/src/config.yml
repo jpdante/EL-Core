@@ -29,7 +29,7 @@ machines:
     lore:
       - "&7Liters: &a%liters%"
   types:
-    0:
+    Type1:
       name: "Type1"
       price: 8000.00
       drop:

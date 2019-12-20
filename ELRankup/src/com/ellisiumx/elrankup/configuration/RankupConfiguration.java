@@ -5,7 +5,7 @@ import com.ellisiumx.elrankup.ELRankup;
 import com.ellisiumx.elrankup.machine.MachineType;
 import com.ellisiumx.elrankup.mapedit.BlockData;
 import com.ellisiumx.elrankup.mine.MineData;
-import com.ellisiumx.elrankup.utils.UtilConversion;
+import com.ellisiumx.elcore.utils.UtilConvert;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -13,7 +13,6 @@ import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
-import javax.security.auth.login.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,14 +47,13 @@ public class RankupConfiguration {
             Mines.add(mineData);
         }
 
-        Fuel = UtilConversion.getItemStackFromConfig(config.getConfigurationSection("machines.fuel"));
+        Fuel = UtilConvert.getItemStackFromConfig(config.getConfigurationSection("machines.fuel"));
         MachineTypes = new ArrayList<>();
         for (String key : config.getConfigurationSection("machines.types").getKeys(false)) {
             try {
-                int id = Integer.parseInt(key);
                 String name = config.getString("machines.types." + key + ".name").replace('&', ChatColor.COLOR_CHAR);
                 double price = config.getDouble("machines.types." + key + ".price");
-                ItemStack drop = UtilConversion.getItemStackFromConfig(config.getConfigurationSection("machines.types." + key + ".drop"));
+                ItemStack drop = UtilConvert.getItemStackFromConfig(config.getConfigurationSection("machines.types." + key + ".drop"));
                 double dropPrice = config.getDouble("machines.types." + key + ".drop.price");
                 ArrayList<Pair<Integer, Integer>> levels = new ArrayList<>();
                 for(String key2 : config.getConfigurationSection("machines.types." + key + ".levels").getKeys(false)) {
@@ -63,7 +61,7 @@ public class RankupConfiguration {
                     int quantity = config.getInt("machines.types." + key + ".levels." + key2 + ".quantity");
                     levels.add(new Pair<>(delay, quantity));
                 }
-                MachineTypes.add(new MachineType(id, name, price, drop, dropPrice, levels));
+                MachineTypes.add(new MachineType(key, name, price, drop, dropPrice, levels));
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -108,6 +106,13 @@ public class RankupConfiguration {
         float pitch = Float.parseFloat(datas[3]);
         float yaw = Float.parseFloat(datas[3]);
         return new Location(world, x, y, z, pitch, yaw);
+    }
+
+    public static MachineType getMachineTypeByName(String name) {
+        for (MachineType machineType : MachineTypes) {
+            if(machineType.getKey().equals(name)) return machineType;
+        }
+        return null;
     }
 
 }

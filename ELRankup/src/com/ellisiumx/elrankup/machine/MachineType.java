@@ -7,15 +7,15 @@ import java.util.ArrayList;
 
 public class MachineType {
 
-    private int id;
+    private String key;
     private String name;
     private double price;
     private ItemStack drop;
     private double dropPrice;
     private ArrayList<Pair<Integer, Integer>> levels;
 
-    public MachineType(int id, String name, double price, ItemStack drop, double dropPrice, ArrayList<Pair<Integer, Integer>> levels) {
-        this.id = id;
+    public MachineType(String key, String name, double price, ItemStack drop, double dropPrice, ArrayList<Pair<Integer, Integer>> levels) {
+        this.key = key;
         this.name = name;
         this.price = price;
         this.drop = drop;
@@ -23,8 +23,8 @@ public class MachineType {
         this.levels = levels;
     }
 
-    public int getId() {
-        return id;
+    public String getKey() {
+        return key;
     }
 
     public String getName() {

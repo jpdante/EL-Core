@@ -9,6 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MachineRepository extends RepositoryBase {
@@ -25,8 +26,8 @@ public class MachineRepository extends RepositoryBase {
     protected void update() {
     }
 
-    public HashMap<Location, Machine> getMachines() {
-        HashMap<Location, Machine> machines = new HashMap<>();
+    public ArrayList<Machine> getMachines() {
+        ArrayList<Machine> machines = new ArrayList<>();
         try (
                 Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement("SELECT id, type, owner, level, drops, fuel, location, lastMenuOpen, lastRefuel FROM machines;");
@@ -43,7 +44,7 @@ public class MachineRepository extends RepositoryBase {
                 Timestamp lastMenuOpen = resultSet.getTimestamp(8);
                 Timestamp lastRefuel = resultSet.getTimestamp(9);
                 Machine machine = new Machine(id, RankupConfiguration.getMachineTypeByName(type), owner, level, drops, fuel, location, lastMenuOpen, lastRefuel);
-                machines.put(location, machine);
+                machines.add(machine);
             }
         } catch (Exception ex) {
             ex.printStackTrace();

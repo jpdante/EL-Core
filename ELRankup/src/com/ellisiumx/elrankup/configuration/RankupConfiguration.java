@@ -25,6 +25,9 @@ public class RankupConfiguration {
     public static ItemStack Fuel;
     public static List<MachineType> MachineTypes;
 
+    public static MenuConfig MainMenu;
+    public static MenuConfig ShopMenu;
+
     public RankupConfiguration() {
         FileConfiguration config = ELRankup.getContext().getConfig();
 
@@ -67,6 +70,9 @@ public class RankupConfiguration {
                 ex.printStackTrace();
             }
         }
+
+        MainMenu = new MenuConfig(config.getConfigurationSection("machines.menus.main"));
+        ShopMenu = new MenuConfig(config.getConfigurationSection("machines.menus.shop"));
     }
 
     public static void save() {

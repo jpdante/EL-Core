@@ -32,6 +32,14 @@ machines:
     Type1:
       name: "Type1"
       price: 8000.00
+      item:
+        id: "1:0"
+        name: "&a&lMachine 1"
+        lore:
+          - "&7Curent: &a%amount%"
+          - "&7Sell price: &a$%price%"
+          - ""
+          - "&7Click to sell!"
       drop:
         id: "151:1"
         name: "&a&lDrop Type1"

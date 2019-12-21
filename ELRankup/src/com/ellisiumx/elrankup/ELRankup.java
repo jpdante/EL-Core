@@ -6,6 +6,7 @@ import com.ellisiumx.elrankup.economy.EconomyManager;
 import com.ellisiumx.elrankup.essentials.*;
 import com.ellisiumx.elrankup.gamemode.*;
 import com.ellisiumx.elrankup.god.GodManager;
+import com.ellisiumx.elrankup.machine.MachineManager;
 import com.ellisiumx.elrankup.mapedit.MapEditManager;
 import com.ellisiumx.elrankup.mine.MineReset;
 import com.ellisiumx.elrankup.vanish.VanishManager;
@@ -37,6 +38,7 @@ public class ELRankup extends JavaPlugin {
         new MapEditManager(context);
         new VanishManager(context);
         new GodManager(context);
+        new MachineManager(context);
         // Commands
         new PingCommand(context);
         new ResetCommand(context);

@@ -10,14 +10,16 @@ public class MachineType {
     private String key;
     private String name;
     private double price;
+    private ItemStack item;
     private ItemStack drop;
     private double dropPrice;
     private ArrayList<Pair<Integer, Integer>> levels;
 
-    public MachineType(String key, String name, double price, ItemStack drop, double dropPrice, ArrayList<Pair<Integer, Integer>> levels) {
+    public MachineType(String key, String name, double price, ItemStack item, ItemStack drop, double dropPrice, ArrayList<Pair<Integer, Integer>> levels) {
         this.key = key;
         this.name = name;
         this.price = price;
+        this.item = item;
         this.drop = drop;
         this.dropPrice = dropPrice;
         this.levels = levels;
@@ -33,6 +35,10 @@ public class MachineType {
 
     public double getPrice() {
         return price;
+    }
+
+    public ItemStack getItem() {
+        return item;
     }
 
     public ItemStack getDrop() {

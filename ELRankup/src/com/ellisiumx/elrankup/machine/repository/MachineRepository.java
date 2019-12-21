@@ -5,9 +5,11 @@ import com.ellisiumx.elcore.database.RepositoryBase;
 import com.ellisiumx.elcore.utils.UtilConvert;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.machine.Machine;
+import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.*;
+import java.util.HashMap;
 
 public class MachineRepository extends RepositoryBase {
 
@@ -21,6 +23,32 @@ public class MachineRepository extends RepositoryBase {
 
     @Override
     protected void update() {
+    }
+
+    public HashMap<Location, Machine> getMachines() {
+        HashMap<Location, Machine> machines = new HashMap<>();
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("SELECT id, type, owner, level, drops, fuel, location, lastMenuOpen, lastRefuel FROM machines;");
+                ResultSet resultSet = statement.executeQuery()
+        ){
+            while(resultSet.next()) {
+                int id = resultSet.getInt(1);
+                String type = resultSet.getString(2);
+                int owner = resultSet.getInt(3);
+                int level = resultSet.getInt(4);
+                int drops = resultSet.getInt(5);
+                int fuel = resultSet.getInt(6);
+                Location location = UtilConvert.getLocationFromString(resultSet.getString(7));
+                Timestamp lastMenuOpen = resultSet.getTimestamp(8);
+                Timestamp lastRefuel = resultSet.getTimestamp(9);
+                Machine machine = new Machine(id, RankupConfiguration.getMachineTypeByName(type), owner, level, drops, fuel, location, lastMenuOpen, lastRefuel);
+                machines.put(location, machine);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return machines;
     }
 
     public Machine getMachine(int id) {

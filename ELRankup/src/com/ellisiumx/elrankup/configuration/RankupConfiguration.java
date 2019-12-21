@@ -54,6 +54,7 @@ public class RankupConfiguration {
                 String name = config.getString("machines.types." + key + ".name").replace('&', ChatColor.COLOR_CHAR);
                 double price = config.getDouble("machines.types." + key + ".price");
                 ItemStack drop = UtilConvert.getItemStackFromConfig(config.getConfigurationSection("machines.types." + key + ".drop"));
+                ItemStack item = UtilConvert.getItemStackFromConfig(config.getConfigurationSection("machines.types." + key + ".item"));
                 double dropPrice = config.getDouble("machines.types." + key + ".drop.price");
                 ArrayList<Pair<Integer, Integer>> levels = new ArrayList<>();
                 for(String key2 : config.getConfigurationSection("machines.types." + key + ".levels").getKeys(false)) {
@@ -61,7 +62,7 @@ public class RankupConfiguration {
                     int quantity = config.getInt("machines.types." + key + ".levels." + key2 + ".quantity");
                     levels.add(new Pair<>(delay, quantity));
                 }
-                MachineTypes.add(new MachineType(key, name, price, drop, dropPrice, levels));
+                MachineTypes.add(new MachineType(key, name, price, item, drop, dropPrice, levels));
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

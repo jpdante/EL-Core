@@ -71,7 +71,7 @@ public class MineReset implements Listener {
 
     private static void sendMessage(MineData mineData, String key) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            UserPreferences prefs = PreferencesManager.getPreferences(player);
+            UserPreferences prefs = PreferencesManager.get(player);
             player.sendMessage(LanguageManager.getTranslation(prefs.getLanguage(), key)
                     .replaceAll("%MineName%", mineData.name)
                     .replaceAll("%TimeRemaining%", String.valueOf(mineData.currentDelay))
@@ -81,7 +81,7 @@ public class MineReset implements Listener {
 
     private static void sendMessage(List<Player> players, MineData mineData, String key) {
         for (Player player : players) {
-            UserPreferences prefs = PreferencesManager.getPreferences(player);
+            UserPreferences prefs = PreferencesManager.get(player);
             player.sendMessage(LanguageManager.getTranslation(prefs.getLanguage(), key)
                     .replaceAll("%MineName%", mineData.name)
                     .replaceAll("%TimeRemaining%", String.valueOf(mineData.currentDelay))

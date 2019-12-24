@@ -36,15 +36,15 @@ public class PreferencesManager implements Listener {
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
-    public static void savePreferences(Player caller) {
+    public static void save(Player caller) {
         context.saveBuffer.put(caller.getUniqueId().toString(), context.userPreferences.get(caller.getName()));
     }
 
-    public static UserPreferences getPreferences(Player caller) {
+    public static UserPreferences get(Player caller) {
         return context.userPreferences.get(caller.getName());
     }
 
-    public static UserPreferences getPreferences(String playerName) {
+    public static UserPreferences get(String playerName) {
         return context.userPreferences.get(playerName);
     }
 

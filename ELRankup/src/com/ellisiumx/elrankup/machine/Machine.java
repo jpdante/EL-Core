@@ -12,18 +12,16 @@ public class Machine {
     private int level;
     private int drops;
     private int fuel;
-    private Location location;
     private Timestamp lastMenuOpen;
     private Timestamp lastRefuel;
 
-    public Machine(int id, MachineType type, int owner, int level, int drops, int fuel, Location location, Timestamp lastMenuOpen, Timestamp lastRefuel) {
+    public Machine(int id, MachineType type, int owner, int level, int drops, int fuel, Timestamp lastMenuOpen, Timestamp lastRefuel) {
         this.id = id;
         this.type = type;
         this.owner = owner;
         this.level = level;
         this.drops = drops;
         this.fuel = fuel;
-        this.location = location;
         this.lastMenuOpen = lastMenuOpen;
         this.lastRefuel = lastRefuel;
     }
@@ -66,10 +64,6 @@ public class Machine {
 
     public MachineType getType() {
         return type;
-    }
-
-    public Location getLocation() {
-        return location;
     }
 
     public Timestamp getLastMenuOpen() {

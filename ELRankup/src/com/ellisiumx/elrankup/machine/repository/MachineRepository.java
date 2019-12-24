@@ -30,7 +30,7 @@ public class MachineRepository extends RepositoryBase {
         ArrayList<Machine> machines = new ArrayList<>();
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT id, type, owner, level, drops, fuel, location, lastMenuOpen, lastRefuel FROM machines;");
+                PreparedStatement statement = connection.prepareStatement("SELECT id, type, owner, level, drops, fuel, lastMenuOpen, lastRefuel FROM machines;");
                 ResultSet resultSet = statement.executeQuery()
         ){
             while(resultSet.next()) {
@@ -40,10 +40,9 @@ public class MachineRepository extends RepositoryBase {
                 int level = resultSet.getInt(4);
                 int drops = resultSet.getInt(5);
                 int fuel = resultSet.getInt(6);
-                Location location = UtilConvert.getLocationFromString(resultSet.getString(7));
-                Timestamp lastMenuOpen = resultSet.getTimestamp(8);
-                Timestamp lastRefuel = resultSet.getTimestamp(9);
-                Machine machine = new Machine(id, RankupConfiguration.getMachineTypeByName(type), owner, level, drops, fuel, location, lastMenuOpen, lastRefuel);
+                Timestamp lastMenuOpen = resultSet.getTimestamp(7);
+                Timestamp lastRefuel = resultSet.getTimestamp(8);
+                Machine machine = new Machine(id, RankupConfiguration.getMachineTypeByName(type), owner, level, drops, fuel, lastMenuOpen, lastRefuel);
                 machines.add(machine);
             }
         } catch (Exception ex) {
@@ -66,10 +65,9 @@ public class MachineRepository extends RepositoryBase {
                     int level = resultSet.getInt(3);
                     int drops = resultSet.getInt(4);
                     int fuel = resultSet.getInt(5);
-                    String locationRaw = resultSet.getString(6);
-                    Timestamp lastMenuOpen = resultSet.getTimestamp(7);
-                    Timestamp lastRefuel = resultSet.getTimestamp(8);
-                    machine = new Machine(id, RankupConfiguration.getMachineTypeByName(type), owner, level, drops, fuel, UtilConvert.getLocationFromString(locationRaw), lastMenuOpen, lastRefuel);
+                    Timestamp lastMenuOpen = resultSet.getTimestamp(6);
+                    Timestamp lastRefuel = resultSet.getTimestamp(7);
+                    machine = new Machine(id, RankupConfiguration.getMachineTypeByName(type), owner, level, drops, fuel, lastMenuOpen, lastRefuel);
                 }
             }
         } catch (Exception ex) {
@@ -81,16 +79,15 @@ public class MachineRepository extends RepositoryBase {
     public void createMachine(Machine machine) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO machines (type, owner, level, drops, fuel, location, lastMenuOpen, lastRefuel) VALUES (?, ?, ?, ?, ?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO machines (type, owner, level, drops, fuel, lastMenuOpen, lastRefuel) VALUES (?, ?, ?, ?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS);
         ){
             statement.setString(1, machine.getType().getKey());
             statement.setInt(2, machine.getOwner());
             statement.setInt(3, machine.getLevel());
             statement.setInt(4, machine.getDrops());
             statement.setInt(5, machine.getFuel());
-            statement.setString(6, UtilConvert.getStringFromLocation(machine.getLocation()));
-            statement.setTimestamp(7, machine.getLastMenuOpen());
-            statement.setTimestamp(8, machine.getLastRefuel());
+            statement.setTimestamp(6, machine.getLastMenuOpen());
+            statement.setTimestamp(7, machine.getLastRefuel());
             statement.executeUpdate();
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
                 while (resultSet.next()) {

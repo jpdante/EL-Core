@@ -27,6 +27,10 @@ public class RankupConfiguration {
 
     public static MenuConfig MainMenu;
     public static MenuConfig ShopMenu;
+    public static MenuConfig MachinesMenu;
+    public static MenuConfig MachineMenu;
+    public static MenuConfig PermissionsMenu;
+    public static MenuConfig FriendsMenu;
 
     public RankupConfiguration() {
         FileConfiguration config = ELRankup.getContext().getConfig();
@@ -73,6 +77,8 @@ public class RankupConfiguration {
 
         MainMenu = new MenuConfig(config.getConfigurationSection("machines.menus.main"));
         ShopMenu = new MenuConfig(config.getConfigurationSection("machines.menus.shop"));
+        MachinesMenu = new MenuConfig(config.getConfigurationSection("machines.menus.machines"));
+        MachineMenu = new MenuConfig(config.getConfigurationSection("machines.menus.machine"));
     }
 
     public static void save() {

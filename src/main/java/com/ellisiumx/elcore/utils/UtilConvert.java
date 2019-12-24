@@ -40,10 +40,10 @@ public final class UtilConvert {
         boolean itemEnchanted = Boolean.parseBoolean(datas[3]);
         String command = datas[4];
         String itemName = datas[5];
-        String[] loreRaw = datas[6].split("\\n");
-        ItemStack itemStack = new ItemStack(itemMaterial);
-        itemStack.setData(new MaterialData(itemMaterial, itemData));
-        itemStack.setAmount(itemAmount);
+        String[] loreRaw;
+        if(datas[6].length() > 0) loreRaw = datas[6].split("\\n");
+        else loreRaw = new String[0];
+        ItemStack itemStack = new ItemStack(itemMaterial, itemAmount, itemData);
         ItemMeta itemMeta = itemStack.getItemMeta();
         setNameAndLore(itemMeta, itemName, loreRaw);
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);

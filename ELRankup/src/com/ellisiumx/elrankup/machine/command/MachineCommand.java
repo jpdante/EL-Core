@@ -17,6 +17,7 @@ public class MachineCommand extends CommandBase {
 
     @Override
     public void execute(Player caller, String[] args) {
-        MachineManager.getContext().openMainMenu(caller);
+        if(!MachineManager.getContext().initialized) return;
+        MachineManager.getContext().openMenu(caller, "main");
     }
 }

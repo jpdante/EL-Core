@@ -6,6 +6,7 @@ import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.machine.holders.MachineDropsMenuHolder;
 import com.ellisiumx.elrankup.machine.holders.MachineFuelMenuHolder;
 import com.ellisiumx.elrankup.machine.holders.MachineInfoMenuHolder;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -97,7 +98,7 @@ public class Machine {
 
     public String parseStringReplacer(String data) {
         data = data
-                .replaceAll("%MachineLevel%", String.valueOf(level))
+                .replaceAll("%MachineLevel%", String.valueOf(level + 1))
                 .replaceAll("%MachineDrops%", String.valueOf(drops))
                 .replaceAll("%MachineFuel%", String.valueOf(fuel))
                 .replaceAll("%MachineName%", type.getName().replace('&', ChatColor.COLOR_CHAR))
@@ -105,7 +106,7 @@ public class Machine {
                 .replaceAll("%MachineDropQuantity%", String.valueOf(type.getLevels().get(level).getDropQuantity()))
                 .replaceAll("%MachineDropDelay%", String.valueOf(type.getLevels().get(level).getDropDelay()))
                 .replaceAll("%MachineMaxDropCount%", String.valueOf(type.getLevels().get(level).getMaxDropCount()));
-        if(level >= type.getLevels().size()) data = data.replaceAll("%MachineUpgradeCost%", "-");
+        if(level + 1 >= type.getLevels().size()) data = data.replaceAll("%MachineUpgradeCost%", "-");
         else data = data.replaceAll("%MachineUpgradeCost%", String.valueOf(type.getLevels().get(level).getUpgradeCost()));
         return data;
     }
@@ -155,7 +156,7 @@ public class Machine {
                     lore.add(parseStringReplacer(data).replaceAll("%FuelConsuption%", String.valueOf((int) percentage)));
                 }
                 itemMeta.setLore(lore);
-            }
+            } else itemMeta.setLore(null);
             itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
             itemStack.setItemMeta(itemMeta);;
@@ -172,7 +173,7 @@ public class Machine {
                     lore.add(parseStringReplacer(data).replaceAll("%FuelConsuption%", String.valueOf((int) percentage)));
                 }
                 itemMeta.setLore(lore);
-            }
+            } else itemMeta.setLore(null);
             itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
             itemStack.setItemMeta(itemMeta);;
@@ -182,6 +183,62 @@ public class Machine {
     }
 
     public Inventory getDropsMenu() {
-        return RankupConfiguration.MachineDropsMenu.createMenu(new MachineDropsMenuHolder(this), "%MachineName%", type.getName());
+        Inventory inventory = RankupConfiguration.MachineDropsMenu.createMenu(new MachineDropsMenuHolder(this), "%MachineName%", type.getName());
+        ArrayList<Pair<Integer, ItemStack>> progressBar = new ArrayList<>();
+        for(int i = 0; i < inventory.getSize(); i++) {
+            ItemStack itemStack = inventory.getItem(i);
+            if(itemStack == null) continue;
+            if(!UtilNBT.contains(itemStack, "MenuCommand")) continue;
+            String command = UtilNBT.getString(itemStack, "MenuCommand");
+            if(command == null || !command.equalsIgnoreCase("dropslot")) continue;
+            progressBar.add(new Pair<>(i, itemStack));
+        }
+        float percentage = drops * 100.0f / (float) type.getLevels().get(level).getMaxDropCount();
+        if(percentage > 100) percentage = 100.0f;
+        int quantity = (int)(progressBar.size() * 64 * percentage / 100.0f);
+        int set = 0;
+        for(int i = 0; i < progressBar.size(); i++) {
+            int amount = quantity - i * 64;
+            if(amount > 64) amount = 64;
+            if(amount <= 0) continue;
+            set++;
+            ItemStack base = progressBar.get(i).getRight();
+            ItemStack itemStack = type.getDrop().clone();
+            itemStack.setAmount(amount);
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            itemMeta.setDisplayName(parseStringReplacer(base.getItemMeta().getDisplayName()).replaceAll("%DropFill%", String.valueOf((int)percentage)));
+            if(base.getItemMeta().getLore() != null) {
+                ArrayList<String> lore = new ArrayList<>();
+                for (String data : base.getItemMeta().getLore()) {
+                    Bukkit.broadcastMessage(data);
+                    lore.add(parseStringReplacer(data).replaceAll("%DropFill%", String.valueOf((int) percentage)));
+                }
+                itemMeta.setLore(lore);
+            } else itemMeta.setLore(null);
+            itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
+            itemStack.setItemMeta(itemMeta);
+            itemStack = UtilNBT.set(itemStack, "true", "MenuItem");
+            itemStack = UtilNBT.set(itemStack, "selldrops", "MenuCommand");
+            inventory.setItem(progressBar.get(i).getLeft(), itemStack);
+        }
+        for(int i = set; i < progressBar.size(); i++) {
+            ItemStack base = progressBar.get(i).getRight();
+            ItemStack itemStack = new ItemStack(base.getType(), 1, (short)8);
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            itemMeta.setDisplayName(parseStringReplacer(base.getItemMeta().getDisplayName()).replaceAll("%DropFill%", String.valueOf((int)percentage)));
+            if(base.getItemMeta().getLore() != null) {
+                ArrayList<String> lore = new ArrayList<>();
+                for (String data : base.getItemMeta().getLore()) {
+                    lore.add(parseStringReplacer(data).replaceAll("%DropFill%", String.valueOf((int) percentage)));
+                }
+                itemMeta.setLore(lore);
+            } else itemMeta.setLore(null);
+            itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
+            itemStack.setItemMeta(itemMeta);;
+            inventory.setItem(progressBar.get(i).getLeft(), itemStack);
+        }
+        return inventory;
     }
 }

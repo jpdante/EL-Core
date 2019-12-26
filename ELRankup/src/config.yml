@@ -38,7 +38,7 @@ machines:
         lore:
           - "&7Curent: &a%amount%"
       drop:
-        id: "151:1"
+        id: "372:0"
         name: "&a&lDrop Type1"
         price: 100.00
         lore:
@@ -271,13 +271,13 @@ machines:
         - "7,160:15,1,false,,&l,"
         - "8,160:15,1,false,,&l,"
         - "9,160:15,1,false,,&l,"
-        - "10,160:8,1,true,emptydrop,&6&lEmpty Drop,"
-        - "11,160:8,1,true,emptydrop,&6&lEmpty Drop,"
-        - "12,160:8,1,true,emptydrop,&6&lEmpty Drop,"
-        - "13,160:8,1,true,emptydrop,&6&lEmpty Drop,"
-        - "14,160:8,1,true,emptydrop,&6&lEmpty Drop,"
-        - "15,160:8,1,true,emptydrop,&6&lEmpty Drop,"
-        - "16,160:8,1,true,emptydrop,&6&lEmpty Drop,"
+        - "10,160:8,1,true,dropslot,&a&lDrops Fill: &6&l%DropFill%%,"
+        - "11,160:8,1,true,dropslot,&a&lDrops Fill: &6&l%DropFill%%,"
+        - "12,160:8,1,true,dropslot,&a&lDrops Fill: &6&l%DropFill%%,"
+        - "13,160:8,1,true,dropslot,&a&lDrops Fill: &6&l%DropFill%%,"
+        - "14,160:8,1,true,dropslot,&a&lDrops Fill: &6&l%DropFill%%,"
+        - "15,160:8,1,true,dropslot,&a&lDrops Fill: &6&l%DropFill%%,"
+        - "16,160:8,1,true,dropslot,&a&lDrops Fill: &6&l%DropFill%%,"
         - "17,160:15,1,false,,&l,"
         - "18,160:15,1,false,,&l,"
         - "19,160:15,1,false,,&l,"

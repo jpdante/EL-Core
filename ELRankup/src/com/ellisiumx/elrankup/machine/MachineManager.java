@@ -57,9 +57,9 @@ public class MachineManager implements Listener {
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
             TimingManager.start("load machines");
             machines = repository.getMachines();
-            for(Machine machine : machines) {
+            for (Machine machine : machines) {
                 machinesIds.put(machine.getId(), machine);
-                if(!ownerMachines.containsKey(machine.getOwner())) {
+                if (!ownerMachines.containsKey(machine.getOwner())) {
                     MachineOwner machineOwner = new MachineOwner(machine.getOwner());
                     machineOwner.addMachine(machine);
                     ownerMachines.put(machine.getOwner(), machineOwner);
@@ -71,89 +71,122 @@ public class MachineManager implements Listener {
         });
         mainMenu = RankupConfiguration.MainMenu.createMenu(new MachineMainMenuHolder());
         shopMenu = RankupConfiguration.ShopMenu.createMenu(new MachineShopMenuHolder());
-        for(LanguageDB languageDB : LanguageManager.getLanguages()) {
+        for (LanguageDB languageDB : LanguageManager.getLanguages()) {
             languageDB.insertTranslation("MachineTransactionFailure", "&f[&aMachines&f] &cFailed to transfer, please try again later. %ErrorMessage%");
             languageDB.insertTranslation("MachineNotEnoughMoney", "&f[&aMachines&f] &cYou don't have enough money to buy %MachineType%&c, it costs %Cost%");
             languageDB.insertTranslation("FuelNotEnoughMoney", "&f[&aMachines&f] &cYou don't have enough money to buy Fuel, it costs &a%Cost%");
             languageDB.insertTranslation("MachineLimitReached", "&f[&aMachines&f] &cMachine limit for %MachineType%&c has been reached!");
             languageDB.insertTranslation("MachineBought", "&f[&aMachines&f] &aMachine %MachineType%&a bought successfully!");
-            languageDB.insertTranslation("FuelBought", "&f[&aMachines&f] &aFuel bought successfully!");
+            languageDB.insertTranslation("MachineFuelBought", "&f[&aMachines&f] &aFuel bought successfully!");
+            languageDB.insertTranslation("MachineUpgraded", "&f[&aMachines&f] &aMachine successfully upgraded!");
             languageDB.insertTranslation("MachineFullDrop", "&f[&aMachines&f] &cThe machine is already full and can no longer work, sell the drops to get it back to work.");
             languageDB.insertTranslation("MachineTankAlreadyFull", "&f[&aMachines&f] &cThe fuel tank of the machine is already full!");
             languageDB.insertTranslation("MachineTankReFull", "&f[&aMachines&f] &aThe machine has been replenished!");
+            languageDB.insertTranslation("MachineDropsSold", "&f[&aMachines&f] &a%DropsAmount% drops were sold for %TotalPrice%, your new balance is %Balance%.");
         }
-        if(LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
+        if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         new MachineCommand(plugin);
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if(!initialized) return;
+        if (!initialized) return;
         InventoryHolder holder = event.getInventory().getHolder();
-        if(holder == null) return;
-        if(!(holder instanceof MachineMenuHolder)) return;
+        if (holder == null) return;
+        if (!(holder instanceof MachineMenuHolder)) return;
         event.setCancelled(true);
-        if (!Recharge.use((Player)event.getWhoClicked(), "Machine", 400, false, false)) {
+        if (!Recharge.use((Player) event.getWhoClicked(), "Machine", 400, false, false)) {
             event.getWhoClicked().sendMessage(UtilMessage.main("Machines", "You can't spam commands that fast."));
             return;
         }
         ItemStack itemStack = event.getCurrentItem();
-        if(holder instanceof MachineFuelMenuHolder) {
-            refuelMachine(event, itemStack, (MachineFuelMenuHolder)holder);
+        if(itemStack == null || itemStack.getType() == Material.AIR) return;
+        if (holder instanceof MachineFuelMenuHolder) {
+            refuelMachine(event, itemStack, (MachineFuelMenuHolder) holder);
             return;
         }
-        if(!UtilNBT.contains(itemStack, "MenuItem")) return;
+        if (!UtilNBT.contains(itemStack, "MenuItem")) return;
         String command = UtilNBT.getString(itemStack, "MenuCommand");
-        if(command == null) return;
+        if (command == null) return;
         String[] args = command.split(" ", 2);
-        if(args.length < 2) return;
-        switch (args[0]) {
-            case "open":
-                openMenu((Player)event.getWhoClicked(), args[1], holder);
-                break;
-            case "buymachine":
-                buyMachine((Player)event.getWhoClicked(), args[1]);
-                break;
-            case "buyfuel":
-                buyFuel((Player)event.getWhoClicked(), args[1]);
-                break;
-            case "upgrademachine":
-                upgradeMachine((Player)event.getWhoClicked(), (MachineInfoMenuHolder)holder);
-                break;
-            case "close":
-                event.getWhoClicked().closeInventory();
-                break;
+        if(args[0].equals("open")) {
+            if (args.length < 2) return;
+            openMenu((Player) event.getWhoClicked(), args[1], holder);
+        } else if(args[0].equals("buymachine")) {
+            if (args.length < 2) return;
+            buyMachine((Player) event.getWhoClicked(), args[1]);
+        } else if(args[0].equals("buyfuel")) {
+            if (args.length < 2) return;
+            buyFuel((Player) event.getWhoClicked(), args[1]);
+        } else if(args[0].equals("upgrademachine")) {
+            if (holder instanceof MachineInfoMenuHolder) {
+                upgradeMachine((Player) event.getWhoClicked(), (MachineInfoMenuHolder) holder);
+            }
+        } else if(args[0].equals("selldrops")) {
+            if (holder instanceof MachineDropsMenuHolder) {
+                sellDrops((Player) event.getWhoClicked(), (MachineDropsMenuHolder) holder);
+            }
+        } else if(args[0].equals("close")) {
+            event.getWhoClicked().closeInventory();
         }
+    }
+
+    private void sellDrops(Player player, MachineDropsMenuHolder holder) {
+        player.closeInventory();
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
+            int drops = holder.machine.getDrops();
+            if (drops <= 0) return;
+            double dropPrice = holder.machine.getType().getDropPrice();
+            double totalPrice = drops * dropPrice;
+            EconomyResponse response = EconomyManager.economy.depositPlayer(player, totalPrice);
+            if (response.transactionSuccess()) {
+                holder.machine.setDrops(0);
+                repository.updateMachine(holder.machine);
+                player.sendMessage(
+                        LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineDropsSold")
+                                .replaceAll("%DropsAmount%", String.valueOf(drops))
+                                .replaceAll("%TotalPrice%", String.valueOf(response.amount))
+                                .replaceAll("%Balance%", String.valueOf(response.balance))
+                                .replace('&', ChatColor.COLOR_CHAR)
+                );
+            } else {
+                player.sendMessage(
+                        LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineTransactionFailure")
+                                .replaceAll("%ErrorMessage%", response.errorMessage)
+                                .replace('&', ChatColor.COLOR_CHAR)
+                );
+            }
+        });
     }
 
     public void refuelMachine(InventoryClickEvent event, ItemStack itemStack, MachineFuelMenuHolder holder) {
         Player player = (Player) event.getWhoClicked();
-        if(UtilNBT.contains(itemStack, "MenuItem")) {
+        if (UtilNBT.contains(itemStack, "MenuItem")) {
             String command = UtilNBT.getString(itemStack, "MenuCommand");
-            if(command == null) return;
+            if (command == null) return;
             String[] args = command.split(" ", 2);
-            if(args.length < 2) return;
-            if(args[0].equals("open")) openMenu((Player)event.getWhoClicked(), args[1], holder);
+            if (args.length < 2) return;
+            if (args[0].equals("open")) openMenu((Player) event.getWhoClicked(), args[1], holder);
             return;
         }
-        if(holder.machine.getFuel() >= holder.machine.getType().getLevels().get(holder.machine.getLevel()).getMaxTank()) {
+        if (holder.machine.getFuel() >= holder.machine.getType().getLevels().get(holder.machine.getLevel()).getMaxTank()) {
             player.sendMessage(
                     LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineTankAlreadyFull")
-                    .replace('&', ChatColor.COLOR_CHAR)
+                            .replace('&', ChatColor.COLOR_CHAR)
             );
             return;
         }
-        if(!UtilNBT.contains(itemStack, "MachineFuel")) return;
+        if (!UtilNBT.contains(itemStack, "MachineFuel")) return;
         int liters = UtilNBT.getInt(itemStack, "Liters");
         int boost = UtilNBT.getInt(itemStack, "Boost");
 
         int maxFuel = holder.machine.getType().getLevels().get(holder.machine.getLevel()).getMaxTank();
         int resultItemStack = itemStack.getAmount();
-        for(int i = 0; i < itemStack.getAmount(); i++) {
+        for (int i = 0; i < itemStack.getAmount(); i++) {
             int fuel = holder.machine.getFuel();
             int emptyFuel = maxFuel - fuel;
-            if(emptyFuel <= 0) break;
-            if(liters > emptyFuel) {
+            if (emptyFuel <= 0) break;
+            if (liters > emptyFuel) {
                 holder.machine.setFuel(maxFuel);
                 player.getInventory().addItem(getFuel(liters - emptyFuel, 1, boost));
                 resultItemStack--;
@@ -162,7 +195,7 @@ public class MachineManager implements Listener {
             holder.machine.setFuel(fuel + liters);
             resultItemStack--;
         }
-        if(resultItemStack <= 0) {
+        if (resultItemStack <= 0) {
             event.setCurrentItem(new ItemStack(Material.AIR, 1));
         } else {
             itemStack.setAmount(resultItemStack);
@@ -173,7 +206,7 @@ public class MachineManager implements Listener {
         });
         player.sendMessage(
                 LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineTankReFull")
-                .replace('&', ChatColor.COLOR_CHAR)
+                        .replace('&', ChatColor.COLOR_CHAR)
         );
         player.closeInventory();
         player.openInventory(holder.machine.getFuelMenu());
@@ -182,60 +215,51 @@ public class MachineManager implements Listener {
     public void openMenu(Player player, String menu, InventoryHolder holder) {
         player.closeInventory();
         String[] menuData = menu.split(" ", 2);
-        switch (menuData[0]) {
-            case "shop":
-                player.openInventory(shopMenu);
-                break;
-            case "machines":
-                player.openInventory(ownerMachines.get(CoreClientManager.get(player).getAccountId()).getMachinesMenu());
-                break;
-            case "machine":
-                if(holder instanceof MachineFuelMenuHolder) {
-                    player.openInventory(((MachineFuelMenuHolder) holder).machine.getMachineMenu());
-                    break;
-                }
-                if(holder instanceof MachineDropsMenuHolder) {
-                    player.openInventory(((MachineDropsMenuHolder) holder).machine.getMachineMenu());
-                    break;
-                }
-                int machineID = Integer.parseInt(menuData[1]);
-                Machine machine = machinesIds.get(machineID);
-                if(machine == null) return;
-                updateMachine(machine, player);
-                player.openInventory(machine.getMachineMenu());
-                break;
-            case "permissions":
-                //player.openInventory(mainMenu);
-                break;
-            case "friends":
-                //player.openInventory(mainMenu);
-                break;
-            case "fuel":
-                if(holder instanceof MachineInfoMenuHolder) {
-                    player.openInventory(((MachineInfoMenuHolder) holder).machine.getFuelMenu());
-                }
-                break;
-            case "drops":
-                if(holder instanceof MachineInfoMenuHolder) {
-                    player.openInventory(((MachineInfoMenuHolder) holder).machine.getDropsMenu());
-                }
-                break;
-            case "main":
-                player.openInventory(mainMenu);
-                break;
+        if(menuData[0].equals("shop")) {
+            player.openInventory(shopMenu);
+        } else if(menuData[0].equals("machines")) {
+            player.openInventory(ownerMachines.get(CoreClientManager.get(player).getAccountId()).getMachinesMenu());
+        } else if(menuData[0].equals("machine")) {
+            if (holder instanceof MachineFuelMenuHolder) {
+                player.openInventory(((MachineFuelMenuHolder) holder).machine.getMachineMenu());
+                return;
+            }
+            if (holder instanceof MachineDropsMenuHolder) {
+                player.openInventory(((MachineDropsMenuHolder) holder).machine.getMachineMenu());
+                return;
+            }
+            int machineID = Integer.parseInt(menuData[1]);
+            Machine machine = machinesIds.get(machineID);
+            if (machine == null) return;
+            updateMachine(machine, player);
+            player.openInventory(machine.getMachineMenu());
+        } else if(menuData[0].equals("permissions")) {
+            //player.openInventory(mainMenu);
+        } else if(menuData[0].equals("friends")) {
+            //player.openInventory(mainMenu);
+        } else if(menuData[0].equals("fuel")) {
+            if (holder instanceof MachineInfoMenuHolder) {
+                player.openInventory(((MachineInfoMenuHolder) holder).machine.getFuelMenu());
+            }
+        } else if(menuData[0].equals("drops")) {
+            if (holder instanceof MachineInfoMenuHolder) {
+                player.openInventory(((MachineInfoMenuHolder) holder).machine.getDropsMenu());
+            }
+        } else if(menuData[0].equals("main")) {
+            player.openInventory(mainMenu);
         }
     }
 
     private void updateMachine(Machine machine, Player player) {
         MachineType.MachineLevel machineLevel = machine.getType().getLevels().get(machine.getLevel());
-        if(machine.getDrops() > machineLevel.getMaxDropCount()) {
+        if (machine.getDrops() > machineLevel.getMaxDropCount()) {
             player.sendMessage(
                     LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineFullDrop")
-                    .replace('&', ChatColor.COLOR_CHAR)
+                            .replace('&', ChatColor.COLOR_CHAR)
             );
             return;
         }
-        if(machine.getFuel() > 0) {
+        if (machine.getFuel() > 0) {
             Date date = new Date();
             Timestamp lastMenuOpen = machine.getLastMenuOpen();
             Timestamp newMenuOpen = new Timestamp(date.getTime());
@@ -244,9 +268,9 @@ public class MachineManager implements Listener {
             int dropDelay = machineLevel.getDropDelay();
             int dropMultiplier = 0;
             int fuel = machine.getFuel();
-            for(int i = 0; i < machine.getFuel(); i++) {
+            for (int i = 0; i < machine.getFuel(); i++) {
                 long result = diffSeconds - dropDelay;
-                if(result <= 0) break;
+                if (result <= 0) break;
                 else {
                     diffSeconds = result;
                     dropMultiplier++;
@@ -263,38 +287,69 @@ public class MachineManager implements Listener {
     }
 
     public void upgradeMachine(Player player, MachineInfoMenuHolder holder) {
-        player.closeInventory();
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
+            if(holder.machine.getLevel() >= holder.machine.getType().getLevels().size() - 1) return;
+            double price = holder.machine.getType().getLevels().get(holder.machine.getLevel()).getUpgradeCost();
+            if (price > 0) {
+                if (!EconomyManager.economy.has(player, price)) {
+                    player.sendMessage(
+                            LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "FuelNotEnoughMoney")
+                                    .replaceAll("%Cost%", String.valueOf(price))
+                                    .replace('&', ChatColor.COLOR_CHAR)
+                    );
+                    return;
+                }
+                EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, price);
+                if (response.transactionSuccess()) {
+                    holder.machine.setLevel(holder.machine.getLevel() + 1);
+                    repository.updateMachine(holder.machine);
+                } else {
+                    player.sendMessage(
+                            LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineTransactionFailure")
+                                    .replaceAll("%ErrorMessage%", response.errorMessage)
+                                    .replace('&', ChatColor.COLOR_CHAR)
+                    );
+                    return;
+                }
+            }
+            player.sendMessage(
+                    LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineUpgraded")
+                            .replace('&', ChatColor.COLOR_CHAR)
+            );
+            player.closeInventory();
+            player.openInventory(holder.machine.getMachineMenu());
+        });
     }
 
     public void buyMachine(Player player, String machineData) {
         String[] data = machineData.split(" ", 2);
         MachineType machineType = RankupConfiguration.getMachineTypeByName(data[0]);
         CoreClient client = CoreClientManager.get(player);
-        if(client.getRank().has(Rank.ALL) && ownerMachines.containsKey(client.getAccountId()) && ownerMachines.get(client.getAccountId()).getCountMachineType(machineType) >= 1) {
+        if (client.getRank().has(Rank.ALL) && ownerMachines.containsKey(client.getAccountId()) && ownerMachines.get(client.getAccountId()).getCountMachineType(machineType) >= 1) {
             player.sendMessage(
                     LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineLimitReached")
-                    .replaceAll("%MachineType%", machineType.getName())
-                    .replace('&', ChatColor.COLOR_CHAR)
+                            .replaceAll("%MachineType%", machineType.getName())
+                            .replace('&', ChatColor.COLOR_CHAR)
             );
             return;
         }
         float price = Float.parseFloat(data[1]);
-        if(price > 0) {
-            if(!EconomyManager.economy.has(player, price)) {
+        if (price > 0) {
+            if (!EconomyManager.economy.has(player, price)) {
                 player.sendMessage(
                         LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineNotEnoughMoney")
-                        .replaceAll("%MachineType%", machineType.getName())
-                        .replaceAll("%Cost%", String.valueOf(price))
-                        .replace('&', ChatColor.COLOR_CHAR)
+                                .replaceAll("%MachineType%", machineType.getName())
+                                .replaceAll("%Cost%", String.valueOf(price))
+                                .replace('&', ChatColor.COLOR_CHAR)
                 );
                 return;
             }
             EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, price);
-            if(!response.transactionSuccess()) {
+            if (!response.transactionSuccess()) {
                 player.sendMessage(
                         LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineTransactionFailure")
-                        .replaceAll("%ErrorMessage%", response.errorMessage)
-                        .replace('&', ChatColor.COLOR_CHAR)
+                                .replaceAll("%ErrorMessage%", response.errorMessage)
+                                .replace('&', ChatColor.COLOR_CHAR)
                 );
                 return;
             }
@@ -303,49 +358,49 @@ public class MachineManager implements Listener {
             Date date = new Date();
             Machine machine = new Machine(-1, machineType, client.getAccountId(), 0, 0, 0, new Timestamp(date.getTime()), new Timestamp(date.getTime()));
             repository.createMachine(machine);
-            if(!ownerMachines.containsKey(client.getAccountId())) {
+            if (!ownerMachines.containsKey(client.getAccountId())) {
                 MachineOwner machineOwner = new MachineOwner(client.getAccountId());
                 machineOwner.addMachine(machine);
                 ownerMachines.put(client.getAccountId(), machineOwner);
             }
             player.sendMessage(
                     LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineBought")
-                    .replaceAll("%MachineType%", machineType.getName())
-                    .replace('&', ChatColor.COLOR_CHAR)
+                            .replaceAll("%MachineType%", machineType.getName())
+                            .replace('&', ChatColor.COLOR_CHAR)
             );
         });
     }
 
     public void buyFuel(Player player, String fuelData) {
-        String[] data = fuelData.split(" ");
-        int liters = Integer.parseInt(data[0]);
-        int amount = Integer.parseInt(data[1]);
-        int boost = Integer.parseInt(data[2]);
-        float price = Float.parseFloat(data[3]);
-        if(price > 0) {
-            if(!EconomyManager.economy.has(player, price)) {
-                player.sendMessage(
-                        LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "FuelNotEnoughMoney")
-                        .replaceAll("%Cost%", String.valueOf(price))
-                        .replace('&', ChatColor.COLOR_CHAR)
-                );
-                return;
-            }
-            EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, price);
-            if(!response.transactionSuccess()) {
-                player.sendMessage(
-                        LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineTransactionFailure")
-                        .replaceAll("%ErrorMessage%", response.errorMessage)
-                        .replace('&', ChatColor.COLOR_CHAR)
-                );
-                return;
-            }
-        }
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
+            String[] data = fuelData.split(" ");
+            int liters = Integer.parseInt(data[0]);
+            int amount = Integer.parseInt(data[1]);
+            int boost = Integer.parseInt(data[2]);
+            float price = Float.parseFloat(data[3]);
+            if (price > 0) {
+                if (!EconomyManager.economy.has(player, price)) {
+                    player.sendMessage(
+                            LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "FuelNotEnoughMoney")
+                                    .replaceAll("%Cost%", String.valueOf(price))
+                                    .replace('&', ChatColor.COLOR_CHAR)
+                    );
+                    return;
+                }
+                EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, price);
+                if (!response.transactionSuccess()) {
+                    player.sendMessage(
+                            LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineTransactionFailure")
+                                    .replaceAll("%ErrorMessage%", response.errorMessage)
+                                    .replace('&', ChatColor.COLOR_CHAR)
+                    );
+                    return;
+                }
+            }
             UtilInv.insert(player, getFuel(liters, amount, boost));
             player.sendMessage(
-                    LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "FuelBought")
-                    .replace('&', ChatColor.COLOR_CHAR)
+                    LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineFuelBought")
+                            .replace('&', ChatColor.COLOR_CHAR)
             );
         });
     }
@@ -355,17 +410,17 @@ public class MachineManager implements Listener {
         itemStack.setAmount(amount);
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.setDisplayName(itemMeta.getDisplayName().replaceAll("%liters%", String.valueOf(liters)));
-        if(itemMeta.getLore() != null) {
+        if (itemMeta.getLore() != null) {
             ArrayList<String> lore = new ArrayList<>();
-            for(String loreItem : itemMeta.getLore()) {
+            for (String loreItem : itemMeta.getLore()) {
                 lore.add(loreItem.replaceAll("%liters%", String.valueOf(liters)).replaceAll("%boost%", String.valueOf(boost)));
             }
             itemMeta.setLore(lore);
         }
         itemStack.setItemMeta(itemMeta);
-        itemStack = UtilNBT.set(itemStack, "true","MachineFuel");
-        itemStack = UtilNBT.set(itemStack, liters,"Liters");
-        itemStack = UtilNBT.set(itemStack, boost,"Boost");
+        itemStack = UtilNBT.set(itemStack, "true", "MachineFuel");
+        itemStack = UtilNBT.set(itemStack, liters, "Liters");
+        itemStack = UtilNBT.set(itemStack, boost, "Boost");
         return itemStack;
     }
 

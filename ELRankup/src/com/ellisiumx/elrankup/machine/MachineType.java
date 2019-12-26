@@ -13,9 +13,9 @@ public class MachineType {
     private ItemStack item;
     private ItemStack drop;
     private double dropPrice;
-    private ArrayList<Pair<Integer, Integer>> levels;
+    private ArrayList<MachineLevel> levels;
 
-    public MachineType(String key, String name, double price, ItemStack item, ItemStack drop, double dropPrice, ArrayList<Pair<Integer, Integer>> levels) {
+    public MachineType(String key, String name, double price, ItemStack item, ItemStack drop, double dropPrice, ArrayList<MachineLevel> levels) {
         this.key = key;
         this.name = name;
         this.price = price;
@@ -49,7 +49,41 @@ public class MachineType {
         return dropPrice;
     }
 
-    public ArrayList<Pair<Integer, Integer>> getLevels() {
+    public ArrayList<MachineLevel> getLevels() {
         return levels;
+    }
+
+    public static class MachineLevel {
+        private int dropQuantity;
+        private int dropDelay;
+        private int maxTank;
+        private int maxDropCount;
+        private double upgradeCost;
+
+        public MachineLevel(int dropQuantity, int dropDelay, int maxTank, int maxDropCount, double upgradeCost) {
+            this.dropQuantity = dropQuantity;
+            this.dropDelay = dropDelay;
+            this.maxTank = maxTank;
+            this.maxDropCount = maxDropCount;
+            this.upgradeCost = upgradeCost;
+        }
+
+        public int getMaxDropCount() { return maxDropCount; }
+
+        public int getDropQuantity() {
+            return dropQuantity;
+        }
+
+        public int getDropDelay() {
+            return dropDelay;
+        }
+
+        public int getMaxTank() {
+            return maxTank;
+        }
+
+        public double getUpgradeCost() {
+            return upgradeCost;
+        }
     }
 }

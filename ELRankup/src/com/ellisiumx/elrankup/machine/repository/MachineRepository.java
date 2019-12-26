@@ -103,6 +103,23 @@ public class MachineRepository extends RepositoryBase {
 
     }
 
+    public void updateMachine(Machine machine) {
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("UPDATE machines SET level = ?, drops = ?, fuel = ?, lastMenuOpen = ?, lastRefuel = ? WHERE id = ?");
+        ){
+            statement.setInt(1, machine.getLevel());
+            statement.setInt(2, machine.getDrops());
+            statement.setInt(3, machine.getFuel());
+            statement.setTimestamp(4, machine.getLastMenuOpen());
+            statement.setTimestamp(5, machine.getLastRefuel());
+            statement.setInt(6, machine.getId());
+            statement.executeUpdate();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     /*public void createMachines(Stack<Machine> machines) {
         try (
                 Connection connection = getConnection();

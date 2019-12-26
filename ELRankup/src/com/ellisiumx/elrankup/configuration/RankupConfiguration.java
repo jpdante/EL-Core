@@ -28,7 +28,9 @@ public class RankupConfiguration {
     public static MenuConfig MainMenu;
     public static MenuConfig ShopMenu;
     public static MenuConfig MachinesMenu;
-    public static MenuConfig MachineMenu;
+    public static MenuConfig MachineInfoMenu;
+    public static MenuConfig MachineDropsMenu;
+    public static MenuConfig MachineFuelMenu;
     public static MenuConfig PermissionsMenu;
     public static MenuConfig FriendsMenu;
 
@@ -63,11 +65,14 @@ public class RankupConfiguration {
                 ItemStack drop = UtilConvert.getItemStackFromConfig(config.getConfigurationSection("machines.types." + key + ".drop"));
                 ItemStack item = UtilConvert.getItemStackFromConfig(config.getConfigurationSection("machines.types." + key + ".item"));
                 double dropPrice = config.getDouble("machines.types." + key + ".drop.price");
-                ArrayList<Pair<Integer, Integer>> levels = new ArrayList<>();
+                ArrayList<MachineType.MachineLevel> levels = new ArrayList<>();
                 for(String key2 : config.getConfigurationSection("machines.types." + key + ".levels").getKeys(false)) {
-                    int delay = config.getInt("machines.types." + key + ".levels." + key2 + ".delay");
-                    int quantity = config.getInt("machines.types." + key + ".levels." + key2 + ".quantity");
-                    levels.add(new Pair<>(delay, quantity));
+                    int dropDelay = config.getInt("machines.types." + key + ".levels." + key2 + ".drop-delay");
+                    int dropQuantity = config.getInt("machines.types." + key + ".levels." + key2 + ".drop-quantity");
+                    int maxTank = config.getInt("machines.types." + key + ".levels." + key2 + ".max-tank");
+                    int maxDropCount = config.getInt("machines.types." + key + ".levels." + key2 + ".max-drop-count");
+                    double upgradeCost = config.getDouble("machines.types." + key + ".levels." + key2 + ".upgrade-cost");
+                    levels.add(new MachineType.MachineLevel(dropQuantity, dropDelay, maxTank, maxDropCount, upgradeCost));
                 }
                 MachineTypes.add(new MachineType(key, name, price, item, drop, dropPrice, levels));
             } catch (Exception ex) {
@@ -78,7 +83,9 @@ public class RankupConfiguration {
         MainMenu = new MenuConfig(config.getConfigurationSection("machines.menus.main"));
         ShopMenu = new MenuConfig(config.getConfigurationSection("machines.menus.shop"));
         MachinesMenu = new MenuConfig(config.getConfigurationSection("machines.menus.machines"));
-        MachineMenu = new MenuConfig(config.getConfigurationSection("machines.menus.machine"));
+        MachineInfoMenu = new MenuConfig(config.getConfigurationSection("machines.menus.machine"));
+        MachineDropsMenu = new MenuConfig(config.getConfigurationSection("machines.menus.drops"));
+        MachineFuelMenu = new MenuConfig(config.getConfigurationSection("machines.menus.fuel"));
     }
 
     public static void save() {

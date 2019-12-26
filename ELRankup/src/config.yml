@@ -24,13 +24,14 @@ mine-reseter:
         - "0.5,3:0"
 machines:
   fuel:
-    id: "163:1"
+    id: "263:1"
     name: "&a&lFuel"
     lore:
-      - "&7Liters: &a%liters%"
+      - "&aLiters: &6%liters%"
+      - "&aBoost: &6%boost%"
   types:
     Type1:
-      name: "Type1"
+      name: "&a&lType1"
       item:
         id: "1:0"
         name: "&a&lMachine 1"
@@ -39,25 +40,40 @@ machines:
       drop:
         id: "151:1"
         name: "&a&lDrop Type1"
-        price: 1000.00
+        price: 100.00
         lore:
           - "&7Curent: &a%amount%"
       levels:
         0:
-          delay: 10
-          quantity: 1
+          drop-delay: 10
+          drop-quantity: 1
+          max-tank: 100
+          max-drop-count: 60
+          upgrade-cost: 1000.0
         1:
-          delay: 8
-          quantity: 2
+          drop-delay: 8
+          drop-quantity: 2
+          max-tank: 200
+          max-drops-count: 120
+          upgrade-cost: 2000.0
         2:
-          delay: 6
-          quantity: 3
+          drop-delay: 6
+          drop-quantity: 3
+          max-tank: 300
+          max-drop-count: 240
+          upgrade-cost: 4000.0
         3:
-          delay: 4
-          quantity: 4
+          drop-delay: 4
+          drop-quantity: 4
+          max-tank: 400
+          max-drop-count: 480
+          upgrade-cost: 8000.0
         4:
-          delay: 2
-          quantity: 5
+          drop-delay: 2
+          drop-quantity: 5
+          max-tank: 500
+          max-drop-count: 960
+          upgrade-cost: 10000.0
   menus:
     main:
       name: "&a&lMachines Menu"
@@ -108,9 +124,9 @@ machines:
         - "11,160:15,1,false,,&l,"
         - "12,160:15,1,false,,&l,"
         - "13,160:15,1,false,,&l,"
-        - "14,133:15,1,true,buymachine Type1 8000.00,&a&lMachine 1,"
-        - "15,160:15,1,false,,&l,"
-        - "16,160:15,1,false,,&l,"
+        - "14,138:0,1,true,buymachine Type1 8000.00,&a&lMachine 1,"
+        - "15,263:0,1,true,buyfuel 5 1 0 8000.00,&b&lFuel 1,"
+        - "16,263:0,1,true,buyfuel 100 10 0 8000.00,&b&lFuel 2,"
         - "17,160:15,1,false,,&l,"
         - "18,160:15,1,false,,&l,"
         - "19,160:15,1,false,,&l,"
@@ -162,13 +178,13 @@ machines:
         - "7,160:15,1,false,,&l,"
         - "8,160:15,1,false,,&l,"
         - "9,160:15,1,false,,&l,"
-        - "10,160:8,1,true,,&6&lEmpty Slot,"
-        - "11,160:8,1,true,,&6&lEmpty Slot,"
-        - "12,160:8,1,true,,&6&lEmpty Slot,"
-        - "13,160:8,1,true,,&6&lEmpty Slot,"
-        - "14,160:8,1,true,,&6&lEmpty Slot,"
-        - "15,160:8,1,true,,&6&lEmpty Slot,"
-        - "16,160:8,1,true,,&6&lEmpty Slot,"
+        - "10,160:8,1,true,emptyslot,&6&lEmpty Slot,"
+        - "11,160:8,1,true,emptyslot,&6&lEmpty Slot,"
+        - "12,160:8,1,true,emptyslot,&6&lEmpty Slot,"
+        - "13,160:8,1,true,emptyslot,&6&lEmpty Slot,"
+        - "14,160:8,1,true,emptyslot,&6&lEmpty Slot,"
+        - "15,160:8,1,true,emptyslot,&6&lEmpty Slot,"
+        - "16,160:8,1,true,emptyslot,&6&lEmpty Slot,"
         - "17,160:15,1,false,,&l,"
         - "18,160:15,1,false,,&l,"
         - "19,160:15,1,false,,&l,"
@@ -180,7 +196,7 @@ machines:
         - "25,160:15,1,false,,&l,"
         - "26,160:14,1,true,open main,&4&lGo Back,"
     machine:
-      name: "&a&lMachine %MachineType%"
+      name: "&a&lMachine %MachineName%"
       size: 27
       items:
         - "0,160:15,1,false,,&l,"
@@ -193,13 +209,13 @@ machines:
         - "7,160:15,1,false,,&l,"
         - "8,160:15,1,false,,&l,"
         - "9,160:15,1,false,,&l,"
-        - "10,138:0,1,true,open machines,&a&lYour Machines,"
+        - "10,340:0,1,true,,&a&lMachine Info,&bLevel: %MachineLevel%/5\n&bDrops: %MachineDrops%/%MachineMaxDropCount%\n&bFuel: %MachineFuel%/%MachineMaxFuel%\n&bDrop Quantity: %MachineDropQuantity%\n&bDrop Delay: %MachineDropDelay%"
         - "11,160:15,1,false,,&l,"
-        - "12,388:0,1,true,open shop,&b&lMachine Shop,"
+        - "12,399:0,1,true,upgrademachine,&b&lUpgrade Machine,&bLevel: %MachineLevel%/5\n&bCost: $%MachineUpgradeCost%\n&6&lClick to upgrade!"
         - "13,160:15,1,false,,&l,"
-        - "14,386:0,1,true,open permissions,&6&lFriends Permissions,"
+        - "14,263:1,1,true,open fuel,&6&lFuel,&bFuel: %MachineFuel%/%MachineMaxFuel%"
         - "15,160:15,1,false,,&l,"
-        - "16,120:0,1,true,open friends,&7&lYour Friends,"
+        - "16,372:0,1,true,open drops,&9&lDrops,&bDrops: %MachineDrops%/%MachineMaxDropCount%"
         - "17,160:15,1,false,,&l,"
         - "18,160:15,1,false,,&l,"
         - "19,160:15,1,false,,&l,"
@@ -210,3 +226,65 @@ machines:
         - "24,160:15,1,false,,&l,"
         - "25,160:15,1,false,,&l,"
         - "26,160:14,1,true,open machines,&4&lGo Back,"
+    fuel:
+      name: "%MachineName% Fuel"
+      size: 27
+      items:
+        - "0,160:15,1,false,,&l,"
+        - "1,160:15,1,false,,&l,"
+        - "2,160:15,1,false,,&l,"
+        - "3,160:15,1,false,,&l,"
+        - "4,160:15,1,false,,&l,"
+        - "5,160:15,1,false,,&l,"
+        - "6,160:15,1,false,,&l,"
+        - "7,160:15,1,false,,&l,"
+        - "8,160:15,1,false,,&l,"
+        - "9,160:15,1,false,,&l,"
+        - "10,160:7,1,true,percentageslot,&a&lFuel: &6&l%FuelConsuption%%,"
+        - "11,160:7,1,true,percentageslot,&a&lFuel: &6&l%FuelConsuption%%,"
+        - "12,160:7,1,true,percentageslot,&a&lFuel: &6&l%FuelConsuption%%,"
+        - "13,160:7,1,true,percentageslot,&a&lFuel: &6&l%FuelConsuption%%,"
+        - "14,160:7,1,true,percentageslot,&a&lFuel: &6&l%FuelConsuption%%,"
+        - "15,160:7,1,true,percentageslot,&a&lFuel: &6&l%FuelConsuption%%,"
+        - "16,160:7,1,true,percentageslot,&a&lFuel: &6&l%FuelConsuption%%,"
+        - "17,160:15,1,false,,&l,"
+        - "18,160:15,1,false,,&l,"
+        - "19,160:15,1,false,,&l,"
+        - "20,160:15,1,false,,&l,"
+        - "21,160:15,1,false,,&l,"
+        - "22,160:15,1,false,,&l,"
+        - "23,160:15,1,false,,&l,"
+        - "24,160:15,1,false,,&l,"
+        - "25,160:15,1,false,,&l,"
+        - "26,160:14,1,true,open machine,&4&lGo Back,"
+    drops:
+      name: "%MachineName% Drops"
+      size: 27
+      items:
+        - "0,160:15,1,false,,&l,"
+        - "1,160:15,1,false,,&l,"
+        - "2,160:15,1,false,,&l,"
+        - "3,160:15,1,false,,&l,"
+        - "4,160:15,1,false,,&l,"
+        - "5,160:15,1,false,,&l,"
+        - "6,160:15,1,false,,&l,"
+        - "7,160:15,1,false,,&l,"
+        - "8,160:15,1,false,,&l,"
+        - "9,160:15,1,false,,&l,"
+        - "10,160:8,1,true,emptydrop,&6&lEmpty Drop,"
+        - "11,160:8,1,true,emptydrop,&6&lEmpty Drop,"
+        - "12,160:8,1,true,emptydrop,&6&lEmpty Drop,"
+        - "13,160:8,1,true,emptydrop,&6&lEmpty Drop,"
+        - "14,160:8,1,true,emptydrop,&6&lEmpty Drop,"
+        - "15,160:8,1,true,emptydrop,&6&lEmpty Drop,"
+        - "16,160:8,1,true,emptydrop,&6&lEmpty Drop,"
+        - "17,160:15,1,false,,&l,"
+        - "18,160:15,1,false,,&l,"
+        - "19,160:15,1,false,,&l,"
+        - "20,160:15,1,false,,&l,"
+        - "21,160:15,1,false,,&l,"
+        - "22,160:15,1,false,,&l,"
+        - "23,160:15,1,false,,&l,"
+        - "24,160:15,1,false,,&l,"
+        - "25,160:15,1,false,,&l,"
+        - "26,160:14,1,true,open machine,&4&lGo Back,"

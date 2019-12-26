@@ -5,7 +5,7 @@ import org.bukkit.event.Listener;
 
 public class ChatManager implements Listener {
 
-    private static MachineManager context;
+    private static ChatManager context;
 
     public ChatManager() {
         context = this;

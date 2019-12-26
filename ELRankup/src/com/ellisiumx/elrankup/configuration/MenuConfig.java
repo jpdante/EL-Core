@@ -33,4 +33,12 @@ public class MenuConfig {
         }
         return inventory;
     }
+
+    public Inventory createMenu(InventoryHolder holder, String replaceKey, String replaceValue) {
+        Inventory inventory =  Bukkit.createInventory(holder, Size, Name.replaceAll(replaceKey, replaceValue).replace('&', ChatColor.COLOR_CHAR));
+        for(Pair<Integer, ItemStack> item : Items) {
+            inventory.setItem(item.getLeft(), item.getRight());
+        }
+        return inventory;
+    }
 }

@@ -1,8 +1,21 @@
 package com.ellisiumx.elrankup.machine;
 
-import org.bukkit.Location;
+import com.ellisiumx.elcore.utils.Pair;
+import com.ellisiumx.elcore.utils.UtilNBT;
+import com.ellisiumx.elrankup.configuration.RankupConfiguration;
+import com.ellisiumx.elrankup.machine.holders.MachineDropsMenuHolder;
+import com.ellisiumx.elrankup.machine.holders.MachineFuelMenuHolder;
+import com.ellisiumx.elrankup.machine.holders.MachineInfoMenuHolder;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 
 public class Machine {
 
@@ -72,5 +85,103 @@ public class Machine {
 
     public Timestamp getLastRefuel() {
         return lastRefuel;
+    }
+
+    public void setLastMenuOpen(Timestamp lastMenuOpen) {
+        this.lastMenuOpen = lastMenuOpen;
+    }
+
+    public void setLastRefuel(Timestamp lastRefuel) {
+        this.lastRefuel = lastRefuel;
+    }
+
+    public String parseStringReplacer(String data) {
+        data = data
+                .replaceAll("%MachineLevel%", String.valueOf(level))
+                .replaceAll("%MachineDrops%", String.valueOf(drops))
+                .replaceAll("%MachineFuel%", String.valueOf(fuel))
+                .replaceAll("%MachineName%", type.getName().replace('&', ChatColor.COLOR_CHAR))
+                .replaceAll("%MachineMaxFuel%", String.valueOf(type.getLevels().get(level).getMaxTank()))
+                .replaceAll("%MachineDropQuantity%", String.valueOf(type.getLevels().get(level).getDropQuantity()))
+                .replaceAll("%MachineDropDelay%", String.valueOf(type.getLevels().get(level).getDropDelay()))
+                .replaceAll("%MachineMaxDropCount%", String.valueOf(type.getLevels().get(level).getMaxDropCount()));
+        if(level >= type.getLevels().size()) data = data.replaceAll("%MachineUpgradeCost%", "-");
+        else data = data.replaceAll("%MachineUpgradeCost%", String.valueOf(type.getLevels().get(level).getUpgradeCost()));
+        return data;
+    }
+
+    public Inventory getMachineMenu() {
+        Inventory inventory = RankupConfiguration.MachineInfoMenu.createMenu(new MachineInfoMenuHolder(this), "%MachineName%", type.getName());
+        for(int i = 0; i < inventory.getSize(); i++) {
+            ItemStack itemStack = inventory.getItem(i);
+            if(itemStack == null) continue;
+            if(itemStack.getType() == Material.STAINED_GLASS_PANE) continue;
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            itemMeta.setDisplayName(parseStringReplacer(itemMeta.getDisplayName()));
+            if(itemMeta.getLore() != null) {
+                ArrayList<String> lore = new ArrayList<>();
+                for(String data : itemMeta.getLore()) {
+                    lore.add(parseStringReplacer(data));
+                }
+                itemMeta.setLore(lore);
+            }
+            itemStack.setItemMeta(itemMeta);
+            inventory.setItem(i, itemStack);
+        }
+        return inventory;
+    }
+
+    public Inventory getFuelMenu() {
+        Inventory inventory = RankupConfiguration.MachineFuelMenu.createMenu(new MachineFuelMenuHolder(this), "%MachineName%", type.getName());
+        ArrayList<Pair<Integer, ItemStack>> progressBar = new ArrayList<>();
+        for(int i = 0; i < inventory.getSize(); i++) {
+            ItemStack itemStack = inventory.getItem(i);
+            if(itemStack == null) continue;
+            if(!UtilNBT.contains(itemStack, "MenuCommand")) continue;
+            String command = UtilNBT.getString(itemStack, "MenuCommand");
+            if(command == null || !command.equalsIgnoreCase("percentageslot")) continue;
+            progressBar.add(new Pair<>(i, itemStack));
+        }
+        float percentage = fuel * 100.0f / (float) type.getLevels().get(level).getMaxTank();
+        int quantity = (int)(progressBar.size() * percentage / 100.0f);
+        for(int i = 0; i < quantity; i++) {
+            ItemStack base = progressBar.get(i).getRight();
+            ItemStack itemStack = new ItemStack(base.getType(), 1, (short)5);
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            itemMeta.setDisplayName(parseStringReplacer(base.getItemMeta().getDisplayName()).replaceAll("%FuelConsuption%", String.valueOf((int)percentage)));
+            if(base.getItemMeta().getLore() != null) {
+                ArrayList<String> lore = new ArrayList<>();
+                for (String data : base.getItemMeta().getLore()) {
+                    lore.add(parseStringReplacer(data).replaceAll("%FuelConsuption%", String.valueOf((int) percentage)));
+                }
+                itemMeta.setLore(lore);
+            }
+            itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
+            itemStack.setItemMeta(itemMeta);;
+            inventory.setItem(progressBar.get(i).getLeft(), itemStack);
+        }
+        for(int i = quantity; i < (quantity + (progressBar.size() - quantity)); i++) {
+            ItemStack base = progressBar.get(i).getRight();
+            ItemStack itemStack = new ItemStack(base.getType(), 1, (short)14);
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            itemMeta.setDisplayName(parseStringReplacer(base.getItemMeta().getDisplayName()).replaceAll("%FuelConsuption%", String.valueOf((int)percentage)));
+            if(base.getItemMeta().getLore() != null) {
+                ArrayList<String> lore = new ArrayList<>();
+                for (String data : base.getItemMeta().getLore()) {
+                    lore.add(parseStringReplacer(data).replaceAll("%FuelConsuption%", String.valueOf((int) percentage)));
+                }
+                itemMeta.setLore(lore);
+            }
+            itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
+            itemStack.setItemMeta(itemMeta);;
+            inventory.setItem(progressBar.get(i).getLeft(), itemStack);
+        }
+        return inventory;
+    }
+
+    public Inventory getDropsMenu() {
+        return RankupConfiguration.MachineDropsMenu.createMenu(new MachineDropsMenuHolder(this), "%MachineName%", type.getName());
     }
 }

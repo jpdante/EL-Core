@@ -3,6 +3,7 @@ package com.ellisiumx.elrankup;
 import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elrankup.clan.ClanManager;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
+import com.ellisiumx.elrankup.crate.CrateManager;
 import com.ellisiumx.elrankup.economy.EconomyManager;
 import com.ellisiumx.elrankup.essentials.*;
 import com.ellisiumx.elrankup.game.RainDisabler;
@@ -42,6 +43,7 @@ public class ELRankup extends JavaPlugin {
         new GodManager(context);
         new MachineManager(context);
         new ClanManager(context);
+        new CrateManager(context);
         new RainDisabler(context);
         // Commands
         new PingCommand(context);

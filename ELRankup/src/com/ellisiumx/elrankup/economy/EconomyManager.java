@@ -61,7 +61,7 @@ public class EconomyManager implements Listener {
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
             try (
                     Connection connection = repository.getInternalConnection();
-                    PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO economy (uuid, name, balance) VALUES (?, ?, ?)");
+                    PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO economy (uuid, name, balance) VALUES (?, ?, ?);");
             ){
                 while (!buffer.empty()) {
                     Tuple<String, String> data = buffer.pop();

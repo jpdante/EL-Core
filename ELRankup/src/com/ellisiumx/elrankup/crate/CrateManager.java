@@ -53,11 +53,11 @@ public class CrateManager implements Listener {
         new CrateCommand(plugin);
     }
 
-    @EventHandler
+    /*@EventHandler
     public void onUpdate(UpdateEvent event) {
         if (event.getType() != UpdateType.FASTEST) return;
 
-    }
+    }*/
 
     @EventHandler
     public void onBlockInteract(PlayerInteractEvent event) {

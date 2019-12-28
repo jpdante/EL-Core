@@ -6,6 +6,7 @@ import com.ellisiumx.elrankup.machine.MachineType;
 import com.ellisiumx.elrankup.mapedit.BlockData;
 import com.ellisiumx.elrankup.mine.MineData;
 import com.ellisiumx.elcore.utils.UtilConvert;
+import com.ellisiumx.elrankup.rankup.RankLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -34,6 +35,9 @@ public class RankupConfiguration {
     public static MenuConfig PermissionsMenu;
     public static MenuConfig FriendsMenu;
 
+    public static String DefaultRank;
+    public static List<RankLevel> Ranks;
+
     public RankupConfiguration() {
         FileConfiguration config = ELRankup.getContext().getConfig();
 
@@ -59,25 +63,25 @@ public class RankupConfiguration {
         Fuel = UtilConvert.getItemStackFromConfig(config.getConfigurationSection("machines.fuel"));
         MachineTypes = new ArrayList<>();
         for (String key : config.getConfigurationSection("machines.types").getKeys(false)) {
-            try {
-                String name = config.getString("machines.types." + key + ".name").replace('&', ChatColor.COLOR_CHAR);
-                double price = config.getDouble("machines.types." + key + ".price");
-                ItemStack drop = UtilConvert.getItemStackFromConfig(config.getConfigurationSection("machines.types." + key + ".drop"));
-                ItemStack item = UtilConvert.getItemStackFromConfig(config.getConfigurationSection("machines.types." + key + ".item"));
-                double dropPrice = config.getDouble("machines.types." + key + ".drop.price");
-                ArrayList<MachineType.MachineLevel> levels = new ArrayList<>();
-                for(String key2 : config.getConfigurationSection("machines.types." + key + ".levels").getKeys(false)) {
-                    int dropDelay = config.getInt("machines.types." + key + ".levels." + key2 + ".drop-delay");
-                    int dropQuantity = config.getInt("machines.types." + key + ".levels." + key2 + ".drop-quantity");
-                    int maxTank = config.getInt("machines.types." + key + ".levels." + key2 + ".max-tank");
-                    int maxDropCount = config.getInt("machines.types." + key + ".levels." + key2 + ".max-drop-count");
-                    double upgradeCost = config.getDouble("machines.types." + key + ".levels." + key2 + ".upgrade-cost");
-                    levels.add(new MachineType.MachineLevel(dropQuantity, dropDelay, maxTank, maxDropCount, upgradeCost));
-                }
-                MachineTypes.add(new MachineType(key, name, price, item, drop, dropPrice, levels));
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            //try {
+            String name = config.getString("machines.types." + key + ".name").replace('&', ChatColor.COLOR_CHAR);
+            double price = config.getDouble("machines.types." + key + ".price");
+            ItemStack drop = UtilConvert.getItemStackFromConfig(config.getConfigurationSection("machines.types." + key + ".drop"));
+            ItemStack item = UtilConvert.getItemStackFromConfig(config.getConfigurationSection("machines.types." + key + ".item"));
+            double dropPrice = config.getDouble("machines.types." + key + ".drop.price");
+            ArrayList<MachineType.MachineLevel> levels = new ArrayList<>();
+            for (String key2 : config.getConfigurationSection("machines.types." + key + ".levels").getKeys(false)) {
+                int dropDelay = config.getInt("machines.types." + key + ".levels." + key2 + ".drop-delay");
+                int dropQuantity = config.getInt("machines.types." + key + ".levels." + key2 + ".drop-quantity");
+                int maxTank = config.getInt("machines.types." + key + ".levels." + key2 + ".max-tank");
+                int maxDropCount = config.getInt("machines.types." + key + ".levels." + key2 + ".max-drop-count");
+                double upgradeCost = config.getDouble("machines.types." + key + ".levels." + key2 + ".upgrade-cost");
+                levels.add(new MachineType.MachineLevel(dropQuantity, dropDelay, maxTank, maxDropCount, upgradeCost));
             }
+            MachineTypes.add(new MachineType(key, name, price, item, drop, dropPrice, levels));
+            //} catch (Exception ex) {
+            //    ex.printStackTrace();
+            //}
         }
 
         MainMenu = new MenuConfig(config.getConfigurationSection("machines.menus.main"));
@@ -86,6 +90,15 @@ public class RankupConfiguration {
         MachineInfoMenu = new MenuConfig(config.getConfigurationSection("machines.menus.machine"));
         MachineDropsMenu = new MenuConfig(config.getConfigurationSection("machines.menus.drops"));
         MachineFuelMenu = new MenuConfig(config.getConfigurationSection("machines.menus.fuel"));
+
+        DefaultRank = config.getString("rankup.default-rank");
+        for (String key : config.getConfigurationSection("rankup.ranks").getKeys(false)) {
+            String rankName = config.getString("rankup.ranks." + key + ".name");
+            String rankDisplayName = config.getString("rankup.ranks." + key + ".display-name");
+            double cost = config.getDouble("rankup.ranks." + key + ".cost");
+            boolean canLevelUp = config.getBoolean("rankup.ranks." + key + ".can-level-up");
+            Ranks.add(new RankLevel(rankName, rankDisplayName, cost, canLevelUp));
+        }
     }
 
     public static void save() {
@@ -130,7 +143,14 @@ public class RankupConfiguration {
 
     public static MachineType getMachineTypeByName(String name) {
         for (MachineType machineType : MachineTypes) {
-            if(machineType.getKey().equals(name)) return machineType;
+            if (machineType.getKey().equalsIgnoreCase(name)) return machineType;
+        }
+        return null;
+    }
+
+    public static RankLevel getRankLevelByName(String name) {
+        for (RankLevel rankLevel : Ranks) {
+            if (rankLevel.name.equalsIgnoreCase(name)) return rankLevel;
         }
         return null;
     }

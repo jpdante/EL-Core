@@ -22,6 +22,51 @@ mine-reseter:
       ores:
         - "0.5,1:0"
         - "0.5,3:0"
+rankup:
+  default-rank: "Slave"
+  ranks:
+    0:
+      name: "Slave"
+      cost: 1000.0
+      can-level-up: true
+      display-name: "&7Slave"
+    1:
+      name: "Merchant"
+      cost: 10000.0
+      can-level-up: true
+      display-name: "&bMerchant"
+    2:
+      name: "God"
+      cost: 100000.0
+      ccan-level-up: false
+      display-name: "&aGod"
+crates:
+  types: []
+  menus:
+    main:
+      name: "&2&lOpening %CrateName%"
+      size: 27
+      items:
+        - "0,160:15,1,false,,&l,"
+        - "1,160:15,1,false,,&l,"
+        - "2,160:15,1,false,,&l,"
+        - "3,160:15,1,false,,&l,"
+        - "4,160:15,1,false,,&l,"
+        - "5,160:15,1,false,,&l,"
+        - "6,160:15,1,false,,&l,"
+        - "7,160:15,1,false,,&l,"
+        - "8,160:15,1,false,,&l,"
+        - "9,160:15,1,false,,&l,"
+        - "17,160:15,1,false,,&l,"
+        - "18,160:15,1,false,,&l,"
+        - "19,160:15,1,false,,&l,"
+        - "20,160:15,1,false,,&l,"
+        - "21,160:15,1,false,,&l,"
+        - "22,160:15,1,false,,&l,"
+        - "23,160:15,1,false,,&l,"
+        - "24,160:15,1,false,,&l,"
+        - "25,160:15,1,false,,&l,"
+        - "26,160:15,1,false,,&l,"
 machines:
   fuel:
     id: "263:1"

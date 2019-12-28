@@ -22,6 +22,24 @@ mine-reseter:
       ores:
         - "0.5,1:0"
         - "0.5,3:0"
+rankup:
+  default-rank: "Slave"
+  ranks:
+    0:
+      name: "Slave"
+      cost: 1000.0
+      can-level-up: true
+      display-name: "&7Slave"
+    1:
+      name: "Merchant"
+      cost: 10000.0
+      can-level-up: true
+      display-name: "&bMerchant"
+    2:
+      name: "God"
+      cost: 100000.0
+      ccan-level-up: false
+      display-name: "&aGod"
 crates:
   types: []
   menus:

@@ -3,7 +3,11 @@ package com.ellisiumx.elrankup.clan;
 import com.ellisiumx.elrankup.clan.command.ClanCommand;
 import com.ellisiumx.elrankup.clan.repository.ClanRepository;
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ClanManager implements Listener {
@@ -30,6 +34,16 @@ public class ClanManager implements Listener {
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();*/
         new ClanCommand(plugin);
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onEntityDeath(EntityDeathEvent event) {
+
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onEntityDamage(EntityDamageEvent event) {
+
     }
 
 }

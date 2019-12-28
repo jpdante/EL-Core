@@ -6,9 +6,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.Plugin;
 
+import java.util.HashMap;
+
 public class ChatManager implements Listener {
 
     private static ChatManager context;
+    private HashMap<String, String> playerTags;
 
     public ChatManager(Plugin plugin) {
         context = this;
@@ -16,7 +19,7 @@ public class ChatManager implements Listener {
     }
 
     public void onChatMessage(AsyncPlayerChatEvent event) {
-        event.
+
     }
 
 }

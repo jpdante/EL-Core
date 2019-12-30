@@ -13,7 +13,7 @@ import com.ellisiumx.elcore.utils.*;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.economy.EconomyManager;
 import com.ellisiumx.elrankup.machine.command.MachineCommand;
-import com.ellisiumx.elrankup.machine.holders.*;
+import com.ellisiumx.elrankup.machine.holder.*;
 import com.ellisiumx.elrankup.machine.repository.MachineRepository;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -30,7 +30,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -69,8 +68,8 @@ public class MachineManager implements Listener {
             UtilLog.log(Level.INFO, "[Machines] " + machines.size() + " machines loaded from mysql.");
             initialized = true;
         });
-        mainMenu = RankupConfiguration.MainMenu.createMenu(new MachineMainMenuHolder());
-        shopMenu = RankupConfiguration.ShopMenu.createMenu(new MachineShopMenuHolder());
+        mainMenu = RankupConfiguration.MachineMainMenu.createMenu(new MachineMainMenuHolder());
+        shopMenu = RankupConfiguration.MachineShopMenu.createMenu(new MachineShopMenuHolder());
         for (LanguageDB languageDB : LanguageManager.getLanguages()) {
             languageDB.insertTranslation("MachineTransactionFailure", "&f[&aMachines&f] &cFailed to transfer, please try again later. %ErrorMessage%");
             languageDB.insertTranslation("MachineNotEnoughMoney", "&f[&aMachines&f] &cYou don't have enough money to buy %MachineType%&c, it costs %Cost%");

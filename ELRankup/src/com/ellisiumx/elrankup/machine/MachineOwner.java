@@ -2,7 +2,7 @@ package com.ellisiumx.elrankup.machine;
 
 import com.ellisiumx.elcore.utils.UtilNBT;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
-import com.ellisiumx.elrankup.machine.holders.MachineListMenuHolder;
+import com.ellisiumx.elrankup.machine.holder.MachineListMenuHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -51,7 +51,7 @@ public class MachineOwner {
     }
 
     public Inventory getMachinesMenu() {
-        Inventory inventory = RankupConfiguration.MachinesMenu.createMenu(new MachineListMenuHolder());
+        Inventory inventory = RankupConfiguration.MachineMenu.createMenu(new MachineListMenuHolder());
         if(machines.size() > 0) {
             int machineIndex = 0;
             for(int i = 0; i < inventory.getSize(); i++) {

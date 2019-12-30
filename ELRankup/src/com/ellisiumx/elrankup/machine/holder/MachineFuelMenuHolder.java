@@ -1,4 +1,4 @@
-package com.ellisiumx.elrankup.machine.holders;
+package com.ellisiumx.elrankup.machine.holder;
 
 import com.ellisiumx.elrankup.machine.Machine;
 import org.bukkit.inventory.Inventory;

@@ -27,6 +27,7 @@ public class MineData {
     private Location point1;
     private Location point2;
 
+    public String key;
     public String name;
     public Location middle;
     public int alertArea;
@@ -34,7 +35,8 @@ public class MineData {
     public int delay;
     public int currentDelay;
 
-    public MineData(String name, boolean enabled, int alertArea, Location point1, Location point2, int delay) {
+    public MineData(String key, String name, boolean enabled, int alertArea, Location point1, Location point2, int delay) {
+        this.key = key;
         this.name = name;
         this.enabled = enabled;
         this.alertArea = alertArea;

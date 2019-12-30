@@ -1,7 +1,7 @@
 package com.ellisiumx.elrankup.configuration;
 
-import com.ellisiumx.elcore.utils.Pair;
 import com.ellisiumx.elrankup.ELRankup;
+import com.ellisiumx.elrankup.crate.CrateType;
 import com.ellisiumx.elrankup.machine.MachineType;
 import com.ellisiumx.elrankup.mapedit.BlockData;
 import com.ellisiumx.elrankup.mine.MineData;
@@ -14,6 +14,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,17 +27,20 @@ public class RankupConfiguration {
     public static ItemStack Fuel;
     public static List<MachineType> MachineTypes;
 
-    public static MenuConfig MainMenu;
-    public static MenuConfig ShopMenu;
-    public static MenuConfig MachinesMenu;
+    public static MenuConfig MachineMainMenu;
+    public static MenuConfig MachineShopMenu;
+    public static MenuConfig MachineMenu;
     public static MenuConfig MachineInfoMenu;
     public static MenuConfig MachineDropsMenu;
     public static MenuConfig MachineFuelMenu;
-    public static MenuConfig PermissionsMenu;
-    public static MenuConfig FriendsMenu;
+    public static MenuConfig MachinePermissionsMenu;
+    public static MenuConfig MachineFriendsMenu;
 
     public static String DefaultRank;
     public static List<RankLevel> Ranks;
+
+    public static List<CrateType> CrateTypes;
+    public static MenuConfig CrateMenu;
 
     public RankupConfiguration() {
         FileConfiguration config = ELRankup.getContext().getConfig();
@@ -51,7 +55,7 @@ public class RankupConfiguration {
             Location point1 = stringToLocation(config.getString("mine-reseter.mines." + key + ".point1"));
             Location point2 = stringToLocation(config.getString("mine-reseter.mines." + key + ".point2"));
             int delay = config.getInt("mine-reseter.mines." + key + ".delay");
-            MineData mineData = new MineData(name, enabled, alertArea, point1, point2, delay);
+            MineData mineData = new MineData(key, name, enabled, alertArea, point1, point2, delay);
             for (String ore : config.getStringList("mine-reseter.mines." + key + ".ores")) {
                 String[] datas = ore.split(",", 2);
                 String[] item = datas[1].split(":", 2);
@@ -84,9 +88,9 @@ public class RankupConfiguration {
             //}
         }
 
-        MainMenu = new MenuConfig(config.getConfigurationSection("machines.menus.main"));
-        ShopMenu = new MenuConfig(config.getConfigurationSection("machines.menus.shop"));
-        MachinesMenu = new MenuConfig(config.getConfigurationSection("machines.menus.machines"));
+        MachineMainMenu = new MenuConfig(config.getConfigurationSection("machines.menus.main"));
+        MachineShopMenu = new MenuConfig(config.getConfigurationSection("machines.menus.shop"));
+        MachineMenu = new MenuConfig(config.getConfigurationSection("machines.menus.machines"));
         MachineInfoMenu = new MenuConfig(config.getConfigurationSection("machines.menus.machine"));
         MachineDropsMenu = new MenuConfig(config.getConfigurationSection("machines.menus.drops"));
         MachineFuelMenu = new MenuConfig(config.getConfigurationSection("machines.menus.fuel"));
@@ -99,24 +103,46 @@ public class RankupConfiguration {
             boolean canLevelUp = config.getBoolean("rankup.ranks." + key + ".can-level-up");
             Ranks.add(new RankLevel(rankName, rankDisplayName, cost, canLevelUp));
         }
+
+        CrateTypes = new ArrayList<>();
+        for (String key : config.getConfigurationSection("crates.types").getKeys(false)) {
+            String name = config.getString("crates.types." + key + ".name").replace('&', ChatColor.COLOR_CHAR);
+            ArrayList<ItemStack> items = null;
+            try {
+                items = (ArrayList<ItemStack>) UtilConvert.fromBase64String(config.getString("crates.types." + key + ".items"));
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            CrateTypes.add(new CrateType(key, name, items));
+        }
+
+        CrateMenu = new MenuConfig(config.getConfigurationSection("crates.menus.main"));
     }
 
     public static void save() {
         ELRankup.getContext().getConfig().set("mine-reseter.mines", null);
-        int index = 0;
         for (MineData mine : Mines) {
-            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".name", mine.name);
-            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".enabled", mine.enabled);
-            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".alert-area", mine.alertArea);
-            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".point1", locationToString(mine.getPoint1()));
-            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".point2", locationToString(mine.getPoint2()));
-            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".delay", mine.delay);
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".name", mine.name);
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".enabled", mine.enabled);
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".alert-area", mine.alertArea);
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".point1", locationToString(mine.getPoint1()));
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".point2", locationToString(mine.getPoint2()));
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".delay", mine.delay);
             List<String> ores = new ArrayList<>();
             for (BlockData blockData : mine.getBlocks().keySet()) {
                 ores.add(mine.getBlocks().get(blockData) + "," + blockData.id + ":" + blockData.data);
             }
-            ELRankup.getContext().getConfig().set("mine-reseter.mines." + index + ".ores", ores);
-            index++;
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".ores", ores);
+        }
+
+        ELRankup.getContext().getConfig().set("crates.types", null);
+        for (CrateType crateType : CrateTypes) {
+            try {
+                ELRankup.getContext().getConfig().set("crates.types." + crateType.key + ".name", crateType.name);
+                ELRankup.getContext().getConfig().set("crates.types." + crateType.key + ".items", UtilConvert.toBase64String(crateType.name));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         ELRankup.getContext().saveConfig();
     }
@@ -155,4 +181,10 @@ public class RankupConfiguration {
         return null;
     }
 
+    public static CrateType getCrateTypeByName(String name) {
+        for (CrateType crateType : CrateTypes) {
+            if (crateType.key.equalsIgnoreCase(name)) return crateType;
+        }
+        return null;
+    }
 }

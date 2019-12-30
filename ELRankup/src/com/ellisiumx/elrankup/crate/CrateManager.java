@@ -1,27 +1,17 @@
 package com.ellisiumx.elrankup.crate;
 
-import com.ellisiumx.elcore.recharge.Recharge;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
-import com.ellisiumx.elcore.utils.UtilMessage;
-import com.ellisiumx.elcore.utils.UtilNBT;
 import com.ellisiumx.elrankup.crate.command.CrateCommand;
-import com.ellisiumx.elrankup.machine.holders.MachineDropsMenuHolder;
-import com.ellisiumx.elrankup.machine.holders.MachineFuelMenuHolder;
-import com.ellisiumx.elrankup.machine.holders.MachineInfoMenuHolder;
-import com.ellisiumx.elrankup.machine.holders.MachineMenuHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -31,6 +21,7 @@ public class CrateManager implements Listener {
     private static CrateManager context;
     //private CrateManager repository;
     private ArrayList<Location> chests;
+    private ArrayList<Crate> openCrates;
 
     public CrateManager(JavaPlugin plugin) {
         context = this;
@@ -53,11 +44,13 @@ public class CrateManager implements Listener {
         new CrateCommand(plugin);
     }
 
-    /*@EventHandler
+    @EventHandler
     public void onUpdate(UpdateEvent event) {
         if (event.getType() != UpdateType.FASTEST) return;
-
-    }*/
+        for(Crate crate : openCrates) {
+            crate.animationTick();
+        }
+    }
 
     @EventHandler
     public void onBlockInteract(PlayerInteractEvent event) {

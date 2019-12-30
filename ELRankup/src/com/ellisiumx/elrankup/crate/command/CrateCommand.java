@@ -3,7 +3,19 @@ package com.ellisiumx.elrankup.crate.command;
 import com.ellisiumx.elcore.command.CommandBase;
 import com.ellisiumx.elcore.command.CommandCenter;
 import com.ellisiumx.elcore.permissions.Rank;
+import com.ellisiumx.elcore.utils.UtilNBT;
+import com.ellisiumx.elrankup.configuration.RankupConfiguration;
+import com.ellisiumx.elrankup.crate.CrateType;
+import com.ellisiumx.elrankup.crate.holder.CrateCreateMenuHolder;
+import com.ellisiumx.elrankup.crate.holder.CrateMenuHolder;
+import net.milkbowl.vault.chat.Chat;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class CrateCommand extends CommandBase {
@@ -16,7 +28,70 @@ public class CrateCommand extends CommandBase {
 
     @Override
     public void execute(Player caller, String[] args) {
+        if (args.length == 0) showCommands(caller);
+        else {
+            if (args[0].equalsIgnoreCase("create")) {
+                if (args.length < 3) return;
+                CrateType crateType = RankupConfiguration.getCrateTypeByName(args[1]);
+                if(crateType != null) {
+                    caller.sendMessage(ChatColor.RED + "A crate with this key already exists!");
+                    return;
+                }
+                StringBuilder name = new StringBuilder();
+                for(int i = 2; i < args.length; i++) {
+                    name.append(args[i]);
+                }
+                Inventory inventory = Bukkit.createInventory(new CrateCreateMenuHolder(args[2], name.toString()), 54);
+                inventory.setItem(53, confirmItemStack());
+                caller.openInventory(inventory);
+            } else if (args[0].equalsIgnoreCase("edit")) {
+                if (args.length != 2) return;
+                CrateType crateType = RankupConfiguration.getCrateTypeByName(args[1]);
+                if(crateType == null) {
+                    caller.sendMessage(ChatColor.RED + "Unknown key '" + args[1] + "'");
+                    return;
+                }
+                Inventory inventory = Bukkit.createInventory(new CrateMenuHolder(args[1], CrateMenuHolder.CrateMenuType.EditMenu), 54);
+                for(int i = 0; i < crateType.items.size(); i++) {
+                    inventory.setItem(i, crateType.items.get(i));
+                }
+                inventory.setItem(53, confirmItemStack());
+                caller.openInventory(inventory);
+            } else if (args[0].equalsIgnoreCase("list")) {
+                caller.sendMessage(ChatColor.GREEN + "=-=-=- Crate List -=-=-=");
+                for (CrateType crateType : RankupConfiguration.CrateTypes) {
+                    caller.sendMessage(ChatColor.GOLD + crateType.key + ": " + crateType.name);
+                }
+            } else if (args[0].equalsIgnoreCase("delete")) {
+                if (args.length != 2) return;
+                CrateType crateType = RankupConfiguration.getCrateTypeByName(args[1]);
+                if(crateType == null) {
+                    caller.sendMessage(ChatColor.RED + "Unknown key '" + args[1] + "'");
+                    return;
+                }
+                RankupConfiguration.CrateTypes.remove(crateType);
+                RankupConfiguration.save();
+                caller.sendMessage(ChatColor.GREEN + "Crate deleted successfully!");
+            }
+        }
+    }
 
+    private ItemStack confirmItemStack() {
+        ItemStack itemStack = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        itemMeta.setDisplayName(ChatColor.GREEN + "Confirm");
+        itemStack.setItemMeta(itemMeta);
+        itemStack = UtilNBT.set(itemStack, "true", "MenuItem");
+        itemStack = UtilNBT.set(itemStack, "confirm", "MenuCommand");
+        return itemStack;
+    }
+
+    private void showCommands(Player player) {
+        player.sendMessage(ChatColor.GREEN + "=-=-=- Crate Commands -=-=-=");
+        player.sendMessage(ChatColor.GREEN + " /crate list");
+        player.sendMessage(ChatColor.GREEN + " /crate create <key> <name>");
+        player.sendMessage(ChatColor.GREEN + " /crate edit <key>");
+        player.sendMessage(ChatColor.GREEN + " /crate delete <key>");
     }
 
 }

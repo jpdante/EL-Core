@@ -8,10 +8,28 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public final class UtilConvert {
+
+    public static Object fromBase64String( String s ) throws IOException , ClassNotFoundException {
+        byte [] data = Base64.getDecoder().decode( s );
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(  data ));
+        Object o  = ois.readObject();
+        ois.close();
+        return o;
+    }
+
+    public static String toBase64String(Serializable o) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream( baos );
+        oos.writeObject( o );
+        oos.close();
+        return Base64.getEncoder().encodeToString(baos.toByteArray());
+    }
 
     public static ItemStack getItemStackFromConfig(ConfigurationSection section) {
         try {

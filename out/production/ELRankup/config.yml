@@ -41,7 +41,6 @@ rankup:
       ccan-level-up: false
       display-name: "&aGod"
 crates:
-  types: []
   menus:
     main:
       name: "&2&lOpening %CrateName%"

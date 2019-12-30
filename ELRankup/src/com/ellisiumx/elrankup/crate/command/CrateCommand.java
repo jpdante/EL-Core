@@ -6,9 +6,7 @@ import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.utils.UtilNBT;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.crate.CrateType;
-import com.ellisiumx.elrankup.crate.holder.CrateCreateMenuHolder;
 import com.ellisiumx.elrankup.crate.holder.CrateMenuHolder;
-import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -28,7 +26,7 @@ public class CrateCommand extends CommandBase {
 
     @Override
     public void execute(Player caller, String[] args) {
-        if (args.length == 0) showCommands(caller);
+        if (args == null || args.length == 0) showCommands(caller);
         else {
             if (args[0].equalsIgnoreCase("create")) {
                 if (args.length < 3) return;
@@ -41,7 +39,8 @@ public class CrateCommand extends CommandBase {
                 for(int i = 2; i < args.length; i++) {
                     name.append(args[i]);
                 }
-                Inventory inventory = Bukkit.createInventory(new CrateCreateMenuHolder(args[2], name.toString()), 54);
+                Inventory inventory = Bukkit.createInventory(new CrateMenuHolder(args[1], name.toString(), CrateMenuHolder.CrateMenuType.CreateMenu), 54,
+                        ChatColor.GREEN + "" + ChatColor.BOLD + "Creating " + name.toString().replace('&', ChatColor.COLOR_CHAR));
                 inventory.setItem(53, confirmItemStack());
                 caller.openInventory(inventory);
             } else if (args[0].equalsIgnoreCase("edit")) {
@@ -51,7 +50,8 @@ public class CrateCommand extends CommandBase {
                     caller.sendMessage(ChatColor.RED + "Unknown key '" + args[1] + "'");
                     return;
                 }
-                Inventory inventory = Bukkit.createInventory(new CrateMenuHolder(args[1], CrateMenuHolder.CrateMenuType.EditMenu), 54);
+                Inventory inventory = Bukkit.createInventory(new CrateMenuHolder(args[1], CrateMenuHolder.CrateMenuType.EditMenu), 54,
+                        ChatColor.GREEN + "" + ChatColor.BOLD + "Editing " + crateType.name.replace('&', ChatColor.COLOR_CHAR));
                 for(int i = 0; i < crateType.items.size(); i++) {
                     inventory.setItem(i, crateType.items.get(i));
                 }

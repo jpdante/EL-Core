@@ -1,5 +1,6 @@
 package com.ellisiumx.elrankup.configuration;
 
+import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elrankup.ELRankup;
 import com.ellisiumx.elrankup.crate.CrateType;
 import com.ellisiumx.elrankup.machine.MachineType;
@@ -14,6 +15,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
+import javax.rmi.CORBA.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +98,7 @@ public class RankupConfiguration {
         MachineFuelMenu = new MenuConfig(config.getConfigurationSection("machines.menus.fuel"));
 
         DefaultRank = config.getString("rankup.default-rank");
+        Ranks = new ArrayList<>();
         for (String key : config.getConfigurationSection("rankup.ranks").getKeys(false)) {
             String rankName = config.getString("rankup.ranks." + key + ".name");
             String rankDisplayName = config.getString("rankup.ranks." + key + ".display-name");
@@ -105,17 +108,17 @@ public class RankupConfiguration {
         }
 
         CrateTypes = new ArrayList<>();
-        for (String key : config.getConfigurationSection("crates.types").getKeys(false)) {
-            String name = config.getString("crates.types." + key + ".name").replace('&', ChatColor.COLOR_CHAR);
-            ArrayList<ItemStack> items = null;
-            try {
-                items = (ArrayList<ItemStack>) UtilConvert.fromBase64String(config.getString("crates.types." + key + ".items"));
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+        if(config.getConfigurationSection("crates.types") != null) {
+            for (String key : config.getConfigurationSection("crates.types").getKeys(false)) {
+                String name = config.getString("crates.types." + key + ".name").replace('&', ChatColor.COLOR_CHAR);
+                List<String> itemsRaw = config.getStringList("crates.types." + key + ".items");
+                ArrayList<ItemStack> items = new ArrayList<>();
+                for(String item : itemsRaw) {
+                    items.add(UtilConvert.deserializeItemStack(item));
+                }
+                CrateTypes.add(new CrateType(key, name, items));
             }
-            CrateTypes.add(new CrateType(key, name, items));
         }
-
         CrateMenu = new MenuConfig(config.getConfigurationSection("crates.menus.main"));
     }
 
@@ -137,12 +140,12 @@ public class RankupConfiguration {
 
         ELRankup.getContext().getConfig().set("crates.types", null);
         for (CrateType crateType : CrateTypes) {
-            try {
-                ELRankup.getContext().getConfig().set("crates.types." + crateType.key + ".name", crateType.name);
-                ELRankup.getContext().getConfig().set("crates.types." + crateType.key + ".items", UtilConvert.toBase64String(crateType.name));
-            } catch (IOException e) {
-                e.printStackTrace();
+            ELRankup.getContext().getConfig().set("crates.types." + crateType.key + ".name", crateType.name);
+            ArrayList<String> items = new ArrayList<>();
+            for(ItemStack itemStack : crateType.items) {
+                items.add(UtilConvert.serializeItemStack(itemStack));
             }
+            ELRankup.getContext().getConfig().set("crates.types." + crateType.key + ".items", items);
         }
         ELRankup.getContext().saveConfig();
     }

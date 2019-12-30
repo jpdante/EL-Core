@@ -1,17 +1,27 @@
 package com.ellisiumx.elrankup.crate;
 
+import com.ellisiumx.elcore.recharge.Recharge;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
+import com.ellisiumx.elcore.utils.UtilMessage;
+import com.ellisiumx.elcore.utils.UtilNBT;
+import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.crate.command.CrateCommand;
+import com.ellisiumx.elrankup.crate.holder.CrateMenuHolder;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -19,14 +29,14 @@ import java.util.ArrayList;
 public class CrateManager implements Listener {
 
     private static CrateManager context;
-    //private CrateManager repository;
     private ArrayList<Location> chests;
     private ArrayList<Crate> openCrates;
 
     public CrateManager(JavaPlugin plugin) {
         context = this;
-        //repository = new CrateManager(plugin);
         Bukkit.getPluginManager().registerEvents(this, plugin);
+        chests = new ArrayList<>();
+        openCrates = new ArrayList<>();
         /*for (LanguageDB languageDB : LanguageManager.getLanguages()) {
             languageDB.insertTranslation("MachineTransactionFailure", "&f[&aMachines&f] &cFailed to transfer, please try again later. %ErrorMessage%");
             languageDB.insertTranslation("MachineNotEnoughMoney", "&f[&aMachines&f] &cYou don't have enough money to buy %MachineType%&c, it costs %Cost%");
@@ -63,44 +73,57 @@ public class CrateManager implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        /*InventoryHolder holder = event.getInventory().getHolder();
-        if (holder == null) return;
-        if (!(holder instanceof MachineMenuHolder)) return;
-        event.setCancelled(true);
+        if (event.getInventory().getHolder() == null) return;
+        if (!(event.getInventory().getHolder() instanceof CrateMenuHolder)) return;
+        CrateMenuHolder holder = (CrateMenuHolder) event.getInventory().getHolder();
+        if(holder.type == CrateMenuHolder.CrateMenuType.CrateMenu) event.setCancelled(true);
         if (!Recharge.use((Player) event.getWhoClicked(), "Crate", 400, false, false)) {
             event.getWhoClicked().sendMessage(UtilMessage.main("Crate", "You can't spam commands that fast."));
             return;
         }
         ItemStack itemStack = event.getCurrentItem();
         if(itemStack == null || itemStack.getType() == Material.AIR) return;
-        if (holder instanceof MachineFuelMenuHolder) {
-            refuelMachine(event, itemStack, (MachineFuelMenuHolder) holder);
-            return;
-        }
         if (!UtilNBT.contains(itemStack, "MenuItem")) return;
+        event.setCancelled(true);
         String command = UtilNBT.getString(itemStack, "MenuCommand");
         if (command == null) return;
         String[] args = command.split(" ", 2);
-        if(args[0].equals("open")) {
-            if (args.length < 2) return;
-            openMenu((Player) event.getWhoClicked(), args[1], holder);
-        } else if(args[0].equals("buymachine")) {
-            if (args.length < 2) return;
-            buyMachine((Player) event.getWhoClicked(), args[1]);
-        } else if(args[0].equals("buyfuel")) {
-            if (args.length < 2) return;
-            buyFuel((Player) event.getWhoClicked(), args[1]);
-        } else if(args[0].equals("upgrademachine")) {
-            if (holder instanceof MachineInfoMenuHolder) {
-                upgradeMachine((Player) event.getWhoClicked(), (MachineInfoMenuHolder) holder);
+        if(args[0].equals("confirm")) {
+            if(holder.type == CrateMenuHolder.CrateMenuType.CreateMenu) {
+                createCrate((Player) event.getWhoClicked(), event.getInventory(), holder);
+            } else if(holder.type == CrateMenuHolder.CrateMenuType.EditMenu) {
+                editCrate((Player) event.getWhoClicked(), event.getInventory(), holder);
             }
-        } else if(args[0].equals("selldrops")) {
-            if (holder instanceof MachineDropsMenuHolder) {
-                sellDrops((Player) event.getWhoClicked(), (MachineDropsMenuHolder) holder);
-            }
-        } else if(args[0].equals("close")) {
-            event.getWhoClicked().closeInventory();
-        }*/
+        }
+    }
+
+    public void createCrate(Player player, Inventory inventory, CrateMenuHolder holder) {
+        ArrayList<ItemStack> items = new ArrayList<>();
+        for(ItemStack itemStack : inventory.getContents()) {
+            if(itemStack == null || itemStack.getType() == Material.AIR) continue;
+            if (UtilNBT.contains(itemStack, "MenuItem")) continue;
+            items.add(itemStack);
+        }
+        RankupConfiguration.CrateTypes.add(new CrateType(holder.key, holder.name, items));
+        RankupConfiguration.save();
+        player.sendMessage(ChatColor.GREEN + "Crate created successfully!");
+        player.closeInventory();
+    }
+
+    public void editCrate(Player player, Inventory inventory, CrateMenuHolder holder) {
+        ArrayList<ItemStack> items = new ArrayList<>();
+        for(ItemStack itemStack : inventory.getContents()) {
+            if(itemStack == null || itemStack.getType() == Material.AIR) continue;
+            if (UtilNBT.contains(itemStack, "MenuItem")) continue;
+            items.add(itemStack);
+        }
+        for(CrateType crateType : RankupConfiguration.CrateTypes) {
+            if(!crateType.key.equalsIgnoreCase(holder.key)) continue;
+            crateType.items = items;
+        }
+        RankupConfiguration.save();
+        player.sendMessage(ChatColor.GREEN + "Crate edited successfully!");
+        player.closeInventory();
     }
 
 }

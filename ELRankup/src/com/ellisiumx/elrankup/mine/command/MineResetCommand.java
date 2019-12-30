@@ -72,7 +72,7 @@ public class MineResetCommand extends CommandBase {
         if(args.length == 2) {
             try {
                 PlayerPoints points = UtilCheck.getPoints(caller);
-                MineData mineData = new MineData(args[1], false, -1, points.getPoint1(), points.getPoint2(), 30);
+                MineData mineData = new MineData(args[1], "minaa", false, -1, points.getPoint1(), points.getPoint2(), 30);
                 RankupConfiguration.Mines.add(mineData);
                 RankupConfiguration.save();
                 caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "'" + mineData.name + "' created!"));

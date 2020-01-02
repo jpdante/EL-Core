@@ -4,6 +4,7 @@ import com.ellisiumx.elcore.command.CommandBase;
 import com.ellisiumx.elcore.command.CommandCenter;
 import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.utils.UtilChat;
+import com.ellisiumx.elcore.utils.UtilConvert;
 import com.ellisiumx.elcore.utils.UtilMessage;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.mapedit.BlockData;
@@ -160,8 +161,8 @@ public class MineResetCommand extends CommandBase {
                                 PlayerPoints points = UtilCheck.getPoints(caller);
                                 mineData.setPoints(points.getPoint1(), points.getPoint2());
                                 RankupConfiguration.save();
-                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point1 set: " + RankupConfiguration.locationToString(mineData.getPoint1())));
-                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point2 set: " + RankupConfiguration.locationToString(mineData.getPoint2())));
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point1 set: " + UtilConvert.getStringFromLocation(mineData.getPoint1())));
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point2 set: " + UtilConvert.getStringFromLocation(mineData.getPoint2())));
                             } catch (Exception ex) {
                                 caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + ex.getMessage()));
                             }
@@ -209,8 +210,8 @@ public class MineResetCommand extends CommandBase {
                             caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Enabled: " + mineData.enabled));
                             return;
                         case "points":
-                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point1: " + RankupConfiguration.locationToString(mineData.getPoint1())));
-                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point2: " + RankupConfiguration.locationToString(mineData.getPoint2())));
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point1: " + UtilConvert.getStringFromLocation(mineData.getPoint1())));
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point2: " + UtilConvert.getStringFromLocation(mineData.getPoint2())));
                             return;
                         case "ores":
                             int index = 0;

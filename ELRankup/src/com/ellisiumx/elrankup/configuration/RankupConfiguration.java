@@ -42,6 +42,7 @@ public class RankupConfiguration {
     public static List<RankLevel> Ranks;
 
     public static List<CrateType> CrateTypes;
+    public static List<Location> CrateChestLocations;
     public static MenuConfig CrateMenu;
 
     public RankupConfiguration() {
@@ -54,8 +55,8 @@ public class RankupConfiguration {
             String name = config.getString("mine-reseter.mines." + key + ".name");
             boolean enabled = config.getBoolean("mine-reseter.mines." + key + ".enabled");
             int alertArea = config.getInt("mine-reseter.mines." + key + ".alert-area");
-            Location point1 = stringToLocation(config.getString("mine-reseter.mines." + key + ".point1"));
-            Location point2 = stringToLocation(config.getString("mine-reseter.mines." + key + ".point2"));
+            Location point1 = UtilConvert.getLocationFromString(config.getString("mine-reseter.mines." + key + ".point1"));
+            Location point2 = UtilConvert.getLocationFromString(config.getString("mine-reseter.mines." + key + ".point2"));
             int delay = config.getInt("mine-reseter.mines." + key + ".delay");
             MineData mineData = new MineData(key, name, enabled, alertArea, point1, point2, delay);
             for (String ore : config.getStringList("mine-reseter.mines." + key + ".ores")) {
@@ -89,7 +90,6 @@ public class RankupConfiguration {
             //    ex.printStackTrace();
             //}
         }
-
         MachineMainMenu = new MenuConfig(config.getConfigurationSection("machines.menus.main"));
         MachineShopMenu = new MenuConfig(config.getConfigurationSection("machines.menus.shop"));
         MachineMenu = new MenuConfig(config.getConfigurationSection("machines.menus.machines"));
@@ -119,6 +119,12 @@ public class RankupConfiguration {
                 CrateTypes.add(new CrateType(key, name, items));
             }
         }
+        CrateChestLocations = new ArrayList<>();
+        if(config.getStringList("crates.chests") != null) {
+            for(String location : config.getStringList("crates.chests")) {
+                CrateChestLocations.add(UtilConvert.getLocationFromString(location));
+            }
+        }
         CrateMenu = new MenuConfig(config.getConfigurationSection("crates.menus.main"));
     }
 
@@ -128,8 +134,8 @@ public class RankupConfiguration {
             ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".name", mine.name);
             ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".enabled", mine.enabled);
             ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".alert-area", mine.alertArea);
-            ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".point1", locationToString(mine.getPoint1()));
-            ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".point2", locationToString(mine.getPoint2()));
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".point1", UtilConvert.getStringFromLocation(mine.getPoint1()));
+            ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".point2", UtilConvert.getStringFromLocation(mine.getPoint2()));
             ELRankup.getContext().getConfig().set("mine-reseter.mines." + mine.key + ".delay", mine.delay);
             List<String> ores = new ArrayList<>();
             for (BlockData blockData : mine.getBlocks().keySet()) {
@@ -147,27 +153,13 @@ public class RankupConfiguration {
             }
             ELRankup.getContext().getConfig().set("crates.types." + crateType.key + ".items", items);
         }
+        ArrayList<String> crateChestsLocations = new ArrayList<>();
+        for(Location location : CrateChestLocations) {
+            crateChestsLocations.add(UtilConvert.getStringFromLocation(location));
+        }
+        ELRankup.getContext().getConfig().set("crates.chests", crateChestsLocations);
+
         ELRankup.getContext().saveConfig();
-    }
-
-    public static String locationToString(Location location) {
-        return location.getWorld().getName() +
-                ", " + location.getX() +
-                ", " + location.getY() +
-                ", " + location.getZ() +
-                ", " + location.getPitch() +
-                ", " + location.getYaw();
-    }
-
-    public static Location stringToLocation(String data) {
-        String[] datas = data.replaceAll(" ", "").split(",");
-        World world = Bukkit.getWorld(datas[0]);
-        double x = Double.parseDouble(datas[1]);
-        double y = Double.parseDouble(datas[2]);
-        double z = Double.parseDouble(datas[3]);
-        float pitch = Float.parseFloat(datas[3]);
-        float yaw = Float.parseFloat(datas[3]);
-        return new Location(world, x, y, z, pitch, yaw);
     }
 
     public static MachineType getMachineTypeByName(String name) {

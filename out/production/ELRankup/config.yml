@@ -40,6 +40,8 @@ rankup:
       cost: 100000.0
       ccan-level-up: false
       display-name: "&aGod"
+clans:
+  create-price: 1000.0
 crates:
   menus:
     main:

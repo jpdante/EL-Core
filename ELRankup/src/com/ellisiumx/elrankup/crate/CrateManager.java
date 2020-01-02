@@ -1,5 +1,6 @@
 package com.ellisiumx.elrankup.crate;
 
+import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.recharge.Recharge;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
@@ -7,12 +8,14 @@ import com.ellisiumx.elcore.utils.UtilMessage;
 import com.ellisiumx.elcore.utils.UtilNBT;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.crate.command.CrateCommand;
+import com.ellisiumx.elrankup.crate.command.CrateTestCommand;
 import com.ellisiumx.elrankup.crate.holder.CrateMenuHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,20 +25,25 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 
 public class CrateManager implements Listener {
 
-    private static CrateManager context;
-    private ArrayList<Location> chests;
-    private ArrayList<Crate> openCrates;
+    public static CrateManager context;
+    public ArrayList<Integer> chests;
+    public ArrayList<Crate> openCrates;
 
     public CrateManager(JavaPlugin plugin) {
         context = this;
         Bukkit.getPluginManager().registerEvents(this, plugin);
         chests = new ArrayList<>();
+        for(Location location : RankupConfiguration.CrateChestLocations) {
+            chests.add(location.hashCode());
+        }
         openCrates = new ArrayList<>();
         /*for (LanguageDB languageDB : LanguageManager.getLanguages()) {
             languageDB.insertTranslation("MachineTransactionFailure", "&f[&aMachines&f] &cFailed to transfer, please try again later. %ErrorMessage%");
@@ -52,13 +60,14 @@ public class CrateManager implements Listener {
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();*/
         new CrateCommand(plugin);
+        new CrateTestCommand(plugin);
     }
 
     @EventHandler
     public void onUpdate(UpdateEvent event) {
-        if (event.getType() != UpdateType.FASTEST) return;
-        for(Crate crate : openCrates) {
-            crate.animationTick();
+        if (event.getType() != UpdateType.TICK) return;
+        for(int i = 0; i < openCrates.size(); i++) {
+            openCrates.get(i).animationTick();
         }
     }
 
@@ -67,8 +76,22 @@ public class CrateManager implements Listener {
         if(event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         Block block = event.getClickedBlock();
         if(block == null || block.getType() != Material.CHEST) return;
-        if(!chests.contains(block.getLocation())) return;
-
+        if(!chests.contains(block.getLocation().hashCode())) return;
+        event.setCancelled(true);
+        ItemStack itemStack = event.getPlayer().getItemInHand();
+        if(itemStack == null || itemStack.getType() == Material.AIR) return;
+        if (!UtilNBT.contains(itemStack, "CrateKey")) return;
+        String crateName = UtilNBT.getString(itemStack, "CrateType");
+        if (crateName == null) return;
+        CrateType crateType = RankupConfiguration.getCrateTypeByName(crateName);
+        if (crateType == null) return;
+        if(itemStack.getAmount() > 1) {
+            itemStack.setAmount(itemStack.getAmount() - 1);
+            event.getPlayer().setItemInHand(itemStack);
+        } else {
+            event.getPlayer().setItemInHand(new ItemStack(Material.AIR, 1));
+        }
+        openCrates.add(new Crate(event.getPlayer(), (Chest) block.getState(), crateType).open());
     }
 
     @EventHandler
@@ -126,4 +149,13 @@ public class CrateManager implements Listener {
         player.closeInventory();
     }
 
+    public static ItemStack getCrateKey(CrateType crateType) {
+        ItemStack itemStack = new ItemStack(Material.TRIPWIRE_HOOK, 1);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        itemMeta.setDisplayName(crateType.name.replace('&', ChatColor.COLOR_CHAR));
+        itemStack.setItemMeta(itemMeta);
+        itemStack = UtilNBT.set(itemStack, "true", "CrateKey");
+        itemStack = UtilNBT.set(itemStack, crateType.key, "CrateType");
+        return itemStack;
+    }
 }

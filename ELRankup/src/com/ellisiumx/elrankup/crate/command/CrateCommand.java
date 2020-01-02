@@ -5,16 +5,20 @@ import com.ellisiumx.elcore.command.CommandCenter;
 import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.utils.UtilNBT;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
+import com.ellisiumx.elrankup.crate.CrateManager;
 import com.ellisiumx.elrankup.crate.CrateType;
 import com.ellisiumx.elrankup.crate.holder.CrateMenuHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Set;
 
 public class CrateCommand extends CommandBase {
 
@@ -72,6 +76,26 @@ public class CrateCommand extends CommandBase {
                 RankupConfiguration.CrateTypes.remove(crateType);
                 RankupConfiguration.save();
                 caller.sendMessage(ChatColor.GREEN + "Crate deleted successfully!");
+            } else if (args[0].equalsIgnoreCase("addchest")) {
+                Block block = caller.getTargetBlock((Set<Material>) null, 5);
+                if(block.getType() == Material.CHEST) {
+                    if(CrateManager.context.chests.contains(block.getLocation().hashCode()) || RankupConfiguration.CrateChestLocations.contains(block.getLocation())) {
+                        caller.sendMessage(ChatColor.RED + "This chest already exist!");
+                        return;
+                    }
+                    CrateManager.context.chests.add(block.getLocation().hashCode());
+                    RankupConfiguration.CrateChestLocations.add(block.getLocation());
+                    RankupConfiguration.save();
+                    caller.sendMessage(ChatColor.GREEN + "Chest created successfully!");
+                } else caller.sendMessage(ChatColor.RED + "The block must be a chest!");
+            } else if (args[0].equalsIgnoreCase("delchest")) {
+                Block block = caller.getTargetBlock((Set<Material>) null, 5);
+                if(block.getType() == Material.CHEST) {
+                    CrateManager.context.chests.remove(block.getLocation().hashCode());
+                    RankupConfiguration.CrateChestLocations.remove(block.getLocation());
+                    RankupConfiguration.save();
+                    caller.sendMessage(ChatColor.GREEN + "Chest deleted successfully!");
+                } else caller.sendMessage(ChatColor.RED + "The block must be a chest!");
             }
         }
     }
@@ -92,6 +116,8 @@ public class CrateCommand extends CommandBase {
         player.sendMessage(ChatColor.GREEN + " /crate create <key> <name>");
         player.sendMessage(ChatColor.GREEN + " /crate edit <key>");
         player.sendMessage(ChatColor.GREEN + " /crate delete <key>");
+        player.sendMessage(ChatColor.GREEN + " /crate addchest");
+        player.sendMessage(ChatColor.GREEN + " /crate delchest");
     }
 
 }

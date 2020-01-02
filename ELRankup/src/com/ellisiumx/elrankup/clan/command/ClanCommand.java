@@ -5,6 +5,7 @@ import com.ellisiumx.elcore.command.CommandCenter;
 import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.permissions.Rank;
+import com.ellisiumx.elcore.preferences.PreferencesManager;
 import com.ellisiumx.elrankup.machine.MachineManager;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -37,6 +38,16 @@ public class ClanCommand extends CommandBase {
     }
 
     private void showCommands(Player player) {
-
+        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansCommands"));
+        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansCreateCommand"));
+        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansListCommand"));
+        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansProfileCommand"));
+        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansPlayerCommand"));
+        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansRankCommand"));
+        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansAlliesCommand"));
+        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansRivalsCommand"));
+        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansMembersCommand"));
+        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansFriendFireCommand"));
+        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansAbandonCommand"));
     }
 }

@@ -3,6 +3,7 @@ package com.ellisiumx.elrankup.machine.repository;
 import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elcore.database.RepositoryBase;
 import com.ellisiumx.elcore.utils.UtilConvert;
+import com.ellisiumx.elrankup.clan.Clan;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.machine.Machine;
 import org.bukkit.Location;
@@ -99,8 +100,16 @@ public class MachineRepository extends RepositoryBase {
         }
     }
 
-    public void deleteMachine(int id) {
-
+    public void deleteMachine(Machine machine) {
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("DELETE FROM machines WHERE id = ?");
+        ){
+            statement.setInt(1, machine.getId());
+            statement.executeUpdate();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void updateMachine(Machine machine) {

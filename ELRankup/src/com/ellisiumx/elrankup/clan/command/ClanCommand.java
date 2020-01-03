@@ -34,7 +34,31 @@ public class ClanCommand extends CommandBase {
 
     @Override
     public void execute(Player caller, String[] args) {
+        if(args == null || args.length <= 0) {
+            showCommands(caller);
+            return;
+        }
+        if(args[0].equalsIgnoreCase("create")) {
 
+        } else if(args[0].equalsIgnoreCase("list")) {
+
+        } else if(args[0].equalsIgnoreCase("profile")) {
+
+        } else if(args[0].equalsIgnoreCase("player")) {
+
+        } else if(args[0].equalsIgnoreCase("rank")) {
+
+        } else if(args[0].equalsIgnoreCase("allies")) {
+
+        } else if(args[0].equalsIgnoreCase("rivals")) {
+
+        } else if(args[0].equalsIgnoreCase("members")) {
+
+        } else if(args[0].equalsIgnoreCase("friendfire")) {
+
+        } else if(args[0].equalsIgnoreCase("abandon")) {
+
+        }
     }
 
     private void showCommands(Player player) {

@@ -1,14 +1,13 @@
 package com.ellisiumx.elrankup.clan;
 
 import com.ellisiumx.elcore.ELCore;
+import com.ellisiumx.elcore.account.CoreClientManager;
 import com.ellisiumx.elcore.timing.TimingManager;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elcore.utils.UtilLog;
 import com.ellisiumx.elrankup.clan.command.ClanCommand;
 import com.ellisiumx.elrankup.clan.repository.ClanRepository;
-import com.ellisiumx.elrankup.machine.Machine;
-import com.ellisiumx.elrankup.machine.MachineOwner;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -21,6 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Stack;
 import java.util.logging.Level;
 
 public class ClanManager implements Listener {
@@ -61,8 +61,19 @@ public class ClanManager implements Listener {
 
     @EventHandler
     public void onBufferElapsed(UpdateEvent event) {
-        if(event.getType() != UpdateType.SLOW) return;
-
+        if (event.getType() != UpdateType.SLOW) return;
+        Stack<Clan> clanStack = new Stack<>();
+        for (Clan clan : clans) {
+            if (clan.updated) {
+                clanStack.push(clan);
+                clan.updated = false;
+            }
+        }
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
+            if (!clanStack.isEmpty()) {
+                repository.updateClans(clanStack);
+            }
+        });
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -77,11 +88,19 @@ public class ClanManager implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
+            TimingManager.start("load playerclan " + event.getPlayer().getName());
+            ClanPlayer clanPlayer = repository.getClanPlayer(CoreClientManager.get(event.getPlayer()).getAccountId(), clans);
+            players.put(event.getPlayer().getName(), clanPlayer);
+            TimingManager.stop("load playerclan " + event.getPlayer().getName());
+        });
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
+            players.remove(event.getPlayer().getName());
+        });
     }
 
 }

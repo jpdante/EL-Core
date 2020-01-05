@@ -9,10 +9,14 @@ import java.util.List;
 public class VaultEconomy implements Economy {
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() {
+        return true;
+    }
 
     @Override
-    public String getName() { return "ELRankup"; }
+    public String getName() {
+        return "ELRankup";
+    }
 
     @Override
     public boolean hasBankSupport() {
@@ -61,41 +65,45 @@ public class VaultEconomy implements Economy {
 
     @Override
     public double getBalance(String playerName) {
-        Double balance = EconomyManager.repository.getBalanceByName(playerName);
-        if(balance != null) return balance;
-        else return -1;
+        if (EconomyManager.context.playerMoneys.containsKey(playerName))
+            return EconomyManager.context.playerMoneys.get(playerName).money;
+        else {
+            Double balance = EconomyManager.repository.getBalanceByUUID(playerName);
+            if (balance != null) return balance;
+            else return -1;
+        }
     }
 
     @Override
     public double getBalance(OfflinePlayer offlinePlayer) {
-        Double balance = EconomyManager.repository.getBalanceByUUID(offlinePlayer.getUniqueId().toString());
-        if(balance != null) return balance;
-        else return -1;
+        if (EconomyManager.context.playerMoneys.containsKey(offlinePlayer.getName()))
+            return EconomyManager.context.playerMoneys.get(offlinePlayer.getName()).money;
+        else {
+            Double balance = EconomyManager.repository.getBalanceByUUID(offlinePlayer.getUniqueId().toString());
+            if (balance != null) return balance;
+            else return -1;
+        }
     }
 
     @Override
     public double getBalance(String playerName, String world) {
-        Double balance = EconomyManager.repository.getBalanceByName(playerName);
-        if(balance != null) return balance;
-        else return -1;
+        return getBalance(playerName);
     }
 
     @Override
     public double getBalance(OfflinePlayer offlinePlayer, String world) {
-        Double balance = EconomyManager.repository.getBalanceByUUID(offlinePlayer.getUniqueId().toString());
-        if(balance != null) return balance;
-        else return -1;
+        return getBalance(offlinePlayer);
     }
 
     @Override
     public boolean has(String playerName, double amount) {
-        if(amount <= 0) return false;
+        if (amount <= 0) return false;
         return getBalance(playerName) >= amount;
     }
 
     @Override
     public boolean has(OfflinePlayer offlinePlayer, double amount) {
-        if(amount <= 0) return false;
+        if (amount <= 0) return false;
         return getBalance(offlinePlayer) >= amount;
     }
 
@@ -111,23 +119,37 @@ public class VaultEconomy implements Economy {
 
     @Override
     public EconomyResponse withdrawPlayer(String playerName, double amount) {
-        try {
-            EconomyManager.repository.withdrawAmountByName(playerName, amount);
-            double balance = getBalance(playerName);
-            return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
-        } catch (Exception ex) {
-            return new EconomyResponse(amount, -1, EconomyResponse.ResponseType.FAILURE, ex.getMessage());
+        if (EconomyManager.context.playerMoneys.containsKey(playerName)) {
+            PlayerMoney playerMoney = EconomyManager.context.playerMoneys.get(playerName);
+            playerMoney.money -= amount;
+            EconomyManager.context.updateBuffer.push(playerMoney);
+            return new EconomyResponse(amount, playerMoney.money, EconomyResponse.ResponseType.SUCCESS, null);
+        } else {
+            try {
+                EconomyManager.repository.withdrawAmountByName(playerName, amount);
+                double balance = getBalance(playerName);
+                return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
+            } catch (Exception ex) {
+                return new EconomyResponse(amount, -1, EconomyResponse.ResponseType.FAILURE, ex.getMessage());
+            }
         }
     }
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer offlinePlayer, double amount) {
-        try {
-            EconomyManager.repository.withdrawAmountByUUID(offlinePlayer.getUniqueId().toString(), amount);
-            double balance = getBalance(offlinePlayer);
-            return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
-        } catch (Exception ex) {
-            return new EconomyResponse(amount, -1, EconomyResponse.ResponseType.FAILURE, ex.getMessage());
+        if (EconomyManager.context.playerMoneys.containsKey(offlinePlayer.getName())) {
+            PlayerMoney playerMoney = EconomyManager.context.playerMoneys.get(offlinePlayer.getName());
+            playerMoney.money -= amount;
+            EconomyManager.context.updateBuffer.push(playerMoney);
+            return new EconomyResponse(amount, playerMoney.money, EconomyResponse.ResponseType.SUCCESS, null);
+        } else {
+            try {
+                EconomyManager.repository.withdrawAmountByUUID(offlinePlayer.getUniqueId().toString(), amount);
+                double balance = getBalance(offlinePlayer);
+                return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
+            } catch (Exception ex) {
+                return new EconomyResponse(amount, -1, EconomyResponse.ResponseType.FAILURE, ex.getMessage());
+            }
         }
     }
 
@@ -143,23 +165,37 @@ public class VaultEconomy implements Economy {
 
     @Override
     public EconomyResponse depositPlayer(String playerName, double amount) {
-        try {
-            EconomyManager.repository.depositAmountByName(playerName, amount);
-            double balance = getBalance(playerName);
-            return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
-        } catch (Exception ex) {
-            return new EconomyResponse(amount, -1, EconomyResponse.ResponseType.FAILURE, ex.getMessage());
+        if (EconomyManager.context.playerMoneys.containsKey(playerName)) {
+            PlayerMoney playerMoney = EconomyManager.context.playerMoneys.get(playerName);
+            playerMoney.money += amount;
+            EconomyManager.context.updateBuffer.push(playerMoney);
+            return new EconomyResponse(amount, playerMoney.money, EconomyResponse.ResponseType.SUCCESS, null);
+        } else {
+            try {
+                EconomyManager.repository.depositAmountByName(playerName, amount);
+                double balance = getBalance(playerName);
+                return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
+            } catch (Exception ex) {
+                return new EconomyResponse(amount, -1, EconomyResponse.ResponseType.FAILURE, ex.getMessage());
+            }
         }
     }
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer offlinePlayer, double amount) {
-        try {
-            EconomyManager.repository.depositAmountByUUID(offlinePlayer.getUniqueId().toString(), amount);
-            double balance = getBalance(offlinePlayer);
-            return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
-        } catch (Exception ex) {
-            return new EconomyResponse(amount, -1, EconomyResponse.ResponseType.FAILURE, ex.getMessage());
+        if (EconomyManager.context.playerMoneys.containsKey(offlinePlayer.getName())) {
+            PlayerMoney playerMoney = EconomyManager.context.playerMoneys.get(offlinePlayer.getName());
+            playerMoney.money += amount;
+            EconomyManager.context.updateBuffer.push(playerMoney);
+            return new EconomyResponse(amount, playerMoney.money, EconomyResponse.ResponseType.SUCCESS, null);
+        } else {
+            try {
+                EconomyManager.repository.depositAmountByUUID(offlinePlayer.getUniqueId().toString(), amount);
+                double balance = getBalance(offlinePlayer);
+                return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
+            } catch (Exception ex) {
+                return new EconomyResponse(amount, -1, EconomyResponse.ResponseType.FAILURE, ex.getMessage());
+            }
         }
     }
 

@@ -1,3 +1,19 @@
+chat:
+  channels:
+    local:
+      tag: L
+      format: "&e[L] &4[%ClanTag%&4] &b[%Rank%&b] %Group% %OtherTags% &f%PlayerName%: &e"
+      distance: 150
+      multi-world: false
+      min-price: 0.0
+    global:
+      tag: G
+      format: "&7[G] &4[%ClanTag%&4] &b[%Rank%&b] %Group% %OtherTags% &f%PlayerName%: &7"
+      distance: -1
+      multi-world: true
+      min-price: 10000000.0
+  tell-min-price: 10000000.0
+  default-channel: L
 mine-reseter:
   enabled: true
   alert-times:
@@ -42,6 +58,7 @@ rankup:
       display-name: "&aGod"
 clans:
   create-price: 1000.0
+
 crates:
   menus:
     main:

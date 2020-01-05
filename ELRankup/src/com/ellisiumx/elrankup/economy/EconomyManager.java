@@ -20,35 +20,41 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.Stack;
 import java.util.logging.Level;
 
 public class EconomyManager implements Listener {
 
+    public static EconomyManager context;
     public static EconomyRepository repository;
     public static VaultEconomy economy;
 
-    public Stack<Tuple<String, String>> buffer;
+    public HashMap<String, PlayerMoney> playerMoneys;
+
+    public Stack<PlayerMoney> updateBuffer;
 
     public EconomyManager(JavaPlugin plugin) {
+        context = this;
         repository = new EconomyRepository(plugin);
-        buffer = new Stack<>();
         if (UtilServer.getServer().getPluginManager().getPlugin("Vault") == null) {
             UtilLog.log(Level.WARNING, "Failed to start economy, Vault is not present on server!");
             UtilServer.shutdown();
             return;
         }
-        economy = new VaultEconomy();
         Bukkit.getServicesManager().register(Economy.class, economy, plugin, ServicePriority.Normal);
-        //RegisteredServiceProvider<VaultEconomy> rsp = UtilServer.getServer().getServicesManager().getRegistration(VaultEconomy.class);
-        /*if (rsp == null) {
+        Bukkit.getPluginManager().registerEvents(this, plugin);
+        economy = new VaultEconomy();
+        playerMoneys = new HashMap<>();
+        updateBuffer = new Stack<>();
+        /*RegisteredServiceProvider<VaultEconomy> rsp = UtilServer.getServer().getServicesManager().getRegistration(VaultEconomy.class);
+        if (rsp == null) {
             UtilLog.log(Level.WARNING, "Failed to register economy in vault!");
             UtilServer.shutdown();
             return;
         }
         economy = rsp.getProvider();*/
-        Bukkit.getPluginManager().registerEvents(this, plugin);
-        UtilLog.log(Level.WARNING, "Registering command!");
         new MoneyCommand(plugin);
         new PayCommand(plugin);
         new EcoCommand(plugin);
@@ -57,19 +63,17 @@ public class EconomyManager implements Listener {
     @EventHandler
     public void onUpdate(UpdateEvent event) {
         if (event.getType() != UpdateType.SLOW) return;
-        if (buffer.empty()) return;
+        if (updateBuffer.empty()) return;
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
             try (
                     Connection connection = repository.getInternalConnection();
-                    PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO economy (uuid, name, balance) VALUES (?, ?, ?);");
+                    PreparedStatement statement = connection.prepareStatement("UPDATE economy SET balance = ? WHERE uuid = ?;");
             ){
-                while (!buffer.empty()) {
-                    Tuple<String, String> data = buffer.pop();
-                    statement.setString(1, data.a());
-                    statement.setString(2, data.b());
-                    statement.setDouble(3, 0.0D);
+                while (!updateBuffer.empty()) {
+                    PlayerMoney data = updateBuffer.pop();
+                    statement.setDouble(1, data.money);
+                    statement.setString(2, data.player.getUniqueId().toString());
                     statement.addBatch();
-                    UtilLog.log(Level.INFO, "Ensuring that player " + data.b() + " has an economy account...");
                 }
                 statement.executeBatch();
             } catch (Exception ex) {
@@ -80,6 +84,26 @@ public class EconomyManager implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        buffer.push(new Tuple<>(event.getPlayer().getUniqueId().toString(), event.getPlayer().getName()));
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
+            try (
+                    Connection connection = repository.getInternalConnection();
+                    PreparedStatement statement = connection.prepareStatement(
+                            "INSERT IGNORE INTO economy (uuid, name, balance) VALUES (?, ?, ?);" +
+                            "SELECT balance FROM economy WHERE name LIKE ? LIMIT 1;"
+                    )
+            ){
+                statement.setString(1, event.getPlayer().getUniqueId().toString());
+                statement.setString(2, event.getPlayer().getName());
+                statement.setDouble(3, 0.0D);
+                statement.setString(4, event.getPlayer().getName());
+                try(ResultSet resultSet = statement.executeQuery()) {
+                    while(resultSet.next()) {
+                        playerMoneys.put(event.getPlayer().getName(), new PlayerMoney(event.getPlayer(), resultSet.getDouble(1)));
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 }

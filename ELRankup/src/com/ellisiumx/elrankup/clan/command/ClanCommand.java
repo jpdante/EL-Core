@@ -6,6 +6,7 @@ import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.preferences.PreferencesManager;
+import com.ellisiumx.elrankup.clan.ClanManager;
 import com.ellisiumx.elrankup.machine.MachineManager;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -39,25 +40,56 @@ public class ClanCommand extends CommandBase {
             return;
         }
         if(args[0].equalsIgnoreCase("create")) {
-
+            if(args.length != 3) {
+                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansCreateCommand"));
+                return;
+            }
+            ClanManager.context.createClan(caller, args[1], args[2]);
         } else if(args[0].equalsIgnoreCase("list")) {
-
+            if(args.length != 1) {
+                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansListCommand"));
+                return;
+            }
         } else if(args[0].equalsIgnoreCase("profile")) {
-
+            if(args.length != 2) {
+                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansProfileCommand"));
+                return;
+            }
         } else if(args[0].equalsIgnoreCase("player")) {
-
+            if(args.length != 2) {
+                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerCommand"));
+                return;
+            }
         } else if(args[0].equalsIgnoreCase("rank")) {
-
+            if(args.length != 1) {
+                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansRankCommand"));
+                return;
+            }
         } else if(args[0].equalsIgnoreCase("allies")) {
-
+            if(args.length != 1) {
+                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansAlliesCommand"));
+                return;
+            }
         } else if(args[0].equalsIgnoreCase("rivals")) {
-
+            if(args.length != 1) {
+                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansRivalsCommand"));
+                return;
+            }
         } else if(args[0].equalsIgnoreCase("members")) {
-
+            if(args.length != 2) {
+                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansMembersCommand"));
+                return;
+            }
         } else if(args[0].equalsIgnoreCase("friendfire")) {
-
+            if(args.length != 2) {
+                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansFriendFireCommand"));
+                return;
+            }
         } else if(args[0].equalsIgnoreCase("abandon")) {
-
+            if(args.length != 1) {
+                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansAbandonCommand"));
+                return;
+            }
         }
     }
 

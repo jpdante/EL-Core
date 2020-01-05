@@ -2,6 +2,7 @@ package com.ellisiumx.elrankup.configuration;
 
 import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elrankup.ELRankup;
+import com.ellisiumx.elrankup.chat.ChatChannel;
 import com.ellisiumx.elrankup.crate.CrateType;
 import com.ellisiumx.elrankup.machine.MachineType;
 import com.ellisiumx.elrankup.mapedit.BlockData;
@@ -44,6 +45,10 @@ public class RankupConfiguration {
     public static List<CrateType> CrateTypes;
     public static List<Location> CrateChestLocations;
     public static MenuConfig CrateMenu;
+
+    public static List<ChatChannel> ChatChannels;
+    public static ChatChannel defaultChatChannel;
+    public static double minTellPrice;
 
     public RankupConfiguration() {
         FileConfiguration config = ELRankup.getContext().getConfig();
@@ -126,6 +131,24 @@ public class RankupConfiguration {
             }
         }
         CrateMenu = new MenuConfig(config.getConfigurationSection("crates.menus.main"));
+
+        ChatChannels = new ArrayList<>();
+        for (String key : config.getConfigurationSection("chat.channels").getKeys(false)) {
+            String tag = config.getString("chat.channels." + key + ".tag");
+            String format = config.getString("chat.channels." + key + ".format");
+            int distance = config.getInt("chat.channels." + key + ".distance");
+            boolean multiWorld = config.getBoolean("chat.channels." + key + ".multi-world");
+            double minPrice = config.getDouble("chat.channels." + key + ".min-price");
+            ChatChannels.add(new ChatChannel(tag, format, distance, multiWorld, minPrice));
+        }
+        for(ChatChannel chatChannel : ChatChannels) {
+            if(chatChannel.tag.equalsIgnoreCase(config.getString("chat.default-channel"))) {
+                defaultChatChannel = chatChannel;
+                break;
+            }
+        }
+        if(defaultChatChannel == null) defaultChatChannel = ChatChannels.get(0);
+        minTellPrice = config.getDouble("chat.tell-min-price");
     }
 
     public static void save() {

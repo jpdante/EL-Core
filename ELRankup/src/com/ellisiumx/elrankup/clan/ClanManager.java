@@ -9,6 +9,7 @@ import com.ellisiumx.elcore.utils.UtilLog;
 import com.ellisiumx.elrankup.clan.command.ClanCommand;
 import com.ellisiumx.elrankup.clan.repository.ClanRepository;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -57,6 +58,10 @@ public class ClanManager implements Listener {
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();*/
         new ClanCommand(plugin);
+    }
+
+    public void createClan(Player player, String colorTag, String name) {
+
     }
 
     @EventHandler

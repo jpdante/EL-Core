@@ -56,7 +56,7 @@ rankup:
     2:
       name: "God"
       cost: 100000.0
-      ccan-level-up: false
+      can-level-up: false
       display-name: "&aGod"
       color: "&a"
 clans:

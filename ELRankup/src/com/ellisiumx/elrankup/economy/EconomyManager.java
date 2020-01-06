@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -46,13 +47,7 @@ public class EconomyManager implements Listener {
         economy = new VaultEconomy();
         playerMonies = new HashMap<>();
         updateBuffer = new Stack<>();
-        /*RegisteredServiceProvider<VaultEconomy> rsp = UtilServer.getServer().getServicesManager().getRegistration(VaultEconomy.class);
-        if (rsp == null) {
-            UtilLog.log(Level.WARNING, "Failed to register economy in vault!");
-            UtilServer.shutdown();
-            return;
-        }
-        economy = rsp.getProvider();*/
+        Bukkit.getServer().getServicesManager().register(Economy.class, economy, plugin, ServicePriority.Highest);
         new MoneyCommand(plugin);
         new PayCommand(plugin);
         new EcoCommand(plugin);

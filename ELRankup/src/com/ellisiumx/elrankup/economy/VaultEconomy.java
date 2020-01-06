@@ -2,6 +2,7 @@ package com.ellisiumx.elrankup.economy;
 
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.util.List;
@@ -227,14 +228,10 @@ public class VaultEconomy implements Economy {
     }
 
     @Override
-    public EconomyResponse bankBalance(String s) {
-        return null;
-    }
+    public EconomyResponse bankBalance(String s) { return null; }
 
     @Override
-    public EconomyResponse bankHas(String s, double v) {
-        return null;
-    }
+    public EconomyResponse bankHas(String s, double v) { return null; }
 
     @Override
     public EconomyResponse bankWithdraw(String s, double v) {

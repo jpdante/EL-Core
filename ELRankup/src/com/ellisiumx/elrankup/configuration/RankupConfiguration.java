@@ -50,6 +50,8 @@ public class RankupConfiguration {
     public static ChatChannel defaultChatChannel;
     public static double minTellPrice;
 
+    public static double clanCreationPrice;
+
     public RankupConfiguration() {
         FileConfiguration config = ELRankup.getContext().getConfig();
 
@@ -150,6 +152,8 @@ public class RankupConfiguration {
         }
         if(defaultChatChannel == null) defaultChatChannel = ChatChannels.get(0);
         minTellPrice = config.getDouble("chat.tell-min-price");
+
+        clanCreationPrice = config.getDouble("clan.create-price");
     }
 
     public static void save() {

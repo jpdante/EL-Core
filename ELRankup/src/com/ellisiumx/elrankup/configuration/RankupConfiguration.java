@@ -107,9 +107,10 @@ public class RankupConfiguration {
         for (String key : config.getConfigurationSection("rankup.ranks").getKeys(false)) {
             String rankName = config.getString("rankup.ranks." + key + ".name");
             String rankDisplayName = config.getString("rankup.ranks." + key + ".display-name");
+            String color = config.getString("rankup.ranks." + key + ".color");
             double cost = config.getDouble("rankup.ranks." + key + ".cost");
             boolean canLevelUp = config.getBoolean("rankup.ranks." + key + ".can-level-up");
-            Ranks.add(new RankLevel(rankName, rankDisplayName, cost, canLevelUp));
+            Ranks.add(new RankLevel(rankName, rankDisplayName, color, cost, canLevelUp));
         }
 
         CrateTypes = new ArrayList<>();
@@ -139,7 +140,7 @@ public class RankupConfiguration {
             int distance = config.getInt("chat.channels." + key + ".distance");
             boolean multiWorld = config.getBoolean("chat.channels." + key + ".multi-world");
             double minPrice = config.getDouble("chat.channels." + key + ".min-price");
-            ChatChannels.add(new ChatChannel(tag, format, distance, multiWorld, minPrice));
+            ChatChannels.add(new ChatChannel(key, tag, format, distance, multiWorld, minPrice));
         }
         for(ChatChannel chatChannel : ChatChannels) {
             if(chatChannel.tag.equalsIgnoreCase(config.getString("chat.default-channel"))) {
@@ -202,6 +203,13 @@ public class RankupConfiguration {
     public static CrateType getCrateTypeByName(String name) {
         for (CrateType crateType : CrateTypes) {
             if (crateType.key.equalsIgnoreCase(name)) return crateType;
+        }
+        return null;
+    }
+
+    public static ChatChannel getChatChannel(String data) {
+        for (ChatChannel chatChannel : ChatChannels) {
+            if (chatChannel.tag.equalsIgnoreCase(data) || chatChannel.key.equalsIgnoreCase(data)) return chatChannel;
         }
         return null;
     }

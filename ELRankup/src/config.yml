@@ -2,17 +2,17 @@ chat:
   channels:
     local:
       tag: L
-      format: "&e[L] &4[%ClanTag%&4] &b[%Rank%&b] %Group% %OtherTags% &f%PlayerName%: &e"
+      format: "&e[L] %Group%%ClanTag%%Rank%&f%PlayerName%: &e"
       distance: 150
       multi-world: false
       min-price: 0.0
     global:
       tag: G
-      format: "&7[G] &4[%ClanTag%&4] &b[%Rank%&b] %Group% %OtherTags% &f%PlayerName%: &7"
+      format: "&7[G] %Group%%ClanTag%%Rank%&f%PlayerName%: &7"
       distance: -1
       multi-world: true
-      min-price: 10000000.0
-  tell-min-price: 10000000.0
+      min-price: 1000.0
+  tell-min-price: 1000.0
   default-channel: L
 mine-reseter:
   enabled: true
@@ -46,16 +46,19 @@ rankup:
       cost: 1000.0
       can-level-up: true
       display-name: "&7Slave"
+      color: "&7"
     1:
       name: "Merchant"
       cost: 10000.0
       can-level-up: true
       display-name: "&bMerchant"
+      color: "&b"
     2:
       name: "God"
       cost: 100000.0
       ccan-level-up: false
       display-name: "&aGod"
+      color: "&a"
 clans:
   create-price: 1000.0
 

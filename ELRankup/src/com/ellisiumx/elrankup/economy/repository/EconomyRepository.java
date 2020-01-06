@@ -2,10 +2,12 @@ package com.ellisiumx.elrankup.economy.repository;
 
 import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elcore.database.RepositoryBase;
+import com.ellisiumx.elrankup.economy.PlayerMoney;
 import net.minecraft.server.v1_8_R3.Tuple;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.*;
+import java.util.Stack;
 
 public class EconomyRepository extends RepositoryBase {
 
@@ -178,7 +180,34 @@ public class EconomyRepository extends RepositoryBase {
         return response;
     }
 
-    public Connection getInternalConnection() {
-        return getConnection();
+    public void createEconomyAccount(String uuid, String name) {
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO economy (uuid, name, balance) VALUES (?, ?, ?);")
+        ) {
+            statement.setString(1, uuid);
+            statement.setString(2, name);
+            statement.setDouble(3, 0.0D);
+            statement.executeUpdate();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void updateAccounts(Stack<PlayerMoney> playerMonies) {
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("UPDATE economy SET balance = ? WHERE uuid = ?;");
+        ){
+            while (!playerMonies.empty()) {
+                PlayerMoney data = playerMonies.pop();
+                statement.setDouble(1, data.money);
+                statement.setString(2, data.player.getUniqueId().toString());
+                statement.addBatch();
+            }
+            statement.executeBatch();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

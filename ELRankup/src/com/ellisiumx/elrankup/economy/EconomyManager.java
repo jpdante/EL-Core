@@ -10,7 +10,6 @@ import com.ellisiumx.elrankup.economy.command.MoneyCommand;
 import com.ellisiumx.elrankup.economy.command.PayCommand;
 import com.ellisiumx.elrankup.economy.repository.EconomyRepository;
 import net.milkbowl.vault.economy.Economy;
-import net.minecraft.server.v1_8_R3.Tuple;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,7 +19,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Stack;
 import java.util.logging.Level;
@@ -31,7 +29,7 @@ public class EconomyManager implements Listener {
     public static EconomyRepository repository;
     public static VaultEconomy economy;
 
-    public HashMap<String, PlayerMoney> playerMoneys;
+    public HashMap<String, PlayerMoney> playerMonies;
 
     public Stack<PlayerMoney> updateBuffer;
 
@@ -46,7 +44,7 @@ public class EconomyManager implements Listener {
         Bukkit.getServicesManager().register(Economy.class, economy, plugin, ServicePriority.Normal);
         Bukkit.getPluginManager().registerEvents(this, plugin);
         economy = new VaultEconomy();
-        playerMoneys = new HashMap<>();
+        playerMonies = new HashMap<>();
         updateBuffer = new Stack<>();
         /*RegisteredServiceProvider<VaultEconomy> rsp = UtilServer.getServer().getServicesManager().getRegistration(VaultEconomy.class);
         if (rsp == null) {
@@ -65,45 +63,16 @@ public class EconomyManager implements Listener {
         if (event.getType() != UpdateType.SLOW) return;
         if (updateBuffer.empty()) return;
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
-            try (
-                    Connection connection = repository.getInternalConnection();
-                    PreparedStatement statement = connection.prepareStatement("UPDATE economy SET balance = ? WHERE uuid = ?;");
-            ){
-                while (!updateBuffer.empty()) {
-                    PlayerMoney data = updateBuffer.pop();
-                    statement.setDouble(1, data.money);
-                    statement.setString(2, data.player.getUniqueId().toString());
-                    statement.addBatch();
-                }
-                statement.executeBatch();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            repository.updateAccounts(updateBuffer);
         });
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
-            try (
-                    Connection connection = repository.getInternalConnection();
-                    PreparedStatement statement = connection.prepareStatement(
-                            "INSERT IGNORE INTO economy (uuid, name, balance) VALUES (?, ?, ?);" +
-                            "SELECT balance FROM economy WHERE name LIKE ? LIMIT 1;"
-                    )
-            ){
-                statement.setString(1, event.getPlayer().getUniqueId().toString());
-                statement.setString(2, event.getPlayer().getName());
-                statement.setDouble(3, 0.0D);
-                statement.setString(4, event.getPlayer().getName());
-                try(ResultSet resultSet = statement.executeQuery()) {
-                    while(resultSet.next()) {
-                        playerMoneys.put(event.getPlayer().getName(), new PlayerMoney(event.getPlayer(), resultSet.getDouble(1)));
-                    }
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            repository.createEconomyAccount(event.getPlayer().getUniqueId().toString(), event.getPlayer().getName());
+            double balance = repository.getBalanceByUUID(event.getPlayer().getUniqueId().toString());
+            playerMonies.put(event.getPlayer().getName(), new PlayerMoney(event.getPlayer(), balance));
         });
     }
 }

@@ -56,7 +56,7 @@ public class ClanRepository extends RepositoryBase {
         Date date = new Date();
         ClanPlayer player = null;
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO clan_players (account-id, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);")) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO clan_players (accountId, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);")) {
                 statement.setInt(1, accountId);
                 statement.setInt(2, -1);
                 statement.setBoolean(3, false);
@@ -68,28 +68,29 @@ public class ClanRepository extends RepositoryBase {
                 statement.setTimestamp(9, new Timestamp(date.getTime()));
                 statement.executeUpdate();
             }
-            try (
-                    PreparedStatement statement = connection.prepareStatement("SELECT id, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate FROM clan_players WHERE account-id = ?;");
-                    ResultSet resultSet = statement.executeQuery();
-            ) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT id, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate FROM clan_players WHERE accountId = ? LIMIT 1;")) {
                 statement.setInt(1, accountId);
-                int id = resultSet.getInt(2);
-                int clanId = resultSet.getInt(3);
-                boolean friendlyFire = resultSet.getBoolean(4);
-                int neutralKills = resultSet.getInt(5);
-                int rivalKills = resultSet.getInt(6);
-                int civilianKills = resultSet.getInt(7);
-                int deaths = resultSet.getInt(8);
-                Timestamp lastSeen = resultSet.getTimestamp(9);
-                Timestamp joinDate = resultSet.getTimestamp(10);
-                Clan clan = null;
-                for (Clan lclan : clans) {
-                    if(clanId == lclan.id) {
-                        clan = lclan;
-                        break;
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while(resultSet.next()) {
+                        int id = resultSet.getInt(1);
+                        int clanId = resultSet.getInt(2);
+                        boolean friendlyFire = resultSet.getBoolean(3);
+                        int neutralKills = resultSet.getInt(4);
+                        int rivalKills = resultSet.getInt(5);
+                        int civilianKills = resultSet.getInt(6);
+                        int deaths = resultSet.getInt(7);
+                        Timestamp lastSeen = resultSet.getTimestamp(8);
+                        Timestamp joinDate = resultSet.getTimestamp(9);
+                        Clan clan = null;
+                        for (Clan lclan : clans) {
+                            if (clanId == lclan.id) {
+                                clan = lclan;
+                                break;
+                            }
+                        }
+                        player = new ClanPlayer(id, accountId, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate);
                     }
                 }
-                player = new ClanPlayer(id, accountId, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -125,7 +126,7 @@ public class ClanRepository extends RepositoryBase {
         try (
                 Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement("UPDATE machines SET verified = ?, leader = ?, tag = ?, colorTag = ?, name = ?, friendlyFire = ? , kills = ?, deaths = ? WHERE id = ?");
-        ){
+        ) {
             statement.setBoolean(1, clan.verified);
             statement.setInt(2, clan.leader);
             statement.setString(3, clan.tag);
@@ -145,8 +146,8 @@ public class ClanRepository extends RepositoryBase {
         try (
                 Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement("UPDATE machines SET verified = ?, leader = ?, tag = ?, colorTag = ?, name = ?, friendlyFire = ? , kills = ?, deaths = ? WHERE id = ?");
-        ){
-            while(!clans.isEmpty()) {
+        ) {
+            while (!clans.isEmpty()) {
                 Clan clan = clans.pop();
                 statement.setBoolean(1, clan.verified);
                 statement.setInt(2, clan.leader);
@@ -169,7 +170,7 @@ public class ClanRepository extends RepositoryBase {
         try (
                 Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement("DELETE FROM clans WHERE id = ?");
-        ){
+        ) {
             statement.setInt(1, clan.id);
             statement.executeUpdate();
         } catch (Exception ex) {

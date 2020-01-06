@@ -1,6 +1,8 @@
 package com.ellisiumx.elrankup;
 
 import com.ellisiumx.elcore.database.DBPool;
+import com.ellisiumx.elrankup.cash.CashManager;
+import com.ellisiumx.elrankup.chat.ChatManager;
 import com.ellisiumx.elrankup.clan.ClanManager;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.crate.CrateManager;
@@ -12,6 +14,8 @@ import com.ellisiumx.elrankup.god.GodManager;
 import com.ellisiumx.elrankup.machine.MachineManager;
 import com.ellisiumx.elrankup.mapedit.MapEditManager;
 import com.ellisiumx.elrankup.mine.MineReset;
+import com.ellisiumx.elrankup.rankup.RankupManager;
+import com.ellisiumx.elrankup.spawner.SpawnManager;
 import com.ellisiumx.elrankup.vanish.VanishManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -45,6 +49,10 @@ public class ELRankup extends JavaPlugin {
         new ClanManager(context);
         new CrateManager(context);
         new RainDisabler(context);
+        new CashManager(context);
+        new RankupManager(context);
+        //new SpawnManager(context);
+        new ChatManager(context);
         // Commands
         new PingCommand(context);
         new ResetCommand(context);

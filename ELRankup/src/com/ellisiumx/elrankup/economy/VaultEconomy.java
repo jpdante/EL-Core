@@ -65,8 +65,8 @@ public class VaultEconomy implements Economy {
 
     @Override
     public double getBalance(String playerName) {
-        if (EconomyManager.context.playerMoneys.containsKey(playerName))
-            return EconomyManager.context.playerMoneys.get(playerName).money;
+        if (EconomyManager.context.playerMonies.containsKey(playerName))
+            return EconomyManager.context.playerMonies.get(playerName).money;
         else {
             Double balance = EconomyManager.repository.getBalanceByUUID(playerName);
             if (balance != null) return balance;
@@ -76,8 +76,8 @@ public class VaultEconomy implements Economy {
 
     @Override
     public double getBalance(OfflinePlayer offlinePlayer) {
-        if (EconomyManager.context.playerMoneys.containsKey(offlinePlayer.getName()))
-            return EconomyManager.context.playerMoneys.get(offlinePlayer.getName()).money;
+        if (EconomyManager.context.playerMonies.containsKey(offlinePlayer.getName()))
+            return EconomyManager.context.playerMonies.get(offlinePlayer.getName()).money;
         else {
             Double balance = EconomyManager.repository.getBalanceByUUID(offlinePlayer.getUniqueId().toString());
             if (balance != null) return balance;
@@ -119,8 +119,8 @@ public class VaultEconomy implements Economy {
 
     @Override
     public EconomyResponse withdrawPlayer(String playerName, double amount) {
-        if (EconomyManager.context.playerMoneys.containsKey(playerName)) {
-            PlayerMoney playerMoney = EconomyManager.context.playerMoneys.get(playerName);
+        if (EconomyManager.context.playerMonies.containsKey(playerName)) {
+            PlayerMoney playerMoney = EconomyManager.context.playerMonies.get(playerName);
             playerMoney.money -= amount;
             EconomyManager.context.updateBuffer.push(playerMoney);
             return new EconomyResponse(amount, playerMoney.money, EconomyResponse.ResponseType.SUCCESS, null);
@@ -137,8 +137,8 @@ public class VaultEconomy implements Economy {
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer offlinePlayer, double amount) {
-        if (EconomyManager.context.playerMoneys.containsKey(offlinePlayer.getName())) {
-            PlayerMoney playerMoney = EconomyManager.context.playerMoneys.get(offlinePlayer.getName());
+        if (EconomyManager.context.playerMonies.containsKey(offlinePlayer.getName())) {
+            PlayerMoney playerMoney = EconomyManager.context.playerMonies.get(offlinePlayer.getName());
             playerMoney.money -= amount;
             EconomyManager.context.updateBuffer.push(playerMoney);
             return new EconomyResponse(amount, playerMoney.money, EconomyResponse.ResponseType.SUCCESS, null);
@@ -165,8 +165,8 @@ public class VaultEconomy implements Economy {
 
     @Override
     public EconomyResponse depositPlayer(String playerName, double amount) {
-        if (EconomyManager.context.playerMoneys.containsKey(playerName)) {
-            PlayerMoney playerMoney = EconomyManager.context.playerMoneys.get(playerName);
+        if (EconomyManager.context.playerMonies.containsKey(playerName)) {
+            PlayerMoney playerMoney = EconomyManager.context.playerMonies.get(playerName);
             playerMoney.money += amount;
             EconomyManager.context.updateBuffer.push(playerMoney);
             return new EconomyResponse(amount, playerMoney.money, EconomyResponse.ResponseType.SUCCESS, null);
@@ -183,8 +183,8 @@ public class VaultEconomy implements Economy {
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer offlinePlayer, double amount) {
-        if (EconomyManager.context.playerMoneys.containsKey(offlinePlayer.getName())) {
-            PlayerMoney playerMoney = EconomyManager.context.playerMoneys.get(offlinePlayer.getName());
+        if (EconomyManager.context.playerMonies.containsKey(offlinePlayer.getName())) {
+            PlayerMoney playerMoney = EconomyManager.context.playerMonies.get(offlinePlayer.getName());
             playerMoney.money += amount;
             EconomyManager.context.updateBuffer.push(playerMoney);
             return new EconomyResponse(amount, playerMoney.money, EconomyResponse.ResponseType.SUCCESS, null);

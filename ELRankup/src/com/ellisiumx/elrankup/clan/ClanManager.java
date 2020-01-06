@@ -29,7 +29,7 @@ public class ClanManager implements Listener {
     public static ClanManager context;
     public ClanRepository repository;
     public ArrayList<Clan> clans;
-    public HashMap<String, ClanPlayer> players;
+    public HashMap<String, ClanPlayer> playerClans;
     public boolean initialized;
 
     public ClanManager(JavaPlugin plugin) {
@@ -43,6 +43,8 @@ public class ClanManager implements Listener {
             UtilLog.log(Level.INFO, "[Clans] " + clans.size() + " clans loaded from mysql.");
             initialized = true;
         });
+        clans = new ArrayList<>();
+        playerClans = new HashMap<>();
         /*for (LanguageDB languageDB : LanguageManager.getLanguages()) {
             languageDB.insertTranslation("MachineTransactionFailure", "&f[&aMachines&f] &cFailed to transfer, please try again later. %ErrorMessage%");
             languageDB.insertTranslation("MachineNotEnoughMoney", "&f[&aMachines&f] &cYou don't have enough money to buy %MachineType%&c, it costs %Cost%");
@@ -60,8 +62,16 @@ public class ClanManager implements Listener {
         new ClanCommand(plugin);
     }
 
-    public void createClan(Player player, String colorTag, String name) {
+    public static ClanPlayer getClanPlayer(String playerName) {
+        return context.playerClans.get(playerName);
+    }
 
+    public static ClanPlayer getClanPlayer(Player player) {
+        return getClanPlayer(player.getName());
+    }
+
+    public void createClan(Player player, String colorTag, String name) {
+        //if(EconomyManager.economy.has(player, RankupConfiguration.clan))
     }
 
     @EventHandler
@@ -94,17 +104,17 @@ public class ClanManager implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
-            TimingManager.start("load playerclan " + event.getPlayer().getName());
+            TimingManager.start(event.getPlayer().getName() + " load clan");
             ClanPlayer clanPlayer = repository.getClanPlayer(CoreClientManager.get(event.getPlayer()).getAccountId(), clans);
-            players.put(event.getPlayer().getName(), clanPlayer);
-            TimingManager.stop("load playerclan " + event.getPlayer().getName());
+            playerClans.put(event.getPlayer().getName(), clanPlayer);
+            TimingManager.stop(event.getPlayer().getName() + " load clan");
         });
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
-            players.remove(event.getPlayer().getName());
+            playerClans.remove(event.getPlayer().getName());
         });
     }
 

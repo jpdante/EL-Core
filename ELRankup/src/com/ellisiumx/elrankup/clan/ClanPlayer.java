@@ -14,6 +14,7 @@ public class ClanPlayer {
     public int deaths;
     public Timestamp lastSeen;
     public Timestamp joinDate;
+    public boolean updated;
 
     public ClanPlayer(int accountId, Clan clan, boolean friendlyFire, int neutralKills, int rivalKills, int civilianKills, int deaths, Timestamp lastSeen, Timestamp joinDate) {
         this.accountId = accountId;

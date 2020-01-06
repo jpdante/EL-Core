@@ -61,7 +61,6 @@ rankup:
       color: "&a"
 clans:
   create-price: 1000.0
-
 crates:
   menus:
     main:

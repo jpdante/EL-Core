@@ -56,16 +56,15 @@ public class ClanRepository extends RepositoryBase {
         Date date = new Date();
         ClanPlayer player = null;
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO clan_players (accountId, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);")) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO clan_players (accountId, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?);")) {
                 statement.setInt(1, accountId);
-                statement.setInt(2, -1);
-                statement.setBoolean(3, false);
+                statement.setBoolean(2, false);
+                statement.setInt(3, 0);
                 statement.setInt(4, 0);
                 statement.setInt(5, 0);
                 statement.setInt(6, 0);
-                statement.setInt(7, 0);
+                statement.setTimestamp(7, new Timestamp(date.getTime()));
                 statement.setTimestamp(8, new Timestamp(date.getTime()));
-                statement.setTimestamp(9, new Timestamp(date.getTime()));
                 statement.executeUpdate();
             }
             try (PreparedStatement statement = connection.prepareStatement("SELECT id, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate FROM clan_players WHERE accountId = ? LIMIT 1;")) {
@@ -98,6 +97,31 @@ public class ClanRepository extends RepositoryBase {
         return player;
     }
 
+    public void updateClanPlayers(Stack<ClanPlayer> clanPlayers) {
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("UPDATE clan_players SET clan = ?, friendlyFire = ?, neutralKills = ?, rivalKills = ?, civilianKills = ?, deaths = ?, lastSeen = ?, joinDate = ? WHERE id = ?;");
+        ) {
+            while (!clanPlayers.isEmpty()) {
+                ClanPlayer clanPlayer = clanPlayers.pop();
+                if(clanPlayer.clan != null) statement.setInt(1, clanPlayer.clan.id);
+                else statement.setNull(1, Types.VARCHAR);
+                statement.setBoolean(2, clanPlayer.friendlyFire);
+                statement.setInt(3, clanPlayer.neutralKills);
+                statement.setInt(4, clanPlayer.rivalKills);
+                statement.setInt(5, clanPlayer.civilianKills);
+                statement.setInt(6, clanPlayer.deaths);
+                statement.setTimestamp(7, clanPlayer.lastSeen);
+                statement.setTimestamp(8, clanPlayer.joinDate);
+                statement.setInt(9, clanPlayer.id);
+                statement.addBatch();
+            }
+            statement.executeBatch();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public void createClan(Clan clan) {
         try (
                 Connection connection = getConnection();
@@ -122,10 +146,10 @@ public class ClanRepository extends RepositoryBase {
         }
     }
 
-    public void updateClan(Clan clan) {
+    /*public void updateClan(Clan clan) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("UPDATE machines SET verified = ?, leader = ?, tag = ?, colorTag = ?, name = ?, friendlyFire = ? , kills = ?, deaths = ? WHERE id = ?");
+                PreparedStatement statement = connection.prepareStatement("UPDATE clans SET verified = ?, leader = ?, tag = ?, colorTag = ?, name = ?, friendlyFire = ? , kills = ?, deaths = ? WHERE id = ?");
         ) {
             statement.setBoolean(1, clan.verified);
             statement.setInt(2, clan.leader);
@@ -140,12 +164,12 @@ public class ClanRepository extends RepositoryBase {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
+    }*/
 
     public void updateClans(Stack<Clan> clans) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("UPDATE machines SET verified = ?, leader = ?, tag = ?, colorTag = ?, name = ?, friendlyFire = ? , kills = ?, deaths = ? WHERE id = ?");
+                PreparedStatement statement = connection.prepareStatement("UPDATE clans SET verified = ?, leader = ?, tag = ?, colorTag = ?, name = ?, friendlyFire = ? , kills = ?, deaths = ? WHERE id = ?");
         ) {
             while (!clans.isEmpty()) {
                 Clan clan = clans.pop();
@@ -160,7 +184,7 @@ public class ClanRepository extends RepositoryBase {
                 statement.setInt(9, clan.id);
                 statement.addBatch();
             }
-            statement.executeUpdate();
+            statement.executeBatch();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

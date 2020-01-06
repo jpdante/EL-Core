@@ -153,7 +153,7 @@ public class RankupConfiguration {
         if(defaultChatChannel == null) defaultChatChannel = ChatChannels.get(0);
         minTellPrice = config.getDouble("chat.tell-min-price");
 
-        clanCreationPrice = config.getDouble("clan.create-price");
+        clanCreationPrice = config.getDouble("clans.create-price");
     }
 
     public static void save() {

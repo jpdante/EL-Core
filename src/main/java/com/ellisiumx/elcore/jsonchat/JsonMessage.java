@@ -15,41 +15,36 @@ public class JsonMessage {
 
     public JsonMessage(StringBuilder builder, String text) {
         Builder = builder;
-        Builder.append("{\"text\":\"" + text + "\"");
+        Builder.append("{\"text\":\"").append(text).append("\"");
     }
 
     public JsonMessage color(String color) {
-        Builder.append(", color:" + color);
+        Builder.append(", color:").append(color);
         return this;
     }
 
     public JsonMessage bold() {
         Builder.append(", bold:true");
-
         return this;
     }
 
     public JsonMessage italic() {
         Builder.append(", italic:true");
-
         return this;
     }
 
     public JsonMessage underlined() {
         Builder.append(", underlined:true");
-
         return this;
     }
 
     public JsonMessage strikethrough() {
         Builder.append(", strikethrough:true");
-
         return this;
     }
 
     public JsonMessage obfuscated() {
         Builder.append(", obfuscated:true");
-
         return this;
     }
 
@@ -59,14 +54,12 @@ public class JsonMessage {
     }
 
     public JsonMessage click(String action, String value) {
-        Builder.append(", \"clickEvent\":{\"action\":\"" + action + "\",\"value\":\"" + value + "\"}");
-
+        Builder.append(", \"clickEvent\":{\"action\":\"").append(action).append("\",\"value\":\"").append(value).append("\"}");
         return this;
     }
 
     public JsonMessage hover(String action, String value) {
-        Builder.append(", \"hoverEvent\":{\"action\":\"" + action + "\",\"value\":\"" + value + "\"}");
-
+        Builder.append(", \"hoverEvent\":{\"action\":\"").append(action).append("\",\"value\":\"").append(value).append("\"}");
         return this;
     }
 
@@ -78,13 +71,12 @@ public class JsonMessage {
         return hover(event.toString(), value);
     }
 
-    public JsonMessage color(Color color) {
+    public JsonMessage color(JsonColor color) {
         return color(color.toString());
     }
 
     public String toString() {
         Builder.append("}");
-
         return Builder.toString();
     }
 

@@ -53,7 +53,6 @@
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilServer.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/redis/Utility.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/preferences/PreferencesManager.java
-/home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/jsonchat/Color.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilMessage.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/recharge/RechargeData.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/redis/RedisManager.java
@@ -79,6 +78,7 @@
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/blockrestore/BlockRestore.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/utils/UtilAction.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/monitor/LagMeter.java
+/home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/jsonchat/JsonColor.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/jsonchat/ChildJsonMessage.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/hologram/Hologram.java
 /home/jpdante/Documents/GitHub/EL-Core/src/main/java/com/ellisiumx/elcore/command/CommandBase.java

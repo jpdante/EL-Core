@@ -1,5 +1,7 @@
 package com.ellisiumx.elrankup.clan;
 
+import java.util.ArrayList;
+
 public class Clan {
 
     public int id;
@@ -12,6 +14,7 @@ public class Clan {
     public boolean verified;
     public boolean friendFire;
     public double kdr;
+    public ArrayList<String> members;
 
     public Clan(boolean verified, int leader, String tag, String colorTag, String name, boolean friendFire, int kills, int deaths) {
         this.kills = kills;

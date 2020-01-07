@@ -9,6 +9,7 @@ import com.ellisiumx.elcore.timing.TimingManager;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elcore.utils.UtilLog;
+import com.ellisiumx.elrankup.chat.PlayerChat;
 import com.ellisiumx.elrankup.clan.command.ClanCommand;
 import com.ellisiumx.elrankup.clan.repository.ClanRepository;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
@@ -47,6 +48,7 @@ public class ClanManager implements Listener {
             TimingManager.start("load clans");
             clans = repository.getClans();
             for(Clan clan : clans) {
+                clan.members = repository.getClanMembers(clan.id);
                 clan.calculateKdr();
             }
             TimingManager.stop("load clans");
@@ -120,6 +122,32 @@ public class ClanManager implements Listener {
         });
     }
 
+    public void abandonClan(Player player, boolean confirmDelete) {
+        ClanPlayer clanPlayer = getClanPlayer(player);
+        if(clanPlayer.clan == null) {
+            // TODO: Send error message, Abandon only if participate
+            return;
+        }
+        Clan clan = clanPlayer.clan;
+        if(clan.leader == CoreClientManager.get(player).getAccountId()) {
+            if(confirmDelete) {
+                repository.setClanNullForMembers(clan.members);
+                repository.deleteClan(clan);
+                for(ClanPlayer cp : playerClans.values()) {
+                    if(cp.clan == clan) {
+                        cp.clan = null;
+                        // TODO: Send message alerting clan deletion
+                    }
+                }
+                clans.remove(clan);
+            }
+            return;
+        }
+        clanPlayer.clan = null;
+        clan.members.remove(player.getName());
+        playerUpdateBuffer.push(clanPlayer);
+    }
+
     @EventHandler
     public void onBufferElapsed(UpdateEvent event) {
         if (event.getType() == UpdateType.SLOW) {
@@ -145,7 +173,7 @@ public class ClanManager implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
             TimingManager.start(event.getPlayer().getName() + " load clan");
-            ClanPlayer clanPlayer = repository.getClanPlayer(CoreClientManager.get(event.getPlayer()).getAccountId(), clans);
+            ClanPlayer clanPlayer = repository.getClanPlayer(CoreClientManager.get(event.getPlayer()).getAccountId(), event.getPlayer().getName(), clans);
             playerClans.put(event.getPlayer().getName(), clanPlayer);
             TimingManager.stop(event.getPlayer().getName() + " load clan");
         });

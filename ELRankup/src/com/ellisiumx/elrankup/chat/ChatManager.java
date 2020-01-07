@@ -1,7 +1,9 @@
 package com.ellisiumx.elrankup.chat;
 
-import com.ellisiumx.elcore.ELCore;
 import com.ellisiumx.elcore.account.CoreClientManager;
+import com.ellisiumx.elcore.jsonchat.HoverEvent;
+import com.ellisiumx.elcore.jsonchat.JsonMessage;
+import com.ellisiumx.elcore.jsonchat.JsonColor;
 import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.permissions.Rank;
@@ -68,6 +70,7 @@ public class ChatManager implements Listener {
 
     @EventHandler
     public void onChatMessage(AsyncPlayerChatEvent event) {
+        //new JsonMessage("Hello fella fur").color(JsonColor.AQUA).hover(HoverEvent.SHOW_TEXT, "Teste").send(JsonMessage.MessageType.CHAT_BOX, event.getPlayer());
         PlayerChat playerChat = playerChats.get(event.getPlayer().getName());
         if(playerChat.currentChannel.minPrice > 0) {
             if(!EconomyManager.economy.has(playerChat.player, playerChat.currentChannel.minPrice)) {

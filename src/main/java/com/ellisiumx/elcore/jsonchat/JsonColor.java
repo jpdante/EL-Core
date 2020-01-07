@@ -1,6 +1,6 @@
 package com.ellisiumx.elcore.jsonchat;
 
-public enum Color {
+public enum JsonColor {
     BLACK("black"),
     DARK_BLUE("dark_blue"),
     DARK_GREEN("dark_green"),
@@ -20,7 +20,7 @@ public enum Color {
 
     private String _minecraftString;
 
-    Color(String minecraftString) {
+    JsonColor(String minecraftString) {
         _minecraftString = minecraftString;
     }
 

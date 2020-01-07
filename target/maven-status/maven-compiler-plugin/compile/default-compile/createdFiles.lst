@@ -58,7 +58,6 @@ com/ellisiumx/elcore/redis/RedisDataRepository.class
 com/ellisiumx/elcore/punish/PunishSystem.class
 com/ellisiumx/elcore/utils/UtilTime$TimeUnit.class
 com/ellisiumx/elcore/jsonchat/ChildJsonMessage.class
-com/ellisiumx/elcore/jsonchat/Color.class
 com/ellisiumx/elcore/utils/UtilPlayer$Vector3D.class
 com/ellisiumx/elcore/account/ClientCache.class
 com/ellisiumx/elcore/redis/ConnectionData.class

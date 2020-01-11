@@ -51,6 +51,10 @@ public class RankupConfiguration {
     public static double minTellPrice;
 
     public static double clanCreationPrice;
+    public static double clanNeutralKillWeight;
+    public static double clanRivalKillWeight;
+    public static double clanCivilianKillWeight;
+    public static int clanInviteExpiration;
 
     public RankupConfiguration() {
         FileConfiguration config = ELRankup.getContext().getConfig();
@@ -154,6 +158,10 @@ public class RankupConfiguration {
         minTellPrice = config.getDouble("chat.tell-min-price");
 
         clanCreationPrice = config.getDouble("clans.create-price");
+        clanNeutralKillWeight = config.getDouble("clans.neutral-kill-weight");
+        clanRivalKillWeight = config.getDouble("clans.rival-kill-weight");
+        clanCivilianKillWeight = config.getDouble("clans.civilian-kill-weight");
+        clanInviteExpiration = config.getInt("clans.invite-expiration");
     }
 
     public static void save() {

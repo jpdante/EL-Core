@@ -6,6 +6,7 @@ import com.ellisiumx.elcore.utils.UtilGson;
 import com.google.gson.stream.JsonReader;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,14 +30,14 @@ public class LanguageManager {
         boolean saved = false;
         for(LanguageDB languageDB : context.languages.values()) {
             if(!languageDB.wasUpdated()) continue;
-            FileWriter writer = null;
+            BufferedWriter writer = null;
             try {
-                writer = new FileWriter(Paths.get(ELCore.getContext().getDataFolder().getPath(), languageDB.getFilename()).toString(), false);
+                writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Paths.get(ELCore.getContext().getDataFolder().getPath(), languageDB.getFilename()).toString(), false), StandardCharsets.UTF_8));
                 writer.write(UtilGson.serialize(languageDB));
                 writer.flush();
                 saved = true;
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             } finally {
                 try {
                     assert writer != null;

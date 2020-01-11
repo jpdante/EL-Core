@@ -61,6 +61,9 @@ rankup:
       color: "&a"
 clans:
   create-price: 1000.0
+  civilian-kill-weight: 0.5
+  neutral-kill-weight: 1.0
+  rival-kill-weight: 2.0
 crates:
   menus:
     main:

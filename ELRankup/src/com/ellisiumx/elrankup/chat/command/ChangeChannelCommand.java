@@ -19,12 +19,6 @@ public class ChangeChannelCommand extends CommandBase {
         super(plugin, Rank.DEVELOPER, "channel", "ch");
         this.setCommandCenter(CommandCenter.context);
         CommandCenter.addCommand(this);
-        for (LanguageDB languageDB : LanguageManager.getLanguages()) {
-            languageDB.insertTranslation("ChatChannelCommand", "&a/channel <channel> &8- &7Change channel");
-            languageDB.insertTranslation("ChatChannelNotExists", "&cThis channel does not exist!");
-            languageDB.insertTranslation("ChatChannelChanged", "&aYour channel has been changed to &e%Channel%&a!");
-        }
-        if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
     }
 
     @Override

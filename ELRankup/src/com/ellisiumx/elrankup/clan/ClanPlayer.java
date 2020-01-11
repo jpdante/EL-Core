@@ -15,8 +15,9 @@ public class ClanPlayer {
     public Timestamp lastSeen;
     public Timestamp joinDate;
     public boolean updated;
+    public boolean isClanMod;
 
-    public ClanPlayer(int accountId, Clan clan, boolean friendlyFire, int neutralKills, int rivalKills, int civilianKills, int deaths, Timestamp lastSeen, Timestamp joinDate) {
+    public ClanPlayer(int accountId, Clan clan, boolean friendlyFire, int neutralKills, int rivalKills, int civilianKills, int deaths, Timestamp lastSeen, Timestamp joinDate, boolean isClanMod) {
         this.accountId = accountId;
         this.clan = clan;
         this.friendlyFire = friendlyFire;
@@ -26,9 +27,10 @@ public class ClanPlayer {
         this.deaths = deaths;
         this.lastSeen = lastSeen;
         this.joinDate = joinDate;
+        this.isClanMod = isClanMod;
     }
 
-    public ClanPlayer(int id, int accountId, Clan clan, boolean friendlyFire, int neutralKills, int rivalKills, int civilianKills, int deaths, Timestamp lastSeen, Timestamp joinDate) {
+    public ClanPlayer(int id, int accountId, Clan clan, boolean friendlyFire, int neutralKills, int rivalKills, int civilianKills, int deaths, Timestamp lastSeen, Timestamp joinDate, boolean isClanMod) {
         this.id = id;
         this.accountId = accountId;
         this.clan = clan;
@@ -39,6 +41,7 @@ public class ClanPlayer {
         this.deaths = deaths;
         this.lastSeen = lastSeen;
         this.joinDate = joinDate;
+        this.isClanMod = isClanMod;
     }
 
 }

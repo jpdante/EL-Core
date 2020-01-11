@@ -42,6 +42,9 @@ public class ChatManager implements Listener {
         for (LanguageDB languageDB : LanguageManager.getLanguages()) {
             languageDB.insertTranslation("ChatNoPlayerClose", "&cNo players are nearby to hear your message.");
             languageDB.insertTranslation("ChatNoMoneyAmount", "&cYou don't have the minimum amount of money to talk on this channel!.");
+            languageDB.insertTranslation("ChatChannelCommand", "&a/channel <channel> &8- &7Change channel");
+            languageDB.insertTranslation("ChatChannelNotExists", "&cThis channel does not exist!");
+            languageDB.insertTranslation("ChatChannelChanged", "&aYour channel has been changed to &e%Channel%&a!");
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         new ChangeChannelCommand(plugin);
@@ -54,7 +57,7 @@ public class ChatManager implements Listener {
         playerChat.formatedTags = playerChat.currentChannel.format.replaceAll("%PlayerName%", player.getDisplayName());
 
         Rank group = CoreClientManager.get(player).getRank();
-        if(!group.getTag(false, false).equalsIgnoreCase("")) playerChat.formatedTags = playerChat.formatedTags.replaceAll("%Group%", group.getColor() + "[" + group.getTag(false, false) + group.getColor() + "] ");
+        if(group != Rank.ALL) playerChat.formatedTags = playerChat.formatedTags.replaceAll("%Group%", group.getColor() + "[" + group.getTag(false, false) + group.getColor() + "] ");
         else playerChat.formatedTags = playerChat.formatedTags.replaceAll("%Group%","");
 
         RankLevel rank = RankupManager.get(player);

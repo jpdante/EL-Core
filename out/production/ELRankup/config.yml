@@ -64,6 +64,7 @@ clans:
   civilian-kill-weight: 0.5
   neutral-kill-weight: 1.0
   rival-kill-weight: 2.0
+  invite-expiration: 3
 crates:
   menus:
     main:

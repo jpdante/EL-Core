@@ -1,6 +1,8 @@
 package com.ellisiumx.elrankup;
 
 import com.ellisiumx.elcore.database.DBPool;
+import com.ellisiumx.elcore.updater.UpdateType;
+import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elrankup.cash.CashManager;
 import com.ellisiumx.elrankup.chat.ChatManager;
 import com.ellisiumx.elrankup.clan.ClanManager;
@@ -17,12 +19,16 @@ import com.ellisiumx.elrankup.mine.MineReset;
 import com.ellisiumx.elrankup.rankup.RankupManager;
 import com.ellisiumx.elrankup.spawner.SpawnManager;
 import com.ellisiumx.elrankup.vanish.VanishManager;
+import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
 
-public class ELRankup extends JavaPlugin {
+public class ELRankup extends JavaPlugin implements Listener {
     private static ELRankup context;
+    private boolean initialized = false;
 
     @Override
     public void onLoad() {
@@ -32,8 +38,11 @@ public class ELRankup extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        Bukkit.getPluginManager().registerEvents(this, this);
         saveDefaultConfig();
         reloadConfig();
+        initialized = false;
+        Bukkit.getServer().setWhitelist(true);
         new RankupConfiguration();
         DBPool.registerDataSource("rankup", "elrankup");
         if(RankupConfiguration.MinesEnabled) {
@@ -83,6 +92,16 @@ public class ELRankup extends JavaPlugin {
             RedisManager.getContext().Disconnect();
         }*/
         this.getLogger().log(Level.INFO, "Unloaded!");
+    }
+
+    @EventHandler
+    public void onUpdate(UpdateEvent event) {
+        if(event.getType() != UpdateType.SEC) return;
+        if(initialized) return;
+        if(ClanManager.context.initialized) {
+            initialized = true;
+            Bukkit.getServer().setWhitelist(false);
+        }
     }
 
     public static ELRankup getContext() {

@@ -14,6 +14,7 @@ import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elcore.utils.UtilLog;
 import com.ellisiumx.elcore.utils.UtilPlayer;
+import com.ellisiumx.elrankup.chat.ChatManager;
 import com.ellisiumx.elrankup.clan.command.ClanCommand;
 import com.ellisiumx.elrankup.clan.repository.ClanRepository;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
@@ -60,6 +61,7 @@ public class ClanManager implements Listener {
             initialized = true;
         });
         playerClans = new HashMap<>();
+        clanInvites = new HashMap<>();
         for (LanguageDB languageDB : LanguageManager.getLanguages()) {
             // Errors
             languageDB.insertTranslation("ClanNotEnoughMoney", "&cYou do not have enough money to create a clan!");
@@ -79,6 +81,8 @@ public class ClanManager implements Listener {
             languageDB.insertTranslation("ClansPlayerNotExist", "&cThis player does not exist or is not online!");
             languageDB.insertTranslation("ClansPlayerAlreadyHasClan", "&cThis player already has a clan!");
             languageDB.insertTranslation("ClansPlayerHasInvite", "&cThis player has already been invited to a clan, please wait until the invitation expires or is accepted/rejected.");
+            languageDB.insertTranslation("ClansNoInvite", "&cYou have not received any clan invitations or the invitation has expired!");
+            languageDB.insertTranslation("ClanRankMaxOutWithColors", "&cClan rank cannot be longer than 32 characters!");
 
             // Messages
             languageDB.insertTranslation("ClansInviteSent", "&aClan invitation sent to %PlayerName%");
@@ -92,6 +96,19 @@ public class ClanManager implements Listener {
             languageDB.insertTranslation("ClansReject", "REJECT");
             languageDB.insertTranslation("ClansHolderReject", "&6Click to reject.");
             languageDB.insertTranslation("ClansInvite", "&aYou have been invited to join &b%ClanName% &f[%ClanTag%&f]                              %Accept%          %Reject%");
+            languageDB.insertTranslation("ClansLeaderDeleted", "&6The clan you participate in has been deleted by the leader!");
+            languageDB.insertTranslation("ClansInviteRejected", "&aYou have rejected the clan invitation.");
+            languageDB.insertTranslation("ClansInviteAccepted", "&aYou have accepted the clan invitation.");
+            languageDB.insertTranslation("ClansNewMember", "&aThe clan has a new member: %PlayerName%");
+            languageDB.insertTranslation("ClansPlayerTitle", "&a-=-= Player %PlayerName%&a Statistics =-=-");
+            languageDB.insertTranslation("ClansPlayerClan",     " &7Clan:      %ClanTag% %ClanName%");
+            languageDB.insertTranslation("ClansPlayerRank",     " &7Rank:      &b%PlayerRank%");
+            languageDB.insertTranslation("ClansPlayerKDR",      " &7KDR:       &e%KDR%");
+            languageDB.insertTranslation("ClansPlayerKills",    " &7Kills:     &9[Neutral: &e%NeutralKills%&9, Rival: &e%RivalKills%&9, Civilian: &e%CivilianKills%&9]");
+            languageDB.insertTranslation("ClansPlayerDeaths",   " &7Deaths:    &e%PlayerDeaths%");
+            languageDB.insertTranslation("ClansPlayerJoinDate", " &7Join Date: &f%JoinDate%");
+            languageDB.insertTranslation("ClansPlayerLastSeen", " &7Last Seen: &f%LastSeen%");
+            languageDB.insertTranslation("ClansRankUpdated", "&aThe rank of %PlayerName% &ahas been updated!");
 
             // Commands
             languageDB.insertTranslation("ClansCommands", "&6Clans commands");
@@ -102,11 +119,12 @@ public class ClanManager implements Listener {
             languageDB.insertTranslation("ClansSetRankCommand", " &a/clan setrank <player> <rank> &8- &7Clans rank");
             languageDB.insertTranslation("ClansInviteAllieCommand", " &a/clan inviteallie &8- &7See clan allies");
             languageDB.insertTranslation("ClansAddRivalCommand", " &a/clan addrival <clan> &8- &Add rival clan");
-            languageDB.insertTranslation("ClansAddRivalCommand", " &a/clan removerival <clan> &8- &Remove rival clan");
+            languageDB.insertTranslation("ClansRemoveRivalCommand", " &a/clan removerival <clan> &8- &Remove rival clan");
             languageDB.insertTranslation("ClansMembersCommand", " &a/clan members [name] &8- &7See clan members");
             languageDB.insertTranslation("ClansFriendFireCommand", " &a/clan friendfire [enable/disable] &8- &7Enable/Disable friend fire");
             languageDB.insertTranslation("ClansAbandonCommand", " &a/clan abandon &8- &7Abandon clan");
             languageDB.insertTranslation("ClansInviteCommand", " &a/clan invite <player> &8- &7Invite someone to clan");
+            languageDB.insertTranslation("ClansInviteAllieCommand", " &a/clan inviteallie <clan> &8- &7Invite clan to allie");
             languageDB.insertTranslation("ClansAcceptCommand", " &a/clan accept &8- &7Accept clan invite");
             languageDB.insertTranslation("ClansRejectCommand", " &a/clan reject &8- &7Reject clan invite");
         }
@@ -249,7 +267,7 @@ public class ClanManager implements Listener {
                 for (ClanPlayer cp : playerClans.values()) {
                     if (cp.clan == clan) {
                         cp.clan = null;
-                        // TODO: Send message alerting clan deletion
+                        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansLeaderDeleted").replace('&', ChatColor.COLOR_CHAR));
                     }
                 }
                 clans.remove(clan);
@@ -330,11 +348,81 @@ public class ClanManager implements Listener {
     }
 
     public void clanPlayer(Player caller, String playerName) {
-
+        Player player = null;
+        if(playerName == null) player = caller;
+        else player = UtilPlayer.searchExact(playerName);
+        if(player == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerNotExist").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        ClanPlayer clanPlayer = getClanPlayer(player);
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerTitle")
+                .replaceAll("%PlayerName%", player.getDisplayName())
+                .replace('&', ChatColor.COLOR_CHAR));
+        if(clanPlayer.clan != null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerClan")
+                    .replaceAll("%ClanTag%", clanPlayer.clan.colorTag)
+                    .replaceAll("%ClanName%", clanPlayer.clan.name)
+                    .replace('&', ChatColor.COLOR_CHAR));
+        } else {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerClan")
+                    .replaceAll("%ClanTag%", "")
+                    .replaceAll("%ClanName%", "")
+                    .replace('&', ChatColor.COLOR_CHAR));
+        }
+        if(clanPlayer.rank == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerRank")
+                    .replaceAll("%PlayerRank%", "")
+                    .replace('&', ChatColor.COLOR_CHAR));
+        } else {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerRank")
+                    .replaceAll("%PlayerRank%", clanPlayer.rank)
+                    .replace('&', ChatColor.COLOR_CHAR));
+        }
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerKDR")
+                .replaceAll("%KDR%", String.valueOf(clanPlayer.kdr))
+                .replace('&', ChatColor.COLOR_CHAR));
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerKills")
+                .replaceAll("%NeutralKills%", String.valueOf(clanPlayer.neutralKills))
+                .replaceAll("%RivalKills%", String.valueOf(clanPlayer.rivalKills))
+                .replaceAll("%CivilianKills%", String.valueOf(clanPlayer.civilianKills))
+                .replace('&', ChatColor.COLOR_CHAR));
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerDeaths")
+                .replaceAll("%PlayerDeaths%", String.valueOf(clanPlayer.deaths))
+                .replace('&', ChatColor.COLOR_CHAR));
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerJoinDate")
+                .replaceAll("%JoinDate%", String.valueOf(clanPlayer.joinDate.toString()))
+                .replace('&', ChatColor.COLOR_CHAR));
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerLastSeen")
+                .replaceAll("%LastSeen%", String.valueOf(clanPlayer.lastSeen.toString()))
+                .replace('&', ChatColor.COLOR_CHAR));
     }
 
     public void setRank(Player caller, String playerName, String rankName) {
-
+        if(rankName.length() > 32) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClanRankMaxOutWithColors").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        Player player = null;
+        if(playerName == null) player = caller;
+        else player = UtilPlayer.searchExact(playerName);
+        if(player == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerNotExist").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        ClanPlayer clanPlayer = getClanPlayer(player);
+        ClanPlayer clanCaller = getClanPlayer(caller);
+        if(clanPlayer.clan != clanCaller.clan) return;
+        if(clanCaller.clan.leader != CoreClientManager.get(caller).getAccountId() && !clanCaller.isClanMod) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoPermission").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if(rankName.equalsIgnoreCase("")) clanPlayer.rank = null;
+        else clanPlayer.rank = rankName;
+        playerUpdateBuffer.push(clanPlayer);
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansRankUpdated")
+                .replaceAll("%PlayerName%", player.getDisplayName())
+                .replace('&', ChatColor.COLOR_CHAR));
     }
 
     public void inviteAllie(Player caller, String arg) {
@@ -343,6 +431,38 @@ public class ClanManager implements Listener {
 
     public void addRival(Player caller, String arg) {
 
+    }
+
+    public void acceptInvite(Player caller) {
+        if(!clanInvites.containsKey(caller.getName())) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoInvite").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        ClanInvite clanInvite = clanInvites.get(caller.getName());
+        clanInvite.getClan().members.add(caller.getName());
+        ClanPlayer clanPlayer = getClanPlayer(caller);
+        clanPlayer.clan = clanInvite.getClan();
+        clanPlayer.isClanMod = false;
+        playerUpdateBuffer.push(clanPlayer);
+        clanInvites.remove(caller.getName());
+        for(String memberName : clanInvite.getClan().members) {
+            Player player = UtilPlayer.searchExact(memberName);
+            if(player == null) continue;
+            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansNewMember")
+                    .replaceAll("%PlayerName%", caller.getDisplayName())
+                    .replace('&', ChatColor.COLOR_CHAR));
+        }
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansInviteAccepted").replace('&', ChatColor.COLOR_CHAR));
+        ChatManager.regenerateTags(caller);
+    }
+
+    public void rejectInvite(Player caller) {
+        if(!clanInvites.containsKey(caller.getName())) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoInvite").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        clanInvites.remove(caller.getName());
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansInviteRejected").replace('&', ChatColor.COLOR_CHAR));
     }
 
     @EventHandler
@@ -380,10 +500,12 @@ public class ClanManager implements Listener {
             Clan killerClan = victimClanPlayer.clan;
 
             victimClanPlayer.deaths += 1;
+            victimClanPlayer.calculateKdr();
             playerUpdateBuffer.push(victimClanPlayer);
 
             if (victimClan != null) {
                 victimClan.deaths += 1;
+                victimClan.calculateKdr();
                 clanUpdateBuffer.push(victimClan);
             }
 
@@ -400,10 +522,12 @@ public class ClanManager implements Listener {
                         killerClanPlayer.neutralKills += 1;
                     }
                 }
+                killerClan.calculateKdr();
                 clanUpdateBuffer.push(killerClan);
             } else {
                 killerClanPlayer.neutralKills += 1;
             }
+            killerClanPlayer.calculateKdr();
             playerUpdateBuffer.push(killerClanPlayer);
         });
     }
@@ -413,8 +537,10 @@ public class ClanManager implements Listener {
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
             TimingManager.start(event.getPlayer().getName() + " load clan");
             ClanPlayer clanPlayer = repository.getClanPlayer(CoreClientManager.get(event.getPlayer()).getAccountId(), event.getPlayer().getName(), clans);
+            clanPlayer.calculateKdr();
             playerClans.put(event.getPlayer().getName(), clanPlayer);
             TimingManager.stop(event.getPlayer().getName() + " load clan");
+            ChatManager.regenerateTags(event.getPlayer());
         });
     }
 

@@ -1,5 +1,7 @@
 package com.ellisiumx.elrankup.clan;
 
+import com.ellisiumx.elrankup.configuration.RankupConfiguration;
+
 import java.sql.Timestamp;
 
 public class ClanPlayer {
@@ -12,12 +14,13 @@ public class ClanPlayer {
     public int rivalKills;
     public int civilianKills;
     public int deaths;
+    public double kdr;
     public Timestamp lastSeen;
     public Timestamp joinDate;
-    public boolean updated;
     public boolean isClanMod;
+    public String rank;
 
-    public ClanPlayer(int accountId, Clan clan, boolean friendlyFire, int neutralKills, int rivalKills, int civilianKills, int deaths, Timestamp lastSeen, Timestamp joinDate, boolean isClanMod) {
+    public ClanPlayer(int accountId, Clan clan, boolean friendlyFire, int neutralKills, int rivalKills, int civilianKills, int deaths, Timestamp lastSeen, Timestamp joinDate, boolean isClanMod, String rank) {
         this.accountId = accountId;
         this.clan = clan;
         this.friendlyFire = friendlyFire;
@@ -28,9 +31,10 @@ public class ClanPlayer {
         this.lastSeen = lastSeen;
         this.joinDate = joinDate;
         this.isClanMod = isClanMod;
+        this.rank = rank;
     }
 
-    public ClanPlayer(int id, int accountId, Clan clan, boolean friendlyFire, int neutralKills, int rivalKills, int civilianKills, int deaths, Timestamp lastSeen, Timestamp joinDate, boolean isClanMod) {
+    public ClanPlayer(int id, int accountId, Clan clan, boolean friendlyFire, int neutralKills, int rivalKills, int civilianKills, int deaths, Timestamp lastSeen, Timestamp joinDate, boolean isClanMod, String rank) {
         this.id = id;
         this.accountId = accountId;
         this.clan = clan;
@@ -42,6 +46,14 @@ public class ClanPlayer {
         this.lastSeen = lastSeen;
         this.joinDate = joinDate;
         this.isClanMod = isClanMod;
+        this.rank = rank;
+    }
+
+    public void calculateKdr() {
+        double kills = (neutralKills * RankupConfiguration.clanNeutralKillWeight +
+                rivalKills * RankupConfiguration.clanRivalKillWeight +
+                civilianKills * RankupConfiguration.clanCivilianKillWeight) / 3.0d;
+        kdr = kills / (double) deaths;
     }
 
 }

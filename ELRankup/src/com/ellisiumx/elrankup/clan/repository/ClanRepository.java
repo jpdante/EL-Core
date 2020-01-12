@@ -75,7 +75,7 @@ public class ClanRepository extends RepositoryBase {
         Date date = new Date();
         ClanPlayer player = null;
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO clanPlayers (accountId, name, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate, isClanMod) VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, false);")) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO clanPlayers (accountId, name, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate, isClanMod, rank) VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, false, NULL);")) {
                 statement.setInt(1, accountId);
                 statement.setString(2, name);
                 statement.setBoolean(3, false);
@@ -87,7 +87,7 @@ public class ClanRepository extends RepositoryBase {
                 statement.setTimestamp(9, new Timestamp(date.getTime()));
                 statement.executeUpdate();
             }
-            try (PreparedStatement statement = connection.prepareStatement("SELECT id, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate, isClanMod FROM clanPlayers WHERE accountId = ? LIMIT 1;")) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT id, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate, isClanMod, rank FROM clanPlayers WHERE accountId = ? LIMIT 1;")) {
                 statement.setInt(1, accountId);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while(resultSet.next()) {
@@ -101,6 +101,7 @@ public class ClanRepository extends RepositoryBase {
                         Timestamp lastSeen = resultSet.getTimestamp(8);
                         Timestamp joinDate = resultSet.getTimestamp(9);
                         boolean isClanMod = resultSet.getBoolean(10);
+                        String rank = resultSet.getString(11);
                         Clan clan = null;
                         for (Clan lclan : clans) {
                             if (clanId == lclan.id) {
@@ -108,7 +109,7 @@ public class ClanRepository extends RepositoryBase {
                                 break;
                             }
                         }
-                        player = new ClanPlayer(id, accountId, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate, isClanMod);
+                        player = new ClanPlayer(id, accountId, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate, isClanMod, rank);
                     }
                 }
             }
@@ -121,7 +122,7 @@ public class ClanRepository extends RepositoryBase {
     public void updateClanPlayers(Stack<ClanPlayer> clanPlayers) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("UPDATE clanPlayers SET clan = ?, friendlyFire = ?, neutralKills = ?, rivalKills = ?, civilianKills = ?, deaths = ?, lastSeen = ?, joinDate = ?, isClanMod = ? WHERE id = ?;");
+                PreparedStatement statement = connection.prepareStatement("UPDATE clanPlayers SET clan = ?, friendlyFire = ?, neutralKills = ?, rivalKills = ?, civilianKills = ?, deaths = ?, lastSeen = ?, joinDate = ?, isClanMod = ?, rank = ? WHERE id = ?;");
         ) {
             while (!clanPlayers.isEmpty()) {
                 ClanPlayer clanPlayer = clanPlayers.pop();
@@ -135,7 +136,8 @@ public class ClanRepository extends RepositoryBase {
                 statement.setTimestamp(7, clanPlayer.lastSeen);
                 statement.setTimestamp(8, clanPlayer.joinDate);
                 statement.setBoolean(9, clanPlayer.isClanMod);
-                statement.setInt(10, clanPlayer.id);
+                statement.setString(10, clanPlayer.rank);
+                statement.setInt(11, clanPlayer.id);
                 statement.addBatch();
             }
             statement.executeBatch();

@@ -2,10 +2,7 @@ package com.ellisiumx.elrankup.clan;
 
 import com.ellisiumx.elcore.ELCore;
 import com.ellisiumx.elcore.account.CoreClientManager;
-import com.ellisiumx.elcore.jsonchat.ClickEvent;
-import com.ellisiumx.elcore.jsonchat.HoverEvent;
-import com.ellisiumx.elcore.jsonchat.JsonColor;
-import com.ellisiumx.elcore.jsonchat.JsonMessage;
+import com.ellisiumx.elcore.jsonchat.*;
 import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.preferences.PreferencesManager;
@@ -40,7 +37,8 @@ public class ClanManager implements Listener {
     public ClanRepository repository;
     public ArrayList<Clan> clans;
     public HashMap<String, ClanPlayer> playerClans;
-    public HashMap<String, ClanInvite> clanInvites;
+    public HashMap<String, ClanPlayerInvite> clanPlayerInvites;
+    public HashMap<Integer, ClanAllieInvite> clanAllieInvites;
     public Stack<Clan> clanUpdateBuffer = new Stack<>();
     public Stack<ClanPlayer> playerUpdateBuffer = new Stack<>();
     public boolean initialized;
@@ -61,7 +59,8 @@ public class ClanManager implements Listener {
             initialized = true;
         });
         playerClans = new HashMap<>();
-        clanInvites = new HashMap<>();
+        clanPlayerInvites = new HashMap<>();
+        clanAllieInvites = new HashMap<>();
         for (LanguageDB languageDB : LanguageManager.getLanguages()) {
             // Errors
             languageDB.insertTranslation("ClanNotEnoughMoney", "&cYou do not have enough money to create a clan!");
@@ -83,6 +82,7 @@ public class ClanManager implements Listener {
             languageDB.insertTranslation("ClansPlayerHasInvite", "&cThis player has already been invited to a clan, please wait until the invitation expires or is accepted/rejected.");
             languageDB.insertTranslation("ClansNoInvite", "&cYou have not received any clan invitations or the invitation has expired!");
             languageDB.insertTranslation("ClanRankMaxOutWithColors", "&cClan rank cannot be longer than 32 characters!");
+            languageDB.insertTranslation("ClanNotFound", "&cNo clans were found with this tag or name!");
 
             // Messages
             languageDB.insertTranslation("ClansInviteSent", "&aClan invitation sent to %PlayerName%");
@@ -95,7 +95,8 @@ public class ClanManager implements Listener {
             languageDB.insertTranslation("ClansHolderAccept", "&6Click to accept.");
             languageDB.insertTranslation("ClansReject", "REJECT");
             languageDB.insertTranslation("ClansHolderReject", "&6Click to reject.");
-            languageDB.insertTranslation("ClansInvite", "&aYou have been invited to join &b%ClanName% &f[%ClanTag%&f]                              %Accept%          %Reject%");
+            languageDB.insertTranslation("ClansPlayerInvite", "&aYou have been invited to join &b%ClanName% &f[%ClanTag%&f]                              %Accept%          %Reject%");
+            languageDB.insertTranslation("ClansAllieInvite", "&aYour clan has been invited to ally with &b%ClanName% &f[%ClanTag%&f]                     %Accept%          %Reject%");
             languageDB.insertTranslation("ClansLeaderDeleted", "&6The clan you participate in has been deleted by the leader!");
             languageDB.insertTranslation("ClansInviteRejected", "&aYou have rejected the clan invitation.");
             languageDB.insertTranslation("ClansInviteAccepted", "&aYou have accepted the clan invitation.");
@@ -109,6 +110,20 @@ public class ClanManager implements Listener {
             languageDB.insertTranslation("ClansPlayerJoinDate", " &7Join Date: &f%JoinDate%");
             languageDB.insertTranslation("ClansPlayerLastSeen", " &7Last Seen: &f%LastSeen%");
             languageDB.insertTranslation("ClansRankUpdated", "&aThe rank of %PlayerName% &ahas been updated!");
+            languageDB.insertTranslation("ClansMembersTitle", "&a-=-= Clan %ClanName% %ClanTag%&a Members =-=-");
+            languageDB.insertTranslation("ClansStatsTitle", "&a-=-= Clan %ClanName% %ClanTag%&a Stats =-=-");
+            languageDB.insertTranslation("ClansStatsKDR",         " &7KDR:       &e%KDR%");
+            languageDB.insertTranslation("ClansStatsKills",       " &7Kills:     &9[Neutral: &e%NeutralKills%&9, Rival: &e%RivalKills%&9, Civilian: &e%CivilianKills%&9]");
+            languageDB.insertTranslation("ClansStatsDeaths",      " &7Deaths:    &e%Deaths%");
+            languageDB.insertTranslation("ClansStatsRivals",      " &7Rivals:    &f%Rivals%");
+            languageDB.insertTranslation("ClansStatsAllies",      " &7Allies:    &f%Allies%");
+            languageDB.insertTranslation("ClansStatsMemberCount", " &7Member Count:   &f%MemberCount%");
+            languageDB.insertTranslation("ClansPlayerInviteSent", "&aClan invitation sent to %PlayerName%");
+            languageDB.insertTranslation("ClansAllieInviteSent", "&aAllie invitation sent to %ClanName% %ClanTag%");
+            languageDB.insertTranslation("ClansRivalAdd", "&aRival successfully added!");
+            languageDB.insertTranslation("ClansRivalRemove", "&aRival successfully removed!");
+            languageDB.insertTranslation("ClansAllieAccepted", "&aThe clan leader or moderator has agreed to ally with %ClanName% %ClanTag%");
+            languageDB.insertTranslation("ClansAllieRejected", "&aThe clan leader or moderator has declined to ally with %ClanName% %ClanTag%");
 
             // Commands
             languageDB.insertTranslation("ClansCommands", "&6Clans commands");
@@ -127,6 +142,7 @@ public class ClanManager implements Listener {
             languageDB.insertTranslation("ClansInviteAllieCommand", " &a/clan inviteallie <clan> &8- &7Invite clan to allie");
             languageDB.insertTranslation("ClansAcceptCommand", " &a/clan accept &8- &7Accept clan invite");
             languageDB.insertTranslation("ClansRejectCommand", " &a/clan reject &8- &7Reject clan invite");
+            languageDB.insertTranslation("ClansAllieCommand", " &a/clan allie accept/reject &8- &7Accept or Reject clan allie invitation");
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         new ClanCommand(plugin);
@@ -294,7 +310,7 @@ public class ClanManager implements Listener {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerAlreadyHasClan").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
-        if (clanInvites.containsKey(player.getName())) {
+        if (clanPlayerInvites.containsKey(player.getName())) {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerHasInvite").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
@@ -305,8 +321,8 @@ public class ClanManager implements Listener {
         if (clanPlayer.clan.leader != CoreClientManager.get(caller).getAccountId() && !clanPlayer.isClanMod) {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoPermission").replace('&', ChatColor.COLOR_CHAR));
         }
-        clanInvites.put(player.getName(), new ClanInvite(player, clanPlayer.clan, RankupConfiguration.clanInviteExpiration));
-        String message = LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansInvite").replace('&', ChatColor.COLOR_CHAR)
+        clanPlayerInvites.put(player.getName(), new ClanPlayerInvite(player, clanPlayer.clan, RankupConfiguration.clanInviteExpiration));
+        String message = LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansPlayerInvite").replace('&', ChatColor.COLOR_CHAR)
                 .replaceAll("%ClanName%", clanPlayer.clan.name)
                 .replaceAll("%ClanTag%", clanPlayer.clan.colorTag)
                 .replace('&', ChatColor.COLOR_CHAR);
@@ -326,25 +342,79 @@ public class ClanManager implements Listener {
                 .hover(HoverEvent.SHOW_TEXT, LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansHolderReject").replace('&', ChatColor.COLOR_CHAR))
                 .extra(rejectSplit[1])
                 .sendToPlayer(player);
-        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansInviteSent")
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansPlayerInviteSent")
                 .replaceAll("%PlayerName%", player.getDisplayName())
                 .replace('&', ChatColor.COLOR_CHAR));
     }
 
-    public void removeRival(Player caller, String arg) {
-
-    }
-
     public void clanMembers(Player caller) {
-
+        ClanPlayer clanPlayer = getClanPlayer(caller);
+        if(clanPlayer.clan == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansParticipationError").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansMembersTitle")
+                .replaceAll("%ClanName%", clanPlayer.clan.name)
+                .replaceAll("%ClanTag%", clanPlayer.clan.colorTag)
+                .replace('&', ChatColor.COLOR_CHAR));
+        for (String member : clanPlayer.clan.members) {
+            caller.sendMessage(member);
+        }
     }
 
     public void clanMembers(Player caller, String clanTagOrName) {
-
+        Clan clan = getClan(clanTagOrName);
+        if(clan == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClanNotFound").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansMembersTitle")
+                .replaceAll("%ClanName%", clan.name)
+                .replaceAll("%ClanTag%", clan.colorTag)
+                .replace('&', ChatColor.COLOR_CHAR));
+        for (String member : clan.members) {
+            caller.sendMessage(member);
+        }
     }
 
     public void clanStats(Player caller, String clanTagOrName) {
-
+        Clan clan = getClan(clanTagOrName);
+        if(clan == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClanNotFound").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansStatsTitle")
+                .replaceAll("%ClanName%", clan.name)
+                .replaceAll("%ClanTag%", clan.colorTag)
+                .replace('&', ChatColor.COLOR_CHAR));
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansStatsKDR")
+                .replaceAll("%KDR%", String.valueOf(clan.kdr))
+                .replace('&', ChatColor.COLOR_CHAR));
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansStatsKills")
+                .replaceAll("%NeutralKills%", String.valueOf(clan.neutralKills))
+                .replaceAll("%RivalKills%", String.valueOf(clan.rivalKills))
+                .replaceAll("%CivilianKills%", String.valueOf(clan.civilianKills))
+                .replace('&', ChatColor.COLOR_CHAR));
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansStatsDeaths")
+                .replaceAll("%Deaths%", String.valueOf(clan.deaths))
+                .replace('&', ChatColor.COLOR_CHAR));
+        StringBuilder rivals = new StringBuilder();
+        for (Clan rival : clan.rivals) {
+            rivals.append(rival.colorTag).append("&8, ");
+        }
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansStatsRivals")
+                .replaceAll("%Rivals%", rivals.toString())
+                .replace('&', ChatColor.COLOR_CHAR));
+        StringBuilder allies = new StringBuilder();
+        for (Clan allie : clan.allies) {
+            allies.append(allie.colorTag).append("&8, ");
+        }
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansStatsAllies")
+                .replaceAll("%Allies%", String.valueOf(clan.neutralKills))
+                .replace('&', ChatColor.COLOR_CHAR));
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansStatsMemberCount")
+                .replaceAll("%MemberCount%", String.valueOf(clan.members.size()))
+                .replace('&', ChatColor.COLOR_CHAR));
     }
 
     public void clanPlayer(Player caller, String playerName) {
@@ -425,26 +495,180 @@ public class ClanManager implements Listener {
                 .replace('&', ChatColor.COLOR_CHAR));
     }
 
-    public void inviteAllie(Player caller, String arg) {
-
+    public void inviteAllie(Player caller, String clanTagOrName) {
+        ClanPlayer clanPlayer = getClanPlayer(caller);
+        Clan clan = getClan(clanTagOrName);
+        if(clan == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClanNotFound").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if(clanPlayer.clan == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansParticipationError").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if (clanAllieInvites.containsKey(clan.id)) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansClanHasInvite").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if (clanPlayer.clan.leader != CoreClientManager.get(caller).getAccountId() && !clanPlayer.isClanMod) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoPermission").replace('&', ChatColor.COLOR_CHAR));
+        }
+        clanAllieInvites.put(clan.id, new ClanAllieInvite(clanPlayer.clan, clan, 5));
+        for (String member : clan.members) {
+            Player player = UtilPlayer.searchExact(member);
+            if(player == null) continue;
+            if(clan.leader != CoreClientManager.get(player).getAccountId() && !getClanPlayer(player).isClanMod) continue;
+            String message = LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansAllieInvite").replace('&', ChatColor.COLOR_CHAR)
+                    .replaceAll("%ClanName%", clanPlayer.clan.name)
+                    .replaceAll("%ClanTag%", clanPlayer.clan.colorTag)
+                    .replace('&', ChatColor.COLOR_CHAR);
+            String[] acceptSplit = message.split("%Accept%", 2);
+            String[] rejectSplit = acceptSplit[1].split("%Reject%", 2);
+            new JsonMessage(acceptSplit[0])
+                    .extra(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansAccept").replace('&', ChatColor.COLOR_CHAR))
+                    .color(JsonColor.GREEN)
+                    .bold()
+                    .click(ClickEvent.RUN_COMMAND, "/clan allie accept")
+                    .hover(HoverEvent.SHOW_TEXT, LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansHolderAccept").replace('&', ChatColor.COLOR_CHAR))
+                    .extra(rejectSplit[0])
+                    .extra(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansReject").replace('&', ChatColor.COLOR_CHAR))
+                    .color(JsonColor.RED)
+                    .bold()
+                    .click(ClickEvent.RUN_COMMAND, "/clan allie reject")
+                    .hover(HoverEvent.SHOW_TEXT, LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansHolderReject").replace('&', ChatColor.COLOR_CHAR))
+                    .extra(rejectSplit[1]).sendToPlayer(player);
+        }
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansAllieInviteSent")
+                .replaceAll("%ClanName%", clan.name)
+                .replaceAll("%ClanTag%", clan.colorTag)
+                .replace('&', ChatColor.COLOR_CHAR));
     }
 
-    public void addRival(Player caller, String arg) {
-
+    public void addRival(Player caller, String clanTagOrName) {
+        ClanPlayer clanPlayer = getClanPlayer(caller);
+        Clan clan = getClan(clanTagOrName);
+        if(clan == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClanNotFound").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if(clanPlayer.clan == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansParticipationError").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if(clanPlayer.clan.leader != CoreClientManager.get(caller).getAccountId() && !clanPlayer.isClanMod) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoPermission").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if(!clanPlayer.clan.rivals.contains(clan)) {
+            clanPlayer.clan.rivals.add(clan);
+            clanUpdateBuffer.push(clanPlayer.clan);
+        }
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansRivalAdd").replace('&', ChatColor.COLOR_CHAR));
     }
 
-    public void acceptInvite(Player caller) {
-        if(!clanInvites.containsKey(caller.getName())) {
+    public void removeRival(Player caller, String clanTagOrName) {
+        ClanPlayer clanPlayer = getClanPlayer(caller);
+        Clan clan = getClan(clanTagOrName);
+        if(clan == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClanNotFound").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if(clanPlayer.clan == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansParticipationError").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if(clanPlayer.clan.leader != CoreClientManager.get(caller).getAccountId() && !clanPlayer.isClanMod) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoPermission").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if(clanPlayer.clan.rivals.contains(clan)) {
+            clanPlayer.clan.rivals.remove(clan);
+            clanUpdateBuffer.push(clanPlayer.clan);
+        }
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansRivalRemove").replace('&', ChatColor.COLOR_CHAR));
+    }
+
+    public void acceptAllieInvite(Player caller) {
+        ClanPlayer clanPlayer = getClanPlayer(caller);
+        if(clanPlayer.clan == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansParticipationError").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if (!clanAllieInvites.containsKey(clanPlayer.id)) {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoInvite").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
-        ClanInvite clanInvite = clanInvites.get(caller.getName());
+        if (clanPlayer.clan.leader != CoreClientManager.get(caller).getAccountId() && !clanPlayer.isClanMod) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoPermission").replace('&', ChatColor.COLOR_CHAR));
+        }
+        ClanAllieInvite clanAllieInvite = clanAllieInvites.get(clanPlayer.clan.id);
+        clanAllieInvite.getFrom().allies.add(clanAllieInvite.getTo());
+        clanAllieInvite.getTo().allies.add(clanAllieInvite.getFrom());
+        clanUpdateBuffer.push(clanAllieInvite.getFrom());
+        clanUpdateBuffer.push(clanAllieInvite.getTo());
+        for(String memberName : clanAllieInvite.getFrom().members) {
+            Player player = UtilPlayer.searchExact(memberName);
+            if(player == null) continue;
+            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansAllieAccepted")
+                    .replaceAll("%ClanName%", clanAllieInvite.getTo().name)
+                    .replaceAll("%ClanTag%", clanAllieInvite.getTo().colorTag)
+                    .replace('&', ChatColor.COLOR_CHAR));
+        }
+        for(String memberName : clanAllieInvite.getTo().members) {
+            Player player = UtilPlayer.searchExact(memberName);
+            if(player == null) continue;
+            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansAllieAccepted")
+                    .replaceAll("%ClanName%", clanAllieInvite.getFrom().name)
+                    .replaceAll("%ClanTag%", clanAllieInvite.getFrom().colorTag)
+                    .replace('&', ChatColor.COLOR_CHAR));
+        }
+    }
+
+    public void rejectAllieInvite(Player caller) {
+        ClanPlayer clanPlayer = getClanPlayer(caller);
+        if(clanPlayer.clan == null) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansParticipationError").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if (!clanAllieInvites.containsKey(clanPlayer.id)) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoInvite").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if (clanPlayer.clan.leader != CoreClientManager.get(caller).getAccountId() && !clanPlayer.isClanMod) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoPermission").replace('&', ChatColor.COLOR_CHAR));
+        }
+        ClanAllieInvite clanAllieInvite = clanAllieInvites.get(clanPlayer.clan.id);
+        for(String memberName : clanAllieInvite.getFrom().members) {
+            Player player = UtilPlayer.searchExact(memberName);
+            if(player == null) continue;
+            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansAllieRejected")
+                    .replaceAll("%ClanName%", clanAllieInvite.getTo().name)
+                    .replaceAll("%ClanTag%", clanAllieInvite.getTo().colorTag)
+                    .replace('&', ChatColor.COLOR_CHAR));
+        }
+        for(String memberName : clanAllieInvite.getTo().members) {
+            Player player = UtilPlayer.searchExact(memberName);
+            if(player == null) continue;
+            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansAllieRejected")
+                    .replaceAll("%ClanName%", clanAllieInvite.getFrom().name)
+                    .replaceAll("%ClanTag%", clanAllieInvite.getFrom().colorTag)
+                    .replace('&', ChatColor.COLOR_CHAR));
+        }
+        clanAllieInvites.remove(clanPlayer.clan.id);
+    }
+
+    public void acceptPlayerInvite(Player caller) {
+        if(!clanPlayerInvites.containsKey(caller.getName())) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoInvite").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        ClanPlayerInvite clanInvite = clanPlayerInvites.get(caller.getName());
         clanInvite.getClan().members.add(caller.getName());
         ClanPlayer clanPlayer = getClanPlayer(caller);
         clanPlayer.clan = clanInvite.getClan();
         clanPlayer.isClanMod = false;
         playerUpdateBuffer.push(clanPlayer);
-        clanInvites.remove(caller.getName());
+        clanPlayerInvites.remove(caller.getName());
         for(String memberName : clanInvite.getClan().members) {
             Player player = UtilPlayer.searchExact(memberName);
             if(player == null) continue;
@@ -456,12 +680,12 @@ public class ClanManager implements Listener {
         ChatManager.regenerateTags(caller);
     }
 
-    public void rejectInvite(Player caller) {
-        if(!clanInvites.containsKey(caller.getName())) {
+    public void rejectPlayerInvite(Player caller) {
+        if(!clanPlayerInvites.containsKey(caller.getName())) {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoInvite").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
-        clanInvites.remove(caller.getName());
+        clanPlayerInvites.remove(caller.getName());
         caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansInviteRejected").replace('&', ChatColor.COLOR_CHAR));
     }
 
@@ -469,12 +693,19 @@ public class ClanManager implements Listener {
     public void onBufferElapsed(UpdateEvent event) {
         if (event.getType() == UpdateType.SLOW) {
             Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
-                for (String key : clanInvites.keySet()) {
-                    if (clanInvites.get(key).getTimeout() <= 0) {
-                        clanInvites.remove(key);
+                for (String key : clanPlayerInvites.keySet()) {
+                    if (clanPlayerInvites.get(key).getTimeout() <= 0) {
+                        clanPlayerInvites.remove(key);
                         continue;
                     }
-                    clanInvites.get(key).reduceTimeout();
+                    clanPlayerInvites.get(key).reduceTimeout();
+                }
+                for (int key : clanAllieInvites.keySet()) {
+                    if (clanAllieInvites.get(key).getTimeout() <= 0) {
+                        clanAllieInvites.remove(key);
+                        continue;
+                    }
+                    clanAllieInvites.get(key).reduceTimeout();
                 }
                 if (!clanUpdateBuffer.isEmpty()) {
                     repository.updateClans(clanUpdateBuffer);
@@ -497,7 +728,7 @@ public class ClanManager implements Listener {
             ClanPlayer victimClanPlayer = getClanPlayer(victim);
             ClanPlayer killerClanPlayer = getClanPlayer(killer);
             Clan victimClan = victimClanPlayer.clan;
-            Clan killerClan = victimClanPlayer.clan;
+            Clan killerClan = killerClanPlayer.clan;
 
             victimClanPlayer.deaths += 1;
             victimClanPlayer.calculateKdr();
@@ -548,7 +779,7 @@ public class ClanManager implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
             playerClans.remove(event.getPlayer().getName());
-            clanInvites.remove(event.getPlayer().getName());
+            clanPlayerInvites.remove(event.getPlayer().getName());
         });
     }
 }

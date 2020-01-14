@@ -2,18 +2,13 @@ package com.ellisiumx.elrankup.clan.command;
 
 import com.ellisiumx.elcore.command.CommandBase;
 import com.ellisiumx.elcore.command.CommandCenter;
-import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.preferences.PreferencesManager;
-import com.ellisiumx.elrankup.clan.Clan;
 import com.ellisiumx.elrankup.clan.ClanManager;
-import com.ellisiumx.elrankup.machine.MachineManager;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.text.DecimalFormat;
 
 public class ClanCommand extends CommandBase {
 
@@ -70,6 +65,14 @@ public class ClanCommand extends CommandBase {
                 return;
             }
             ClanManager.context.inviteAllie(caller, args[1]);
+        } else if (args[0].equalsIgnoreCase("allie")) {
+            if (args.length != 2) {
+                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansAllieCommand").replace('&', ChatColor.COLOR_CHAR));
+                return;
+            }
+            if(args[1].equalsIgnoreCase("accept")) ClanManager.context.acceptAllieInvite(caller);
+            else if(args[1].equalsIgnoreCase("reject")) ClanManager.context.rejectAllieInvite(caller);
+            else caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansAllieCommand").replace('&', ChatColor.COLOR_CHAR));
         } else if (args[0].equalsIgnoreCase("addrival")) {
             if (args.length != 2) {
                 caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansAddRivalCommand").replace('&', ChatColor.COLOR_CHAR));
@@ -83,11 +86,12 @@ public class ClanCommand extends CommandBase {
             }
             ClanManager.context.removeRival(caller, args[1]);
         } else if (args[0].equalsIgnoreCase("members")) {
-            if (args.length != 2) {
+            if (args.length > 3) {
                 caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansMembersCommand").replace('&', ChatColor.COLOR_CHAR));
                 return;
             }
-            ClanManager.context.clanMembers(caller, args[1]);
+            if(args.length == 1) ClanManager.context.clanMembers(caller);
+            else if(args.length == 2) ClanManager.context.clanMembers(caller, args[1]);
         } else if (args[0].equalsIgnoreCase("friendfire")) {
             if (args.length != 2) {
                 caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansFriendFireCommand").replace('&', ChatColor.COLOR_CHAR));
@@ -110,13 +114,13 @@ public class ClanCommand extends CommandBase {
                 caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansAcceptCommand").replace('&', ChatColor.COLOR_CHAR));
                 return;
             }
-            ClanManager.context.acceptInvite(caller);
+            ClanManager.context.acceptPlayerInvite(caller);
         } else if (args[0].equalsIgnoreCase("reject")) {
             if (args.length != 1) {
                 caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansRejectCommand").replace('&', ChatColor.COLOR_CHAR));
                 return;
             }
-            ClanManager.context.rejectInvite(caller);
+            ClanManager.context.rejectPlayerInvite(caller);
         }
     }
 
@@ -136,5 +140,6 @@ public class ClanCommand extends CommandBase {
         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansInviteCommand").replace('&', ChatColor.COLOR_CHAR));
         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansAcceptCommand").replace('&', ChatColor.COLOR_CHAR));
         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansRejectCommand").replace('&', ChatColor.COLOR_CHAR));
+        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansAllieCommand").replace('&', ChatColor.COLOR_CHAR));
     }
 }

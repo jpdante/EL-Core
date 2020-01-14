@@ -2,13 +2,13 @@ package com.ellisiumx.elrankup.clan;
 
 import org.bukkit.entity.Player;
 
-public class ClanInvite {
+public class ClanPlayerInvite {
 
     private Player player;
     private Clan clan;
     private int timeout;
 
-    public ClanInvite(Player player, Clan clan, int timeout) {
+    public ClanPlayerInvite(Player player, Clan clan, int timeout) {
         this.player = player;
         this.clan = clan;
         this.timeout = timeout;

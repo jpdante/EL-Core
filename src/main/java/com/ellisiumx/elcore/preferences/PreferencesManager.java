@@ -59,6 +59,7 @@ public class PreferencesManager implements Listener {
                     cacheDataRepository.addElement(entry.getValue(), 3600);
                 }
                 saveBuffer.clear();
+                if(bufferCopy.isEmpty()) return;
                 repository.saveUserPreferences(bufferCopy);
             }
         });

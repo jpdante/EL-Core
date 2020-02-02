@@ -18,14 +18,5 @@
     <orderEntry type="library" name="Maven: com.kohlschutter.junixsocket:junixsocket-core:2.2.0" level="project" />
     <orderEntry type="library" name="Maven: com.kohlschutter.junixsocket:junixsocket-native-common:2.2.0" level="project" />
     <orderEntry type="library" name="Maven: com.kohlschutter.junixsocket:junixsocket-common:2.2.0" level="project" />
-    <orderEntry type="module-library">
-      <library name="Maven: org.spigot:spigot:1.8.8">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Desktop/Server/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
   </component>
 </module>

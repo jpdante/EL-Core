@@ -164,7 +164,7 @@ public class ClanManager implements Listener {
     }
 
     public void createClan(Player player, String colorTag, String name) {
-        if (!EconomyManager.economy.has(player, RankupConfiguration.clanCreationPrice)) {
+        if (!EconomyManager.economy.has(player, RankupConfiguration.ClanCreationPrice)) {
             player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClanNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
@@ -192,7 +192,7 @@ public class ClanManager implements Listener {
                 return;
             }
         }
-        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.clanCreationPrice);
+        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.ClanCreationPrice);
         if (!response.transactionSuccess()) {
             player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClanTransactionFailure").replaceAll("%ErrorMessage%", response.errorMessage).replace('&', ChatColor.COLOR_CHAR));
             return;
@@ -321,7 +321,7 @@ public class ClanManager implements Listener {
         if (clanPlayer.clan.leader != CoreClientManager.get(caller).getAccountId() && !clanPlayer.isClanMod) {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoPermission").replace('&', ChatColor.COLOR_CHAR));
         }
-        clanPlayerInvites.put(player.getName(), new ClanPlayerInvite(player, clanPlayer.clan, RankupConfiguration.clanInviteExpiration));
+        clanPlayerInvites.put(player.getName(), new ClanPlayerInvite(player, clanPlayer.clan, RankupConfiguration.ClanInviteExpiration));
         String message = LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansPlayerInvite").replace('&', ChatColor.COLOR_CHAR)
                 .replaceAll("%ClanName%", clanPlayer.clan.name)
                 .replaceAll("%ClanTag%", clanPlayer.clan.colorTag)

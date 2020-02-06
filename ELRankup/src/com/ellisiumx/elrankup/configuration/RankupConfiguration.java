@@ -4,20 +4,17 @@ import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elrankup.ELRankup;
 import com.ellisiumx.elrankup.chat.ChatChannel;
 import com.ellisiumx.elrankup.crate.CrateType;
+import com.ellisiumx.elrankup.kit.Kit;
 import com.ellisiumx.elrankup.machine.MachineType;
 import com.ellisiumx.elrankup.mapedit.BlockData;
 import com.ellisiumx.elrankup.mine.MineData;
 import com.ellisiumx.elcore.utils.UtilConvert;
 import com.ellisiumx.elrankup.rankup.RankLevel;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
-import javax.rmi.CORBA.Util;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,14 +44,16 @@ public class RankupConfiguration {
     public static MenuConfig CrateMenu;
 
     public static List<ChatChannel> ChatChannels;
-    public static ChatChannel defaultChatChannel;
-    public static double minTellPrice;
+    public static ChatChannel DefaultChatChannel;
+    public static double MinTellPrice;
 
-    public static double clanCreationPrice;
-    public static double clanNeutralKillWeight;
-    public static double clanRivalKillWeight;
-    public static double clanCivilianKillWeight;
-    public static int clanInviteExpiration;
+    public static double ClanCreationPrice;
+    public static double ClanNeutralKillWeight;
+    public static double ClanRivalKillWeight;
+    public static double ClanCivilianKillWeight;
+    public static int ClanInviteExpiration;
+
+    public static List<Kit> Kits;
 
     public RankupConfiguration() {
         FileConfiguration config = ELRankup.getContext().getConfig();
@@ -150,18 +149,36 @@ public class RankupConfiguration {
         }
         for(ChatChannel chatChannel : ChatChannels) {
             if(chatChannel.tag.equalsIgnoreCase(config.getString("chat.default-channel"))) {
-                defaultChatChannel = chatChannel;
+                DefaultChatChannel = chatChannel;
                 break;
             }
         }
-        if(defaultChatChannel == null) defaultChatChannel = ChatChannels.get(0);
-        minTellPrice = config.getDouble("chat.tell-min-price");
+        if(DefaultChatChannel == null) DefaultChatChannel = ChatChannels.get(0);
+        MinTellPrice = config.getDouble("chat.tell-min-price");
 
-        clanCreationPrice = config.getDouble("clans.create-price");
-        clanNeutralKillWeight = config.getDouble("clans.neutral-kill-weight");
-        clanRivalKillWeight = config.getDouble("clans.rival-kill-weight");
-        clanCivilianKillWeight = config.getDouble("clans.civilian-kill-weight");
-        clanInviteExpiration = config.getInt("clans.invite-expiration");
+        ClanCreationPrice = config.getDouble("clans.create-price");
+        ClanNeutralKillWeight = config.getDouble("clans.neutral-kill-weight");
+        ClanRivalKillWeight = config.getDouble("clans.rival-kill-weight");
+        ClanCivilianKillWeight = config.getDouble("clans.civilian-kill-weight");
+        ClanInviteExpiration = config.getInt("clans.invite-expiration");
+
+        Kits = new ArrayList<>();
+        for (String key : config.getConfigurationSection("kits").getKeys(false)) {
+            String name = config.getString("kits." + key + ".name");
+            String displayName = config.getString("kits." + key + ".display-name");
+            int delay = config.getInt("kits." + key + ".delay");
+            List<String> ranksRaw = config.getStringList("kits." + key + ".ranks");
+            ArrayList<Rank> ranks = new ArrayList<>();
+            for(String rank : ranksRaw) {
+                ranks.add(Rank.valueOf(rank));
+            }
+            List<String> itemsRaw = config.getStringList("kits." + key + ".items");
+            ArrayList<ItemStack> items = new ArrayList<>();
+            for(String item : itemsRaw) {
+                items.add(UtilConvert.deserializeItemStack(item));
+            }
+            Kits.add(new Kit(key, name, displayName, delay, ranks, items));
+        }
     }
 
     public static void save() {
@@ -194,6 +211,23 @@ public class RankupConfiguration {
             crateChestsLocations.add(UtilConvert.getStringFromLocation(location));
         }
         ELRankup.getContext().getConfig().set("crates.chests", crateChestsLocations);
+
+        ELRankup.getContext().getConfig().set("kits", null);
+        for (Kit kit : Kits) {
+            ELRankup.getContext().getConfig().set("kits." + kit.getDisplayName() + ".name", kit.getName());
+            ELRankup.getContext().getConfig().set("kits." + kit.getDisplayName() + ".display-name", kit.getDisplayName());
+            ELRankup.getContext().getConfig().set("kits." + kit.getDisplayName() + ".delay", kit.getDelay());
+            ArrayList<String> ranks = new ArrayList<>();
+            for(Rank rank : kit.getRanks()) {
+                ranks.add(rank.Name);
+            }
+            ELRankup.getContext().getConfig().set("kits." + kit.getDisplayName() + ".ranks", ranks);
+            ArrayList<String> items = new ArrayList<>();
+            for(ItemStack itemStack : kit.getItems()) {
+                items.add(UtilConvert.serializeItemStack(itemStack));
+            }
+            ELRankup.getContext().getConfig().set("kits." + kit.getDisplayName() + ".items", items);
+        }
 
         ELRankup.getContext().saveConfig();
     }

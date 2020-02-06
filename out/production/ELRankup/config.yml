@@ -14,6 +14,14 @@ chat:
       min-price: 1000.0
   tell-min-price: 1000.0
   default-channel: L
+kits:
+  0:
+    name: "noob"
+    display-name: "&b&lKit Noob"
+    delay: 10
+    ranks:
+      - all
+    items: []
 mine-reseter:
   enabled: true
   alert-times:

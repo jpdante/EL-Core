@@ -7,8 +7,6 @@ import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.preferences.PreferencesManager;
 import com.ellisiumx.elcore.utils.UtilPlayer;
-import com.ellisiumx.elrankup.chat.ChatChannel;
-import com.ellisiumx.elrankup.chat.ChatManager;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.economy.EconomyManager;
 import org.bukkit.ChatColor;
@@ -37,7 +35,7 @@ public class TellCommand extends CommandBase {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ChatTellCommand").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
-        if(!EconomyManager.economy.has(caller, RankupConfiguration.minTellPrice)) {
+        if(!EconomyManager.economy.has(caller, RankupConfiguration.MinTellPrice)) {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ChatNoMoneyAmount").replace('&', ChatColor.COLOR_CHAR));
             return;
         }

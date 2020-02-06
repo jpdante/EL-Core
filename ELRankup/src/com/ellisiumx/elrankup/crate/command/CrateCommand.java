@@ -100,7 +100,7 @@ public class CrateCommand extends CommandBase {
         }
     }
 
-    private ItemStack confirmItemStack() {
+    public static ItemStack confirmItemStack() {
         ItemStack itemStack = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5);
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.setDisplayName(ChatColor.GREEN + "Confirm");

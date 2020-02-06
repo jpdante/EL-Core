@@ -53,9 +53,9 @@ public class Clan {
     }
 
     public void calculateKdr() {
-        double kills = (neutralKills * RankupConfiguration.clanNeutralKillWeight +
-                rivalKills * RankupConfiguration.clanRivalKillWeight +
-                civilianKills * RankupConfiguration.clanCivilianKillWeight) / 3.0d;
+        double kills = (neutralKills * RankupConfiguration.ClanNeutralKillWeight +
+                rivalKills * RankupConfiguration.ClanRivalKillWeight +
+                civilianKills * RankupConfiguration.ClanCivilianKillWeight) / 3.0d;
         kdr = kills / (double) deaths;
     }
 }

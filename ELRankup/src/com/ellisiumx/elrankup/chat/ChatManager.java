@@ -1,9 +1,6 @@
 package com.ellisiumx.elrankup.chat;
 
 import com.ellisiumx.elcore.account.CoreClientManager;
-import com.ellisiumx.elcore.jsonchat.HoverEvent;
-import com.ellisiumx.elcore.jsonchat.JsonMessage;
-import com.ellisiumx.elcore.jsonchat.JsonColor;
 import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.permissions.Rank;
@@ -100,7 +97,7 @@ public class ChatManager implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        playerChats.put(event.getPlayer().getName(), new PlayerChat(event.getPlayer(), RankupConfiguration.defaultChatChannel));
+        playerChats.put(event.getPlayer().getName(), new PlayerChat(event.getPlayer(), RankupConfiguration.DefaultChatChannel));
         regenerateTags(event.getPlayer());
     }
 

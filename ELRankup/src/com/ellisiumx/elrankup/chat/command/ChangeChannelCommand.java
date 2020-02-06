@@ -16,7 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class ChangeChannelCommand extends CommandBase {
 
     public ChangeChannelCommand(JavaPlugin plugin) {
-        super(plugin, Rank.DEVELOPER, "channel", "ch");
+        super(plugin, Rank.ALL, "channel", "ch");
         this.setCommandCenter(CommandCenter.context);
         CommandCenter.addCommand(this);
     }

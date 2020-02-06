@@ -20,10 +20,10 @@ kits:
     display-name: "&b&lKit Noob"
     delay: 10
     ranks:
-      - all
+      - "ALL"
     items: []
 mine-reseter:
-  enabled: true
+  enabled: false
   alert-times:
     - 180
     - 120

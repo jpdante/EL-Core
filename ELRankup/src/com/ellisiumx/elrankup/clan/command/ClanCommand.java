@@ -98,11 +98,12 @@ public class ClanCommand extends CommandBase {
                 return;
             }
         } else if (args[0].equalsIgnoreCase("abandon")) {
-            if (args.length != 1) {
+            if (args.length > 2) {
                 caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansAbandonCommand").replace('&', ChatColor.COLOR_CHAR));
                 return;
             }
-            ClanManager.context.abandonClan(caller, false);
+            if(args.length == 1) ClanManager.context.abandonClan(caller, false);
+            else if (args[1].equalsIgnoreCase("true")) ClanManager.context.abandonClan(caller, true);
         } else if (args[0].equalsIgnoreCase("invite")) {
             if (args.length != 2) {
                 caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansInviteCommand").replace('&', ChatColor.COLOR_CHAR));

@@ -4,12 +4,14 @@ import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elcore.database.RepositoryBase;
 import com.ellisiumx.elrankup.clan.Clan;
 import com.ellisiumx.elrankup.clan.ClanPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Stack;
+import java.util.logging.Level;
 
 public class ClanRepository extends RepositoryBase {
     public ClanRepository(JavaPlugin plugin) {

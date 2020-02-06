@@ -16,7 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class TellCommand extends CommandBase {
 
     public TellCommand(JavaPlugin plugin) {
-        super(plugin, Rank.DEVELOPER, "tell", "t");
+        super(plugin, Rank.ALL, "tell", "t");
         this.setCommandCenter(CommandCenter.context);
         CommandCenter.addCommand(this);
         for (LanguageDB languageDB : LanguageManager.getLanguages()) {

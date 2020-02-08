@@ -307,6 +307,14 @@ public class UtilInv {
         Update(player);
     }
 
-
+    public static boolean HasSpace(Player player, int slots) {
+        int freeSpace = 0;
+        for (ItemStack i : player.getInventory()) {
+            if (i == null) {
+                freeSpace += 1;
+            }
+        }
+        return freeSpace >= slots;
+    }
 }
 

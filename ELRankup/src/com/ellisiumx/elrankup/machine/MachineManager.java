@@ -82,6 +82,7 @@ public class MachineManager implements Listener {
             languageDB.insertTranslation("MachineTankAlreadyFull", "&f[&aMachines&f] &cThe fuel tank of the machine is already full!");
             languageDB.insertTranslation("MachineTankReFull", "&f[&aMachines&f] &aThe machine has been replenished!");
             languageDB.insertTranslation("MachineDropsSold", "&f[&aMachines&f] &a%DropsAmount% drops were sold for %TotalPrice%, your new balance is %Balance%.");
+            languageDB.insertTranslation("MachineNoMenu", "&f[&aMachines&f] &cYou need to buy at least one machine to be able to see your machines.");
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         new MachineCommand(plugin);
@@ -217,19 +218,40 @@ public class MachineManager implements Listener {
         if(menuData[0].equals("shop")) {
             player.openInventory(shopMenu);
         } else if(menuData[0].equals("machines")) {
-            player.openInventory(ownerMachines.get(CoreClientManager.get(player).getAccountId()).getMachinesMenu());
+            int accountID = CoreClientManager.get(player).getAccountId();
+            if(!ownerMachines.containsKey(accountID)) {
+                player.sendMessage(
+                        LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineNoMenu")
+                                .replace('&', ChatColor.COLOR_CHAR)
+                );
+                return;
+            }
+            MachineOwner machineOwner = ownerMachines.get(CoreClientManager.get(player).getAccountId());
+            if(machineOwner.getMachinesMenu() == null) {
+                player.sendMessage(
+                        LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineNoMenu")
+                                .replace('&', ChatColor.COLOR_CHAR)
+                );
+                return;
+            }
+            player.openInventory(machineOwner.getMachinesMenu());
         } else if(menuData[0].equals("machine")) {
+            Bukkit.getLogger().log(Level.INFO, "[1] Maquina");
             if (holder instanceof MachineFuelMenuHolder) {
+                Bukkit.getLogger().log(Level.INFO, "[4] Maquina");
                 player.openInventory(((MachineFuelMenuHolder) holder).machine.getMachineMenu());
                 return;
             }
             if (holder instanceof MachineDropsMenuHolder) {
+                Bukkit.getLogger().log(Level.INFO, "[5] Maquina");
                 player.openInventory(((MachineDropsMenuHolder) holder).machine.getMachineMenu());
                 return;
             }
             int machineID = Integer.parseInt(menuData[1]);
             Machine machine = machinesIds.get(machineID);
+            Bukkit.getLogger().log(Level.INFO, "[2] Maquina");
             if (machine == null) return;
+            Bukkit.getLogger().log(Level.INFO, "[3] Maquina");
             updateMachine(machine, player);
             player.openInventory(machine.getMachineMenu());
         } else if(menuData[0].equals("permissions")) {

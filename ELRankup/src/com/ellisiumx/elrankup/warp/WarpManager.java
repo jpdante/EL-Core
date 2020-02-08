@@ -46,7 +46,7 @@ public class WarpManager implements Listener {
             languageDB.insertTranslation("WarpSetCommand", " &6/warp set <warp name> <rank> - Create new warp or set");
             languageDB.insertTranslation("WarpDelCommand", " &6/warp del <warp name> - Delete warp");
             languageDB.insertTranslation("WarpsCommand", " &6/warps - Show all available warps");
-            languageDB.insertTranslation("WarpsMessage", "&6Warps: %warps%");
+            languageDB.insertTranslation("WarpsMessage", "&6Warps: &f%warps%");
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         new WarpCommand(plugin);

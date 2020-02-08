@@ -8,6 +8,7 @@ import com.ellisiumx.elrankup.chat.ChatManager;
 import com.ellisiumx.elrankup.clan.ClanManager;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.crate.CrateManager;
+import com.ellisiumx.elrankup.drop.DropManager;
 import com.ellisiumx.elrankup.economy.EconomyManager;
 import com.ellisiumx.elrankup.essentials.*;
 import com.ellisiumx.elrankup.gamemode.*;
@@ -62,6 +63,7 @@ public class ELRankup extends JavaPlugin implements Listener {
         new KitManager(context);
         new WarpManager(context);
         new ChatManager(context);
+        new DropManager(context);
         // Commands
         new SetSpawnCommand(context);
         new SetWorldSpawnCommand(context);

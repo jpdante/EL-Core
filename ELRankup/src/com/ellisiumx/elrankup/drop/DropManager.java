@@ -19,6 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
@@ -37,7 +38,6 @@ public class DropManager implements Listener {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         dropPickaxes = new HashMap<>();
         playerDrops = new HashMap<>();
-        if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         new ChangeChannelCommand(plugin);
         new TellCommand(plugin);
     }
@@ -46,8 +46,10 @@ public class DropManager implements Listener {
     public void OnBlockBreak(BlockBreakEvent event) {
         if(event.getBlock().getType() != Material.EMERALD_BLOCK) return;
         //Block block = event.getBlock();
+        event.setCancelled(true);
         event.setExpToDrop(0);
-        event.getBlock().getDrops().clear();
+        event.getBlock().setType(Material.AIR);
+        event.getPlayer().getInventory().addItem(new ItemStack(Material.EMERALD_BLOCK));
         PlayerDrops pd = playerDrops.get(event.getPlayer().getName());
         pd.setDrops(pd.getDrops() + 1L);
     }

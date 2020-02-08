@@ -9,27 +9,21 @@ import java.util.List;
 public class Kit {
 
     private String key;
-    private String name;
     private String displayName;
     private int delay;
-    private List<Rank> ranks;
+    private Rank rank;
     private List<ItemStack> items;
 
-    public Kit(String key, String name, String displayName, int delay, ArrayList<Rank> ranks, ArrayList<ItemStack> items) {
+    public Kit(String key, String displayName, int delay, Rank rank, ArrayList<ItemStack> items) {
         this.key = key;
-        this.name = name;
         this.displayName = displayName;
         this.delay = delay;
-        this.ranks = ranks;
+        this.rank = rank;
         this.items = items;
     }
 
     public String getKey() {
         return key;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getDisplayName() {
@@ -40,11 +34,15 @@ public class Kit {
         return delay;
     }
 
-    public List<Rank> getRanks() {
-        return ranks;
+    public Rank getRank() {
+        return rank;
     }
 
     public List<ItemStack> getItems() {
         return items;
+    }
+
+    public void setItems(List<ItemStack> items) {
+        this.items = items;
     }
 }

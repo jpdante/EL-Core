@@ -9,11 +9,19 @@ import java.util.ArrayList;
 public class KitMenuHolder implements InventoryHolder {
 
     public String kitName;
-    public ArrayList<Rank> ranks;
+    public Rank rank;
+    public int delay;
+    public boolean edit = false;
 
-    public KitMenuHolder(String kitName, ArrayList<Rank> ranks) {
+    public KitMenuHolder(String kitName, Rank rank, int delay) {
         this.kitName = kitName;
-        this.ranks = ranks;
+        this.rank = rank;
+        this.delay = delay;
+    }
+
+    public KitMenuHolder(String kitName, boolean edit) {
+        this.kitName = kitName;
+        this.edit = edit;
     }
 
     @Override

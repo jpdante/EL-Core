@@ -1,13 +1,20 @@
 package com.ellisiumx.elrankup.kit;
 
+import com.ellisiumx.elcore.ELCore;
+import com.ellisiumx.elcore.account.CoreClientManager;
 import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
+import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.preferences.PreferencesManager;
-import com.ellisiumx.elcore.utils.UtilNBT;
+import com.ellisiumx.elcore.updater.UpdateType;
+import com.ellisiumx.elcore.updater.event.UpdateEvent;
+import com.ellisiumx.elcore.utils.*;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
+import com.ellisiumx.elrankup.crate.command.CrateCommand;
 import com.ellisiumx.elrankup.crate.holder.CrateMenuHolder;
 import com.ellisiumx.elrankup.kit.command.KitCommand;
 import com.ellisiumx.elrankup.kit.holder.KitMenuHolder;
+import com.ellisiumx.elrankup.kit.repository.KitRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -21,21 +28,27 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
+import java.sql.Timestamp;
+import java.util.*;
 
 public class KitManager implements Listener {
 
     public static KitManager context;
+    public KitRepository kitRepository;
     public HashMap<String, PlayerKit> playersKits;
+    public Stack<PlayerKit> updateBuffer;
 
     public KitManager(JavaPlugin plugin) {
         context = this;
         Bukkit.getPluginManager().registerEvents(this, plugin);
         playersKits = new HashMap<>();
+        updateBuffer = new Stack<>();
+        kitRepository = new KitRepository(plugin);
         for (LanguageDB languageDB : LanguageManager.getLanguages()) {
-            languageDB.insertTranslation("KitNameAlreadyExists", "&f[&aKits&f] &cA kit with that name already exists!");
+            languageDB.insertTranslation("KitDontExists", "&f[&aKits&f] &cThe kit '%KitName%' does not exist!");
+            languageDB.insertTranslation("KitNoSpace", "&f[&aKits&f] &cYou don't have enough space to get the kit!");
+            languageDB.insertTranslation("KitNoRank", "&f[&aKits&f] &cYou do not have the necessary rank to open this kit!");
+            languageDB.insertTranslation("KitWaitDelay", "&f[&aKits&f] &cYou need to wait to be able to get this kit again!");
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         new KitCommand(plugin);
@@ -60,7 +73,8 @@ public class KitManager implements Listener {
         if (command == null) return;
         String[] args = command.split(" ", 2);
         if(args[0].equals("confirm")) {
-            createKit((Player) event.getWhoClicked(), event.getInventory(), holder);
+            if(holder.edit) editKit((Player) event.getWhoClicked(), event.getInventory(), holder);
+            else createKit((Player) event.getWhoClicked(), event.getInventory(), holder);
         }
     }
 
@@ -71,33 +85,95 @@ public class KitManager implements Listener {
             if (UtilNBT.contains(itemStack, "MenuItem")) continue;
             items.add(itemStack);
         }
-        RankupConfiguration.Kits.add(new Kit(UUID.randomUUID().toString(), kitMenuHolder.kitName, kitMenuHolder.kitName, 0, kitMenuHolder.ranks, items));
+        RankupConfiguration.Kits.put(kitMenuHolder.kitName, new Kit(kitMenuHolder.kitName, kitMenuHolder.kitName, kitMenuHolder.delay, kitMenuHolder.rank, items));
         RankupConfiguration.save();
         player.sendMessage(ChatColor.GREEN + "Kit created successfully!");
         player.closeInventory();
     }
 
     public void deleteKit(Player player, String kitName) {
-        for(int i = 0; i < RankupConfiguration.Kits.size(); i++) {
-            if(RankupConfiguration.Kits.get(i).getName().equals(kitName)) {
-                RankupConfiguration.Kits.remove(RankupConfiguration.Kits.get(i));
-                RankupConfiguration.save();
-                return;
-            }
-        }
+        RankupConfiguration.Kits.remove(kitName);
+        player.sendMessage(UtilMessage.main("Kits", UtilChat.cRed + "Kit '" + kitName + "' deleted!"));
     }
 
-    public void editKit(Player player, String kitName) {
-
+    public void editKit(Player player, Inventory inventory, KitMenuHolder kitMenuHolder) {
+        ArrayList<ItemStack> items = new ArrayList<>();
+        for(ItemStack itemStack : inventory.getContents()) {
+            if(itemStack == null || itemStack.getType() == Material.AIR) continue;
+            if (UtilNBT.contains(itemStack, "MenuItem")) continue;
+            items.add(itemStack);
+        }
+        RankupConfiguration.Kits.get(kitMenuHolder.kitName).setItems(items);
+        RankupConfiguration.save();
+        player.sendMessage(ChatColor.GREEN + "Kit edited successfully!");
+        player.closeInventory();
     }
 
     public void openKits(Player player) {
 
     }
 
+    public void openKit(Player player, String kitName) {
+        if(!RankupConfiguration.Kits.containsKey(kitName)) {
+            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "KitDontExists")
+                    .replaceAll("%KitName%", kitName)
+                    .replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        PlayerKit playerKit = get(player);
+        Kit kit = RankupConfiguration.Kits.get(kitName);
+        if(!CoreClientManager.get(player).getRank().has(kit.getRank())) {
+            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "KitNoRank").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if(!UtilInv.HasSpace(player, kit.getItems().size())) {
+            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "KitNoSpace").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        if(!playerKit.getKitDelay().containsKey(kit)) {
+            playerKit.getKitDelay().put(kit, getCurrentTimeStamp());
+            for(ItemStack item : kit.getItems()) {
+                player.getInventory().addItem(item);
+            }
+            updateBuffer.push(playerKit);
+        } else {
+            Timestamp oldTimestamp = playerKit.getKitDelay().get(kit);
+            long diference = (getCurrentTimeStamp().getTime() - oldTimestamp.getTime()) / 1000;
+            if(diference >= kit.getDelay()) {
+                playerKit.getKitDelay().put(kit, getCurrentTimeStamp());
+                for(ItemStack item : kit.getItems()) {
+                    player.getInventory().addItem(item);
+                }
+                updateBuffer.push(playerKit);
+            } else {
+                player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "KitWaitDelay").replace('&', ChatColor.COLOR_CHAR));
+            }
+        }
+    }
+
+    public Timestamp getCurrentTimeStamp() {
+        Date date= new Date();
+        long time = date.getTime();
+        return new Timestamp(time);
+    }
+
+    @EventHandler
+    public void onBufferElapsed(UpdateEvent event) {
+        if (event.getType() == UpdateType.SLOW) {
+            Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
+                if(!updateBuffer.empty()) {
+                    kitRepository.updatePlayerKit(updateBuffer);
+                }
+            });
+        }
+    }
+
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        playersKits.put(event.getPlayer().getName(), new PlayerKit(event.getPlayer()));
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
+            playersKits.put(event.getPlayer().getName(), kitRepository.getPlayerKit(CoreClientManager.get(event.getPlayer()).getAccountId(), event.getPlayer()));
+        });
     }
 
     @EventHandler

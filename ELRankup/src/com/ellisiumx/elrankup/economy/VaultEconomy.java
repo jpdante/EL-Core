@@ -26,7 +26,7 @@ public class VaultEconomy implements Economy {
 
     @Override
     public int fractionalDigits() {
-        return -1;
+        return 2;
     }
 
     @Override

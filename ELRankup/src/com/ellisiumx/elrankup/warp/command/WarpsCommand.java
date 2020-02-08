@@ -24,7 +24,7 @@ public class WarpsCommand extends CommandBase {
 
     @Override
     public void execute(Player caller, String[] args) {
-        if (args == null || args.length != 0) {
+        if (args != null) {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "WarpsCommand").replace('&', ChatColor.COLOR_CHAR));
             return;
         }

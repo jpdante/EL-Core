@@ -209,6 +209,7 @@ public class ClanManager implements Listener {
         String finalName = name;
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
             Clan clan = new Clan(CoreClientManager.get(player).getAccountId(), tag, colorTag, finalName, false, 0, 0, 0, 0);
+            clan.members.add(player.getName());
             repository.createClan(clan);
             clans.add(clan);
             ClanPlayer clanPlayer = getClanPlayer(player);

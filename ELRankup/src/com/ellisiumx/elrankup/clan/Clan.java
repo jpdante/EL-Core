@@ -34,6 +34,7 @@ public class Clan {
         this.kdr = 0.0d;
         this.allies = new ArrayList<>();
         this.rivals = new ArrayList<>();
+        this.members = new ArrayList<>();
     }
 
     public Clan(int id, int leader, String tag, String colorTag, String name, boolean friendFire, int neutralKills, int rivalKills, int civilianKills, int deaths) {
@@ -50,6 +51,7 @@ public class Clan {
         this.kdr = 0.0d;
         this.allies = new ArrayList<>();
         this.rivals = new ArrayList<>();
+        this.members = new ArrayList<>();
     }
 
     public void calculateKdr() {

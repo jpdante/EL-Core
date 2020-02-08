@@ -73,7 +73,7 @@ public class MineResetCommand extends CommandBase {
         if(args.length == 2) {
             try {
                 PlayerPoints points = UtilCheck.getPoints(caller);
-                MineData mineData = new MineData(args[1], "minaa", false, -1, points.getPoint1(), points.getPoint2(), 30);
+                MineData mineData = new MineData(args[1], args[1], false, -1, points.getPoint1(), points.getPoint2(), 30);
                 RankupConfiguration.Mines.add(mineData);
                 RankupConfiguration.save();
                 caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "'" + mineData.name + "' created!"));
@@ -119,7 +119,29 @@ public class MineResetCommand extends CommandBase {
     }
 
     public void set(Player caller, String[] args) {
-        if(args.length == 4) {
+        if(args.length == 3) {
+            for (int i = 0; i < RankupConfiguration.Mines.size(); i++) {
+                if (RankupConfiguration.Mines.get(i).name.equals(args[1])) {
+                    MineData mineData = RankupConfiguration.Mines.get(i);
+                    if(args[2].equalsIgnoreCase("points")) {
+                        try {
+                            PlayerPoints points = UtilCheck.getPoints(caller);
+                            mineData.setPoints(points.getPoint1(), points.getPoint2());
+                            RankupConfiguration.save();
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point1 set: " + UtilConvert.getStringFromLocation(mineData.getPoint1())));
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Point2 set: " + UtilConvert.getStringFromLocation(mineData.getPoint2())));
+                        } catch (Exception ex) {
+                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + ex.getMessage()));
+                        }
+                        return;
+                    } else {
+                        caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "Unknown field '" + args[2] + "'!"));
+                        return;
+                    }
+                }
+            }
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "'" + args[1] + "' not found!"));
+        } else if(args.length == 4) {
             for(int i = 0; i < RankupConfiguration.Mines.size(); i++) {
                 if(RankupConfiguration.Mines.get(i).name.equals(args[1])) {
                     MineData mineData = RankupConfiguration.Mines.get(i);

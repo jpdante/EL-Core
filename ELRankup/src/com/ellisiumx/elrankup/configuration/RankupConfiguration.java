@@ -163,7 +163,7 @@ public class RankupConfiguration {
         ClanInviteExpiration = config.getInt("clans.invite-expiration");
 
         Kits = new ArrayList<>();
-        for (String key : config.getConfigurationSection("kits").getKeys(false)) {
+        /*for (String key : config.getConfigurationSection("kits").getKeys(false)) {
             String name = config.getString("kits." + key + ".name");
             String displayName = config.getString("kits." + key + ".display-name");
             int delay = config.getInt("kits." + key + ".delay");
@@ -178,7 +178,7 @@ public class RankupConfiguration {
                 items.add(UtilConvert.deserializeItemStack(item));
             }
             Kits.add(new Kit(key, name, displayName, delay, ranks, items));
-        }
+        }*/
     }
 
     public static void save() {
@@ -212,7 +212,7 @@ public class RankupConfiguration {
         }
         ELRankup.getContext().getConfig().set("crates.chests", crateChestsLocations);
 
-        ELRankup.getContext().getConfig().set("kits", null);
+        /*ELRankup.getContext().getConfig().set("kits", new ArrayList<Kit>());
         for (Kit kit : Kits) {
             ELRankup.getContext().getConfig().set("kits." + kit.getDisplayName() + ".name", kit.getName());
             ELRankup.getContext().getConfig().set("kits." + kit.getDisplayName() + ".display-name", kit.getDisplayName());
@@ -227,7 +227,7 @@ public class RankupConfiguration {
                 items.add(UtilConvert.serializeItemStack(itemStack));
             }
             ELRankup.getContext().getConfig().set("kits." + kit.getDisplayName() + ".items", items);
-        }
+        }*/
 
         ELRankup.getContext().saveConfig();
     }

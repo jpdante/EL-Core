@@ -11,6 +11,7 @@ import com.ellisiumx.elrankup.mapedit.BlockData;
 import com.ellisiumx.elrankup.mapedit.PlayerPoints;
 import com.ellisiumx.elrankup.mine.MineData;
 import com.ellisiumx.elrankup.utils.UtilCheck;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -190,13 +191,21 @@ public class MineResetCommand extends CommandBase {
                             }
                             return;
                         case "ores":
-                            mineData.getBlocks().clear();
-                            for(String data : args[3].split(";")) {
-                                String[] datas = args[3].split(",", 2);
-                                String[] item = datas[1].split(":", 2);
-                                mineData.getBlocks().put(new BlockData(Integer.parseInt(item[0]), Byte.parseByte(item[1])), Double.parseDouble(datas[0]));
+                            try {
+                                mineData.getBlocks().clear();
+                                for(String data : args[3].split(";")) {
+                                    String[] datas = data.split(",", 2);
+                                    String[] item = datas[1].split(":", 2);
+                                    if(item.length == 1) {
+                                        mineData.getBlocks().put(new BlockData(Integer.parseInt(item[0]), (byte) 0), Double.parseDouble(datas[0]));
+                                    } else {
+                                        mineData.getBlocks().put(new BlockData(Integer.parseInt(item[0]), Byte.parseByte(item[1])), Double.parseDouble(datas[0]));
+                                    }
+                                }
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Ores set!"));
+                            } catch (Exception ex) {
+                                caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr set " + args[1] + " ores <value>"));
                             }
-                            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGreen + "Ores set!"));
                             return;
                         default:
                             caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "Unknown field '" + args[2] + "'!"));
@@ -206,7 +215,7 @@ public class MineResetCommand extends CommandBase {
             }
             caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cRed + "'" + args[1] + "' not found!"));
         } else {
-            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr get <name> <field>"));
+            caller.sendMessage(UtilMessage.main("MineReset", UtilChat.cGold + "/mr set <name> <field> <value>"));
         }
     }
 

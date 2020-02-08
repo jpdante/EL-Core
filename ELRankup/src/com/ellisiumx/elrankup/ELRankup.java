@@ -10,15 +10,15 @@ import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.crate.CrateManager;
 import com.ellisiumx.elrankup.economy.EconomyManager;
 import com.ellisiumx.elrankup.essentials.*;
-import com.ellisiumx.elrankup.game.RainDisabler;
 import com.ellisiumx.elrankup.gamemode.*;
 import com.ellisiumx.elrankup.god.GodManager;
+import com.ellisiumx.elrankup.kit.KitManager;
 import com.ellisiumx.elrankup.machine.MachineManager;
 import com.ellisiumx.elrankup.mapedit.MapEditManager;
 import com.ellisiumx.elrankup.mine.MineReset;
 import com.ellisiumx.elrankup.rankup.RankupManager;
-import com.ellisiumx.elrankup.spawner.SpawnManager;
 import com.ellisiumx.elrankup.vanish.VanishManager;
+import com.ellisiumx.elrankup.warp.WarpManager;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -42,7 +42,6 @@ public class ELRankup extends JavaPlugin implements Listener {
         saveDefaultConfig();
         reloadConfig();
         initialized = false;
-        Bukkit.getServer().setWhitelist(true);
         new RankupConfiguration();
         DBPool.registerDataSource("rankup", "elrankup");
         if(RankupConfiguration.MinesEnabled) {
@@ -57,12 +56,15 @@ public class ELRankup extends JavaPlugin implements Listener {
         new MachineManager(context);
         new ClanManager(context);
         new CrateManager(context);
-        new RainDisabler(context);
         new CashManager(context);
         new RankupManager(context);
         //new SpawnManager(context);
+        new KitManager(context);
+        new WarpManager(context);
         new ChatManager(context);
         // Commands
+        new SetSpawnCommand(context);
+        new SetWorldSpawnCommand(context);
         new PingCommand(context);
         new ResetCommand(context);
         new SuicideCommand(context);
@@ -78,6 +80,7 @@ public class ELRankup extends JavaPlugin implements Listener {
         new ClearChatCommand(context);
         new ClearInventoryCommand(context);
         new TimeCommand(context);
+        new GiveCommand(context);
         this.getLogger().log(Level.INFO, "Enabled!");
     }
 
@@ -92,16 +95,6 @@ public class ELRankup extends JavaPlugin implements Listener {
             RedisManager.getContext().Disconnect();
         }*/
         this.getLogger().log(Level.INFO, "Unloaded!");
-    }
-
-    @EventHandler
-    public void onUpdate(UpdateEvent event) {
-        if(event.getType() != UpdateType.SEC) return;
-        if(initialized) return;
-        if(ClanManager.context.initialized) {
-            initialized = true;
-            Bukkit.getServer().setWhitelist(false);
-        }
     }
 
     public static ELRankup getContext() {

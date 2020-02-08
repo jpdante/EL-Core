@@ -15,6 +15,11 @@ chat:
   tell-min-price: 1000.0
   default-channel: L
 kits: {}
+spawn: "world,0,0,0,0,0"
+warp:
+  rank-delay:
+    ALL: 5
+  warps: {}
 mine-reseter:
   enabled: false
   alert-times:

@@ -10,12 +10,14 @@ import com.ellisiumx.elrankup.mapedit.BlockData;
 import com.ellisiumx.elrankup.mine.MineData;
 import com.ellisiumx.elcore.utils.UtilConvert;
 import com.ellisiumx.elrankup.rankup.RankLevel;
+import com.ellisiumx.elrankup.warp.Warp;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class RankupConfiguration {
@@ -54,6 +56,11 @@ public class RankupConfiguration {
     public static int ClanInviteExpiration;
 
     public static List<Kit> Kits;
+
+    public static HashMap<Rank, Integer> WarpDelay;
+    public static HashMap<String, Warp> Warps;
+
+    public static Location SpawnLocation;
 
     public RankupConfiguration() {
         FileConfiguration config = ELRankup.getContext().getConfig();
@@ -163,22 +170,39 @@ public class RankupConfiguration {
         ClanInviteExpiration = config.getInt("clans.invite-expiration");
 
         Kits = new ArrayList<>();
-        /*for (String key : config.getConfigurationSection("kits").getKeys(false)) {
-            String name = config.getString("kits." + key + ".name");
-            String displayName = config.getString("kits." + key + ".display-name");
-            int delay = config.getInt("kits." + key + ".delay");
-            List<String> ranksRaw = config.getStringList("kits." + key + ".ranks");
-            ArrayList<Rank> ranks = new ArrayList<>();
-            for(String rank : ranksRaw) {
-                ranks.add(Rank.valueOf(rank));
+        if(config.contains("kits")) {
+            for (String key : config.getConfigurationSection("kits").getKeys(false)) {
+                String name = config.getString("kits." + key + ".name");
+                String displayName = config.getString("kits." + key + ".display-name");
+                int delay = config.getInt("kits." + key + ".delay");
+                List<String> ranksRaw = config.getStringList("kits." + key + ".ranks");
+                ArrayList<Rank> ranks = new ArrayList<>();
+                for(String rank : ranksRaw) {
+                    ranks.add(Rank.valueOf(rank));
+                }
+                List<String> itemsRaw = config.getStringList("kits." + key + ".items");
+                ArrayList<ItemStack> items = new ArrayList<>();
+                for(String item : itemsRaw) {
+                    items.add(UtilConvert.deserializeItemStack(item));
+                }
+                Kits.add(new Kit(key, name, displayName, delay, ranks, items));
             }
-            List<String> itemsRaw = config.getStringList("kits." + key + ".items");
-            ArrayList<ItemStack> items = new ArrayList<>();
-            for(String item : itemsRaw) {
-                items.add(UtilConvert.deserializeItemStack(item));
-            }
-            Kits.add(new Kit(key, name, displayName, delay, ranks, items));
-        }*/
+        }
+
+        WarpDelay = new HashMap<>();
+        for (String key : config.getConfigurationSection("warp.rank-delay").getKeys(false)) {
+            Rank rank = Rank.valueOf(key);
+            int delay = config.getInt("warp.rank-delay." + key);
+            WarpDelay.put(rank, delay);
+        }
+        Warps = new HashMap<>();
+        for (String key : config.getConfigurationSection("warp.warps").getKeys(false)) {
+            Location location = UtilConvert.getLocationFromString(config.getString("warp.warps." + key + ".location"));
+            Rank rank = Rank.valueOf(config.getString("warp.warps." + key + ".rank"));
+            Warps.put(key, new Warp(location, rank));
+        }
+
+        SpawnLocation = UtilConvert.getLocationFromString(config.getString("spawn"));
     }
 
     public static void save() {
@@ -212,7 +236,7 @@ public class RankupConfiguration {
         }
         ELRankup.getContext().getConfig().set("crates.chests", crateChestsLocations);
 
-        /*ELRankup.getContext().getConfig().set("kits", new ArrayList<Kit>());
+        ELRankup.getContext().getConfig().set("kits", null);
         for (Kit kit : Kits) {
             ELRankup.getContext().getConfig().set("kits." + kit.getDisplayName() + ".name", kit.getName());
             ELRankup.getContext().getConfig().set("kits." + kit.getDisplayName() + ".display-name", kit.getDisplayName());
@@ -227,7 +251,9 @@ public class RankupConfiguration {
                 items.add(UtilConvert.serializeItemStack(itemStack));
             }
             ELRankup.getContext().getConfig().set("kits." + kit.getDisplayName() + ".items", items);
-        }*/
+        }
+
+        ELRankup.getContext().getConfig().set("spawn", UtilConvert.getStringFromLocation(SpawnLocation));
 
         ELRankup.getContext().saveConfig();
     }

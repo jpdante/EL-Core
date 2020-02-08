@@ -50,10 +50,14 @@ public class TimeCommand extends CommandBase {
         } else if (args.length == 2 && args[0] != null && !args[0].isEmpty() && args[1] != null && !args[1].isEmpty()) {
             long ticks = 0;
             try {
-                ticks = UtilWorldTime.parse(args[1]);
+                ticks = UtilWorldTime.parseTicks(args[1]);
             } catch (Exception ex) {
-                caller.sendMessage(UtilMessage.main("Time", UtilChat.cRed + "Invalid time or ticks!"));
-                return;
+                try {
+                    ticks = UtilWorldTime.parse(args[1]);
+                } catch (Exception ex2) {
+                    caller.sendMessage(UtilMessage.main("Time", UtilChat.cRed + "Invalid time or ticks!"));
+                    return;
+                }
             }
             switch (args[0].toLowerCase()) {
                 case "set":

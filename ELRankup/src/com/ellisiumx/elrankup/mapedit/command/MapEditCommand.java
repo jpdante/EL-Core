@@ -102,7 +102,7 @@ public class MapEditCommand extends CommandBase {
         }
     }
 
-    public int getMaterial(String s) {
+    public static int getMaterial(String s) {
         String materialRaw = s.split(":", 2)[0];
         try {
             int id = Integer.parseInt(materialRaw);
@@ -114,7 +114,7 @@ public class MapEditCommand extends CommandBase {
         return -1;
     }
 
-    public byte getData(String s) {
+    public static byte getData(String s) {
         if(!s.contains(":")) return 0;
         String dataRaw = s.split(":", 2)[1];
         try {

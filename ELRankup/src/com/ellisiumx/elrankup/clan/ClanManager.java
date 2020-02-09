@@ -97,8 +97,8 @@ public class ClanManager implements Listener {
             languageDB.insertTranslation("ClansHolderReject", "&6Click to reject.");
             languageDB.insertTranslation("ClansAbandon", "ABANDON");
             languageDB.insertTranslation("ClansHolderAbandon", "&6Click to abandon.");
-            languageDB.insertTranslation("ClansHolderAbandon1", "&6Click on ");
-            languageDB.insertTranslation("ClansHolderAbandon2", " &6to abandon the clan.");
+            languageDB.insertTranslation("ClansAbandonMessagePrefix", "&6Click on ");
+            languageDB.insertTranslation("ClansAbandonMessageSuffix", " &6to abandon the clan.");
             languageDB.insertTranslation("ClansPlayerInvite", "&aYou have been invited to join &b%ClanName% &f[%ClanTag%&f]                              %Accept%          %Reject%");
             languageDB.insertTranslation("ClansAllieInvite", "&aYour clan has been invited to ally with &b%ClanName% &f[%ClanTag%&f]                     %Accept%          %Reject%");
             languageDB.insertTranslation("ClansLeaderDeleted", "&6The clan you participate in has been deleted by the leader!");
@@ -214,7 +214,9 @@ public class ClanManager implements Listener {
             clans.add(clan);
             ClanPlayer clanPlayer = getClanPlayer(player);
             clanPlayer.clan = clan;
-            playerUpdateBuffer.push(clanPlayer);
+            if(!playerUpdateBuffer.contains(clanPlayer)) {
+                playerUpdateBuffer.push(clanPlayer);
+            }
             ChatManager.regenerateTags(player);
             player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClanCreated").replaceAll("%ClanName%", finalName).replace('&', ChatColor.COLOR_CHAR));
         });
@@ -294,26 +296,32 @@ public class ClanManager implements Listener {
                 for (ClanPlayer cp : playerClans.values()) {
                     if (cp.clan == clan) {
                         cp.clan = null;
+                        cp.isClanMod = false;
+                        if(!playerUpdateBuffer.contains(cp)) {
+                            playerUpdateBuffer.push(cp);
+                        }
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansLeaderDeleted").replace('&', ChatColor.COLOR_CHAR));
                     }
                 }
                 clans.remove(clan);
             } else {
-                new JsonMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansHolderAbandon1").replace('&', ChatColor.COLOR_CHAR))
+                new JsonMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansAbandonMessagePrefix").replace('&', ChatColor.COLOR_CHAR))
                         .extra(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansAbandon").replace('&', ChatColor.COLOR_CHAR))
                         .color(JsonColor.RED)
                         .bold()
                         .click(ClickEvent.RUN_COMMAND, "/clan abandon true")
                         .hover(HoverEvent.SHOW_TEXT, LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansHolderAbandon").replace('&', ChatColor.COLOR_CHAR))
-                        .extra(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansHolderAbandon2").replace('&', ChatColor.COLOR_CHAR))
+                        .extra(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansAbandonMessageSuffix").replace('&', ChatColor.COLOR_CHAR))
                         .sendToPlayer(player);
+                return;
             }
-            return;
         }
         clanPlayer.clan = null;
         clanPlayer.isClanMod = false;
         clan.members.remove(player.getName());
-        playerUpdateBuffer.push(clanPlayer);
+        if(!playerUpdateBuffer.contains(clanPlayer)) {
+            playerUpdateBuffer.push(clanPlayer);
+        }
         ChatManager.regenerateTags(player);
     }
 
@@ -510,7 +518,9 @@ public class ClanManager implements Listener {
         }
         if(rankName.equalsIgnoreCase("")) clanPlayer.rank = null;
         else clanPlayer.rank = rankName;
-        playerUpdateBuffer.push(clanPlayer);
+        if(!playerUpdateBuffer.contains(clanPlayer)) {
+            playerUpdateBuffer.push(clanPlayer);
+        }
         caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansRankUpdated")
                 .replaceAll("%PlayerName%", player.getDisplayName())
                 .replace('&', ChatColor.COLOR_CHAR));
@@ -582,7 +592,9 @@ public class ClanManager implements Listener {
         }
         if(!clanPlayer.clan.rivals.contains(clan)) {
             clanPlayer.clan.rivals.add(clan);
-            clanUpdateBuffer.push(clanPlayer.clan);
+            if(!clanUpdateBuffer.contains(clanPlayer.clan)) {
+                clanUpdateBuffer.push(clanPlayer.clan);
+            }
         }
         caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansRivalAdd").replace('&', ChatColor.COLOR_CHAR));
     }
@@ -604,7 +616,9 @@ public class ClanManager implements Listener {
         }
         if(clanPlayer.clan.rivals.contains(clan)) {
             clanPlayer.clan.rivals.remove(clan);
-            clanUpdateBuffer.push(clanPlayer.clan);
+            if(!clanUpdateBuffer.contains(clanPlayer.clan)) {
+                clanUpdateBuffer.push(clanPlayer.clan);
+            }
         }
         caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansRivalRemove").replace('&', ChatColor.COLOR_CHAR));
     }
@@ -625,8 +639,12 @@ public class ClanManager implements Listener {
         ClanAllieInvite clanAllieInvite = clanAllieInvites.get(clanPlayer.clan.id);
         clanAllieInvite.getFrom().allies.add(clanAllieInvite.getTo());
         clanAllieInvite.getTo().allies.add(clanAllieInvite.getFrom());
-        clanUpdateBuffer.push(clanAllieInvite.getFrom());
-        clanUpdateBuffer.push(clanAllieInvite.getTo());
+        if(!clanUpdateBuffer.contains(clanAllieInvite.getFrom())) {
+            clanUpdateBuffer.push(clanAllieInvite.getFrom());
+        }
+        if(!clanUpdateBuffer.contains(clanAllieInvite.getTo())) {
+            clanUpdateBuffer.push(clanAllieInvite.getTo());
+        }
         for(String memberName : clanAllieInvite.getFrom().members) {
             Player player = UtilPlayer.searchExact(memberName);
             if(player == null) continue;
@@ -688,7 +706,9 @@ public class ClanManager implements Listener {
         ClanPlayer clanPlayer = getClanPlayer(caller);
         clanPlayer.clan = clanInvite.getClan();
         clanPlayer.isClanMod = false;
-        playerUpdateBuffer.push(clanPlayer);
+        if(!playerUpdateBuffer.contains(clanPlayer)) {
+            playerUpdateBuffer.push(clanPlayer);
+        }
         clanPlayerInvites.remove(caller.getName());
         for(String memberName : clanInvite.getClan().members) {
             Player player = UtilPlayer.searchExact(memberName);
@@ -754,12 +774,16 @@ public class ClanManager implements Listener {
 
             victimClanPlayer.deaths += 1;
             victimClanPlayer.calculateKdr();
-            playerUpdateBuffer.push(victimClanPlayer);
+            if(!playerUpdateBuffer.contains(victimClanPlayer)) {
+                playerUpdateBuffer.push(victimClanPlayer);
+            }
 
             if (victimClan != null) {
                 victimClan.deaths += 1;
                 victimClan.calculateKdr();
-                clanUpdateBuffer.push(victimClan);
+                if(!clanUpdateBuffer.contains(victimClan)) {
+                    clanUpdateBuffer.push(victimClan);
+                }
             }
 
             if (killerClan != null) {
@@ -776,12 +800,16 @@ public class ClanManager implements Listener {
                     }
                 }
                 killerClan.calculateKdr();
-                clanUpdateBuffer.push(killerClan);
+                if(!clanUpdateBuffer.contains(killerClan)) {
+                    clanUpdateBuffer.push(killerClan);
+                }
             } else {
                 killerClanPlayer.neutralKills += 1;
             }
             killerClanPlayer.calculateKdr();
-            playerUpdateBuffer.push(killerClanPlayer);
+            if(!playerUpdateBuffer.contains(killerClanPlayer)) {
+                playerUpdateBuffer.push(killerClanPlayer);
+            }
         });
     }
 

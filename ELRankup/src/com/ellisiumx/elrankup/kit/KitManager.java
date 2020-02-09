@@ -4,14 +4,11 @@ import com.ellisiumx.elcore.ELCore;
 import com.ellisiumx.elcore.account.CoreClientManager;
 import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
-import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.preferences.PreferencesManager;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elcore.utils.*;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
-import com.ellisiumx.elrankup.crate.command.CrateCommand;
-import com.ellisiumx.elrankup.crate.holder.CrateMenuHolder;
 import com.ellisiumx.elrankup.kit.command.KitCommand;
 import com.ellisiumx.elrankup.kit.holder.KitMenuHolder;
 import com.ellisiumx.elrankup.kit.repository.KitRepository;
@@ -34,7 +31,7 @@ import java.util.*;
 public class KitManager implements Listener {
 
     public static KitManager context;
-    public KitRepository kitRepository;
+    public KitRepository repository;
     public HashMap<String, PlayerKit> playersKits;
     public Stack<PlayerKit> updateBuffer;
 
@@ -43,7 +40,7 @@ public class KitManager implements Listener {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         playersKits = new HashMap<>();
         updateBuffer = new Stack<>();
-        kitRepository = new KitRepository(plugin);
+        repository = new KitRepository(plugin);
         for (LanguageDB languageDB : LanguageManager.getLanguages()) {
             languageDB.insertTranslation("KitDontExists", "&f[&aKits&f] &cThe kit '%KitName%' does not exist!");
             languageDB.insertTranslation("KitNoSpace", "&f[&aKits&f] &cYou don't have enough space to get the kit!");
@@ -135,7 +132,9 @@ public class KitManager implements Listener {
             for(ItemStack item : kit.getItems()) {
                 player.getInventory().addItem(item);
             }
-            updateBuffer.push(playerKit);
+            if(!updateBuffer.contains(playerKit)) {
+                updateBuffer.push(playerKit);
+            }
         } else {
             Timestamp oldTimestamp = playerKit.getKitDelay().get(kit);
             long diference = (getCurrentTimeStamp().getTime() - oldTimestamp.getTime()) / 1000;
@@ -144,7 +143,9 @@ public class KitManager implements Listener {
                 for(ItemStack item : kit.getItems()) {
                     player.getInventory().addItem(item);
                 }
-                updateBuffer.push(playerKit);
+                if(!updateBuffer.contains(playerKit)) {
+                    updateBuffer.push(playerKit);
+                }
             } else {
                 player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "KitWaitDelay").replace('&', ChatColor.COLOR_CHAR));
             }
@@ -162,17 +163,16 @@ public class KitManager implements Listener {
         if (event.getType() == UpdateType.SLOW) {
             Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
                 if(!updateBuffer.empty()) {
-                    kitRepository.updatePlayerKit(updateBuffer);
+                    repository.updatePlayerKit(updateBuffer);
                 }
             });
         }
     }
 
-
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
-            playersKits.put(event.getPlayer().getName(), kitRepository.getPlayerKit(CoreClientManager.get(event.getPlayer()).getAccountId(), event.getPlayer()));
+            playersKits.put(event.getPlayer().getName(), repository.getPlayerKit(CoreClientManager.get(event.getPlayer()).getAccountId(), event.getPlayer()));
         });
     }
 

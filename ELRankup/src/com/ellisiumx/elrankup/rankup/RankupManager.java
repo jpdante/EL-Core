@@ -3,11 +3,19 @@ package com.ellisiumx.elrankup.rankup;
 import com.ellisiumx.elcore.ELCore;
 import com.ellisiumx.elcore.account.CoreClient;
 import com.ellisiumx.elcore.account.CoreClientManager;
+import com.ellisiumx.elcore.explosion.Explosion;
 import com.ellisiumx.elcore.permissions.Rank;
+import com.ellisiumx.elcore.scoreboard.ScoreboardData;
+import com.ellisiumx.elcore.scoreboard.ScoreboardManager;
+import com.ellisiumx.elcore.updater.UpdateType;
+import com.ellisiumx.elcore.updater.event.UpdateEvent;
+import com.ellisiumx.elcore.utils.UtilPlayer;
+import com.ellisiumx.elcore.utils.UtilServer;
 import com.ellisiumx.elrankup.chat.ChatManager;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.rankup.command.RankupCommand;
 import com.ellisiumx.elrankup.rankup.repository.RankupRepository;
+import net.minecraft.server.v1_8_R3.Scoreboard;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -46,9 +54,12 @@ public class RankupManager implements Listener {
         return context.playerRanks.get(playerName);
     }
 
+    public void rankupPlayer(Player player) {
+        
+    }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        event.setJoinMessage(null);
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
             String rank = repository.getRank(CoreClientManager.get(event.getPlayer()).getAccountId(), RankupConfiguration.DefaultRank);
             playerRanks.put(event.getPlayer().getName(), RankupConfiguration.getRankLevelByName(rank));
@@ -58,29 +69,14 @@ public class RankupManager implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerQuit(PlayerQuitEvent event) {
-        event.setQuitMessage(null);
         playerRanks.remove(event.getPlayer().getName());
     }
 
     @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        event.setDeathMessage(null);
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerMove(PlayerMoveEvent event) {
-        if(event.getTo().getY() < -10) {
-            event.getPlayer().teleport(event.getTo().getWorld().getSpawnLocation());
+    public void onTimerElapsed(UpdateEvent event) {
+        if (event.getType() != UpdateType.SLOWER) return;
+        for(Player player : UtilServer.getPlayers()) {
+            //ScoreboardManager.getContext().
         }
-    }
-
-    @EventHandler
-    public void onWeatherChange(WeatherChangeEvent event) {
-        event.setCancelled(true);
-    }
-
-    @EventHandler
-    public void onHungerChange(FoodLevelChangeEvent event) {
-        event.setFoodLevel(20);
     }
 }

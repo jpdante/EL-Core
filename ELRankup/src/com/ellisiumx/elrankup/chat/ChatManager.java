@@ -58,11 +58,11 @@ public class ChatManager implements Listener {
         else playerChat.formatedTags = playerChat.formatedTags.replaceAll("%Group%","");
 
         RankLevel rank = RankupManager.get(player);
-        if(rank != null) playerChat.formatedTags = playerChat.formatedTags.replaceAll("%Rank%", rank.color + "[" + rank.tag + rank.color + "] ");
+        if(rank != null && Rank.EVENT.has(group)) playerChat.formatedTags = playerChat.formatedTags.replaceAll("%Rank%", rank.color + "[" + rank.tag + rank.color + "] ");
         else playerChat.formatedTags = playerChat.formatedTags.replaceAll("%Rank%", "");
 
         ClanPlayer clanPlayer = ClanManager.getClanPlayer(player);
-        if(clanPlayer != null && clanPlayer.clan != null) playerChat.formatedTags = playerChat.formatedTags.replaceAll("%ClanTag%", clanPlayer.clan.colorTag + " ");
+        if(clanPlayer != null && clanPlayer.clan != null) playerChat.formatedTags = playerChat.formatedTags.replaceAll("%ClanTag%", "&7[" + clanPlayer.clan.colorTag + "&7] ");
         else playerChat.formatedTags = playerChat.formatedTags.replaceAll("%ClanTag%", "");
 
         playerChat.formatedTags = playerChat.formatedTags.replace('&', ChatColor.COLOR_CHAR);
@@ -92,12 +92,16 @@ public class ChatManager implements Listener {
             }
             return;
         }
-        event.setFormat(playerChat.formatedTags + event.getMessage());
+        String message = event.getMessage().replace("%", "%%");
+        if(playerChat.allowColors) {
+            message = message.replace('&', ChatColor.COLOR_CHAR);
+        }
+        event.setFormat(playerChat.formatedTags + message);
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        playerChats.put(event.getPlayer().getName(), new PlayerChat(event.getPlayer(), RankupConfiguration.DefaultChatChannel));
+        playerChats.put(event.getPlayer().getName(), new PlayerChat(event.getPlayer(), RankupConfiguration.DefaultChatChannel,  CoreClientManager.get(event.getPlayer()).getRank().has(Rank.VIP)));
         regenerateTags(event.getPlayer());
     }
 

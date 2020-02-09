@@ -7,10 +7,12 @@ public class PlayerChat {
     public Player player;
     public ChatChannel currentChannel;
     public String formatedTags;
+    public boolean allowColors;
 
-    public PlayerChat(Player player, ChatChannel currentChannel) {
+    public PlayerChat(Player player, ChatChannel currentChannel, boolean allowColors) {
         this.player = player;
         this.currentChannel = currentChannel;
+        this.allowColors = allowColors;
     }
 
 }

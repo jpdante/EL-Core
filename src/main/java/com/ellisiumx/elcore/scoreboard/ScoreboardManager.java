@@ -96,6 +96,7 @@ public class ScoreboardManager implements Listener {
             _shineIndex = 0;
             _shineDirection = !_shineDirection;
         }
+        draw();
     }
 
     public static ScoreboardManager getContext() {

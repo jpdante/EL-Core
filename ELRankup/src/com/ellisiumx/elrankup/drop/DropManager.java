@@ -4,6 +4,8 @@ import com.ellisiumx.elcore.ELCore;
 import com.ellisiumx.elcore.account.CoreClientManager;
 import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
+import com.ellisiumx.elcore.updater.UpdateType;
+import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elrankup.chat.PlayerChat;
 import com.ellisiumx.elrankup.chat.command.ChangeChannelCommand;
 import com.ellisiumx.elrankup.chat.command.TellCommand;
@@ -23,6 +25,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
+import java.util.Stack;
 
 public class DropManager implements Listener {
 
@@ -31,6 +34,7 @@ public class DropManager implements Listener {
 
     public HashMap<String, DropPickaxe> dropPickaxes;
     public HashMap<String, PlayerDrops> playerDrops;
+    public Stack<PlayerDrops> updateBuffer;
 
     public DropManager(JavaPlugin plugin) {
         context = this;
@@ -38,8 +42,20 @@ public class DropManager implements Listener {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         dropPickaxes = new HashMap<>();
         playerDrops = new HashMap<>();
+        updateBuffer = new Stack<>();
         new ChangeChannelCommand(plugin);
         new TellCommand(plugin);
+    }
+
+    @EventHandler
+    public void onBufferElapsed(UpdateEvent event) {
+        if (event.getType() == UpdateType.SLOW) {
+            Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
+                if(!updateBuffer.empty()) {
+                    repository.updatePlayerDrops(updateBuffer);
+                }
+            });
+        }
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -52,6 +68,9 @@ public class DropManager implements Listener {
         event.getPlayer().getInventory().addItem(new ItemStack(Material.EMERALD_BLOCK));
         PlayerDrops pd = playerDrops.get(event.getPlayer().getName());
         pd.setDrops(pd.getDrops() + 1L);
+        if(!updateBuffer.contains(pd)) {
+            updateBuffer.push(pd);
+        }
     }
 
     @EventHandler

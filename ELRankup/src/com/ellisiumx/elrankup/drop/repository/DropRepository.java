@@ -1,11 +1,13 @@
 package com.ellisiumx.elrankup.drop.repository;
 
+import com.ellisiumx.elcore.account.CoreClientManager;
 import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elcore.database.RepositoryBase;
 import com.ellisiumx.elrankup.drop.PlayerDrops;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.*;
+import java.util.Stack;
 
 public class DropRepository extends RepositoryBase {
 
@@ -42,5 +44,22 @@ public class DropRepository extends RepositoryBase {
             ex.printStackTrace();
         }
         return playerDrops;
+    }
+
+    public void updatePlayerDrops(Stack<PlayerDrops> playerDrops) {
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("UPDATE drops SET drops = ? WHERE accountId = ?;");
+        ) {
+            while (!playerDrops.isEmpty()) {
+                PlayerDrops playerdrop = playerDrops.pop();
+                statement.setLong(1, playerdrop.getDrops());
+                statement.setInt(2, CoreClientManager.get(playerdrop.getPlayer()).getAccountId());
+                statement.addBatch();
+            }
+            statement.executeBatch();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

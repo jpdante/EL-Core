@@ -1,6 +1,11 @@
 package com.ellisiumx.elrankup;
 
+import com.ellisiumx.elcore.ELCore;
+import com.ellisiumx.elcore.account.CoreClientManager;
 import com.ellisiumx.elcore.database.DBPool;
+import com.ellisiumx.elcore.explosion.Explosion;
+import com.ellisiumx.elcore.scoreboard.ScoreboardData;
+import com.ellisiumx.elcore.scoreboard.ScoreboardManager;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elrankup.cash.CashManager;
@@ -22,7 +27,14 @@ import com.ellisiumx.elrankup.vanish.VanishManager;
 import com.ellisiumx.elrankup.warp.WarpManager;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
@@ -45,6 +57,12 @@ public class ELRankup extends JavaPlugin implements Listener {
         initialized = false;
         new RankupConfiguration();
         DBPool.registerDataSource("rankup", "elrankup");
+        ScoreboardData data = ScoreboardManager.getContext().getData("default", true);
+        Explosion.SetDebris(false);
+        Explosion.SetLiquidDamage(false);
+        Explosion.SetRegenerate(false);
+        Explosion.SetTemporaryDebris(false);
+        Explosion.SetTNTSpread(false);
         if(RankupConfiguration.MinesEnabled) {
             this.getLogger().log(Level.INFO, "Starting Mine Reseter...");
             new MineReset(context);
@@ -58,6 +76,7 @@ public class ELRankup extends JavaPlugin implements Listener {
         new ClanManager(context);
         new CrateManager(context);
         new CashManager(context);
+        new ScoreboardManager(context);
         new RankupManager(context);
         //new SpawnManager(context);
         new KitManager(context);
@@ -97,6 +116,38 @@ public class ELRankup extends JavaPlugin implements Listener {
             RedisManager.getContext().Disconnect();
         }*/
         this.getLogger().log(Level.INFO, "Unloaded!");
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        event.setDeathMessage(null);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if(event.getTo().getY() < -10) {
+            event.getPlayer().teleport(event.getTo().getWorld().getSpawnLocation());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        event.setQuitMessage(null);
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        event.setJoinMessage(null);
+    }
+
+    @EventHandler
+    public void onWeatherChange(WeatherChangeEvent event) {
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onHungerChange(FoodLevelChangeEvent event) {
+        event.setFoodLevel(20);
     }
 
     public static ELRankup getContext() {

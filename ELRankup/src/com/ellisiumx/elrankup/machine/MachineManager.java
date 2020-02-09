@@ -383,9 +383,11 @@ public class MachineManager implements Listener {
                 MachineOwner machineOwner = new MachineOwner(client.getAccountId());
                 machineOwner.addMachine(machine);
                 ownerMachines.put(client.getAccountId(), machineOwner);
+                machinesIds.put(machine.getId(), machine);
             } else {
                 MachineOwner machineOwner = ownerMachines.get(client.getAccountId());
                 machineOwner.addMachine(machine);
+                machinesIds.put(machine.getId(), machine);
             }
             player.sendMessage(
                     LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineBought")

@@ -126,20 +126,21 @@ public class WarpManager implements Listener {
 
     @EventHandler
     public void onTimerElapsed(UpdateEvent event) {
-        if (event.getType() != UpdateType.SEC) return;
-        synchronized (playerWarps) {
-            for (String player : playerWarps.keySet()) {
-                PlayerWarp playerWarp = playerWarps.get(player);
-                playerWarp.setDelay(playerWarp.getDelay());
-                if (playerWarp.getDelay() <= 0) {
-                    playerWarps.remove(player);
-                    Location l1 = playerWarp.getPlayer().getLocation();
-                    Location l2 = playerWarp.getFrom();
-                    if (l1.getBlockX() != l2.getBlockX() || l1.getBlockY() != l2.getBlockY() || l1.getBlockZ() != l2.getBlockZ()) {
-                        playerWarp.getPlayer().sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "WarpingCancelled").replace('&', ChatColor.COLOR_CHAR));
-                        return;
+        if (event.getType() == UpdateType.SEC) {
+            synchronized (playerWarps) {
+                for (String player : playerWarps.keySet()) {
+                    PlayerWarp playerWarp = playerWarps.get(player);
+                    playerWarp.setDelay(playerWarp.getDelay());
+                    if (playerWarp.getDelay() <= 0) {
+                        playerWarps.remove(player);
+                        Location l1 = playerWarp.getPlayer().getLocation();
+                        Location l2 = playerWarp.getFrom();
+                        if (l1.getBlockX() != l2.getBlockX() || l1.getBlockY() != l2.getBlockY() || l1.getBlockZ() != l2.getBlockZ()) {
+                            playerWarp.getPlayer().sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "WarpingCancelled").replace('&', ChatColor.COLOR_CHAR));
+                            return;
+                        }
+                        playerWarp.getPlayer().teleport(playerWarp.getTo());
                     }
-                    playerWarp.getPlayer().teleport(playerWarp.getTo());
                 }
             }
         }

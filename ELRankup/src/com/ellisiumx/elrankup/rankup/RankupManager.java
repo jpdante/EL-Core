@@ -103,6 +103,7 @@ public class RankupManager implements Listener {
             playerRanks.put(player.getName(), nextLevel);
             player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "RankUPSuccess").replace('&', ChatColor.COLOR_CHAR));
             player.playSound(player.getLocation(), Sound.LEVEL_UP, 1f, 1f);
+            ChatManager.regenerateTags(player);
         });
     }
 

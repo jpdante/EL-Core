@@ -25,17 +25,15 @@ public class WarpCommand extends CommandBase {
     @Override
     public void execute(Player caller, String[] args) {
         if(args == null || args.length == 0) {
-            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "WarpCommand").replace('&', ChatColor.COLOR_CHAR));
-            if(CoreClientManager.get(caller).getRank().has(Rank.DEVELOPER)) {
-                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "WarpSetCommand").replace('&', ChatColor.COLOR_CHAR));
-                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "WarpDelCommand").replace('&', ChatColor.COLOR_CHAR));
-            }
+            ShowCommands(caller);
         } else if (args.length == 1) {
             WarpManager.context.warpPlayer(caller, args[0]);
         } else if (args.length == 2 && CoreClientManager.get(caller).getRank().has(Rank.DEVELOPER)) {
             if(args[0].equalsIgnoreCase("del")) {
                 WarpManager.context.deleteWarp(caller, args[1]);
                 RankupConfiguration.save();
+            } else {
+                ShowCommands(caller);
             }
         } else if (args.length == 3 && CoreClientManager.get(caller).getRank().has(Rank.DEVELOPER)) {
             if(args[0].equalsIgnoreCase("set")) {
@@ -46,14 +44,20 @@ public class WarpCommand extends CommandBase {
                 } catch (Exception ex) {
                     caller.sendMessage(UtilMessage.main("Warp", UtilChat.cRed + "Invalid rank '" + args[2] + "'"));
                 }
+            } else {
+                ShowCommands(caller);
             }
         } else {
-            caller.sendMessage(UtilMessage.main("Warp", UtilChat.cRed + "Invalid command!"));
-            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "WarpCommand").replace('&', ChatColor.COLOR_CHAR));
-            if(CoreClientManager.get(caller).getRank().has(Rank.DEVELOPER)) {
-                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "WarpSetCommand").replace('&', ChatColor.COLOR_CHAR));
-                caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "WarpDelCommand").replace('&', ChatColor.COLOR_CHAR));
-            }
+            ShowCommands(caller);
+        }
+    }
+
+    public void ShowCommands(Player caller) {
+        caller.sendMessage(UtilMessage.main("Warp", UtilChat.cRed + "Invalid command!"));
+        caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "WarpCommand").replace('&', ChatColor.COLOR_CHAR));
+        if(CoreClientManager.get(caller).getRank().has(Rank.DEVELOPER)) {
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "WarpSetCommand").replace('&', ChatColor.COLOR_CHAR));
+            caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "WarpDelCommand").replace('&', ChatColor.COLOR_CHAR));
         }
     }
 }

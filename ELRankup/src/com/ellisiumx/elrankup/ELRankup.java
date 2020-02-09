@@ -41,7 +41,6 @@ import java.util.logging.Level;
 
 public class ELRankup extends JavaPlugin implements Listener {
     private static ELRankup context;
-    private boolean initialized = false;
 
     @Override
     public void onLoad() {
@@ -54,7 +53,6 @@ public class ELRankup extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(this, this);
         saveDefaultConfig();
         reloadConfig();
-        initialized = false;
         new RankupConfiguration();
         DBPool.registerDataSource("rankup", "elrankup");
         ScoreboardData data = ScoreboardManager.getContext().getData("default", true);

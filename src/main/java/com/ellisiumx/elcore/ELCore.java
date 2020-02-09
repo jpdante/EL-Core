@@ -17,7 +17,9 @@ import com.ellisiumx.elcore.redis.RedisManager;
 import com.ellisiumx.elcore.scoreboard.ScoreboardManager;
 import com.ellisiumx.elcore.timing.TimingManager;
 import com.ellisiumx.elcore.updater.Updater;
+import net.minecraft.server.v1_8_R3.ScoreboardBaseCriteria;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.Score;
 
 import java.util.logging.Level;
 
@@ -47,6 +49,7 @@ public class ELCore extends JavaPlugin {
         //new PunishSystem(context);
         new LanguageManager();
         new HologramManager(context);
+        new ScoreboardManager(context);
         new BlockRestore(context);
         new Explosion(context);
         new Recharge(context);

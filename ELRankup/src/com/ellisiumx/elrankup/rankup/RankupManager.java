@@ -14,6 +14,7 @@ import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elcore.utils.UtilPlayer;
 import com.ellisiumx.elcore.utils.UtilServer;
+import com.ellisiumx.elcore.utils.UtilSound;
 import com.ellisiumx.elrankup.chat.ChatManager;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.economy.EconomyManager;
@@ -24,6 +25,8 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import net.minecraft.server.v1_8_R3.Scoreboard;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Note;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -52,11 +55,11 @@ public class RankupManager implements Listener {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         for (LanguageDB languageDB : LanguageManager.getLanguages()) {
             // Errors
-            languageDB.insertTranslation("CannotRankUPMax", " &cYou can no longer level up because you have already reached the maximum level.");
-            languageDB.insertTranslation("CannotRankUPNoMoney", " &cYou don't have enough money to level up(%Cost%).");
-            languageDB.insertTranslation("CannotRankUPFailed", " &cThere was a problem with the server, please try again later %Error%.");
+            languageDB.insertTranslation("CannotRankUPMax", "&f[&aRankup&f] &cYou can no longer level up because you have already reached the maximum level.");
+            languageDB.insertTranslation("CannotRankUPNoMoney", "&f[&aRankup&f] &cYou don't have enough money to level up(%Cost%).");
+            languageDB.insertTranslation("CannotRankUPFailed", "&f[&aRankup&f] &cThere was a problem with the server, please try again later %Error%.");
             // Messages
-            languageDB.insertTranslation("RankUPSuccess", " &aYou have successfully leveled up!");
+            languageDB.insertTranslation("RankUPSuccess", "&f[&aRankup&f] &aYou have successfully leveled up!");
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         new RankupCommand(plugin);
@@ -98,6 +101,8 @@ public class RankupManager implements Listener {
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
             repository.updateRank(CoreClientManager.get(player).getAccountId(), nextLevel.name);
             playerRanks.put(player.getName(), nextLevel);
+            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "RankUPSuccess").replace('&', ChatColor.COLOR_CHAR));
+            player.playSound(player.getLocation(), Sound.LEVEL_UP, 1f, 1f);
         });
     }
 

@@ -3,6 +3,7 @@ package com.ellisiumx.elrankup.machine;
 import com.ellisiumx.elcore.utils.UtilNBT;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.machine.holder.MachineListMenuHolder;
+import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 

@@ -247,8 +247,8 @@ public class RankupConfiguration {
         ELRankup.getContext().getConfig().set("spawn", UtilConvert.getStringFromLocation(SpawnLocation));
 
         for (Map.Entry<String, Warp> entry : Warps.entrySet()) {
-            ELRankup.getContext().getConfig().set("warps." + entry.getKey() + ".location", UtilConvert.getStringFromLocation(entry.getValue().getLocation()));
-            ELRankup.getContext().getConfig().set("warps." + entry.getKey() + ".rank", entry.getValue().getRank().toString());
+            ELRankup.getContext().getConfig().set("warp.warps." + entry.getKey() + ".location", UtilConvert.getStringFromLocation(entry.getValue().getLocation()));
+            ELRankup.getContext().getConfig().set("warp.warps." + entry.getKey() + ".rank", entry.getValue().getRank().toString());
         }
 
         ELRankup.getContext().saveConfig();

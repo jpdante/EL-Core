@@ -13,6 +13,7 @@ import com.ellisiumx.elcore.utils.UtilChat;
 import com.ellisiumx.elcore.utils.UtilConvert;
 import com.ellisiumx.elcore.utils.UtilMessage;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
+import com.ellisiumx.elrankup.warp.command.SpawnCommand;
 import com.ellisiumx.elrankup.warp.command.WarpCommand;
 import com.ellisiumx.elrankup.warp.command.WarpsCommand;
 import org.bukkit.Bukkit;
@@ -52,6 +53,7 @@ public class WarpManager implements Listener {
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         new WarpCommand(plugin);
         new WarpsCommand(plugin);
+        new SpawnCommand(plugin);
     }
 
     public void warpPlayer(Player player, String warp) {
@@ -76,12 +78,37 @@ public class WarpManager implements Listener {
         int delay = 0;
         if (RankupConfiguration.WarpDelay.containsKey(playerRank))
             delay = RankupConfiguration.WarpDelay.get(playerRank);
-        playerWarps.put(player.getName(), new PlayerWarp(player, player.getLocation(), warpLocation.getLocation(), delay));
-        player.sendMessage(
-                LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "Warping")
-                        .replaceAll("%delay%", String.valueOf(delay))
-                        .replace('&', ChatColor.COLOR_CHAR)
-        );
+        if(delay == 0) {
+            player.teleport(warpLocation.getLocation());
+        } else {
+            playerWarps.put(player.getName(), new PlayerWarp(player, player.getLocation(), warpLocation.getLocation(), delay));
+            player.sendMessage(
+                    LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "Warping")
+                            .replaceAll("%delay%", String.valueOf(delay))
+                            .replace('&', ChatColor.COLOR_CHAR)
+            );
+        }
+    }
+
+    public void warpPlayer(Player player, Location location) {
+        if (playerWarps.containsKey(player.getName())) {
+            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "AlreadyWarping").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        Rank playerRank = CoreClientManager.get(player).getRank();
+        int delay = 0;
+        if (RankupConfiguration.WarpDelay.containsKey(playerRank))
+            delay = RankupConfiguration.WarpDelay.get(playerRank);
+        if(delay == 0) {
+            player.teleport(location);
+        } else {
+            playerWarps.put(player.getName(), new PlayerWarp(player, player.getLocation(), location, delay));
+            player.sendMessage(
+                    LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "Warping")
+                            .replaceAll("%delay%", String.valueOf(delay))
+                            .replace('&', ChatColor.COLOR_CHAR)
+            );
+        }
     }
 
     public void setWarp(Player player, String warp, Rank rank) {

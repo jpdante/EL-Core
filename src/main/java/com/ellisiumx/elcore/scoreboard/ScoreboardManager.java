@@ -30,6 +30,12 @@ public class ScoreboardManager implements Listener {
         context = this;
     }
 
+    public PlayerScoreboard get(Player player) {
+        synchronized (playerScoreboards) {
+            return playerScoreboards.get(player);
+        }
+    }
+
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) {
         playerScoreboards.put(event.getPlayer(), new PlayerScoreboard(this));

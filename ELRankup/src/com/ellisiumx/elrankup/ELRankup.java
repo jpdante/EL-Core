@@ -23,6 +23,7 @@ import com.ellisiumx.elrankup.machine.MachineManager;
 import com.ellisiumx.elrankup.mapedit.MapEditManager;
 import com.ellisiumx.elrankup.mine.MineReset;
 import com.ellisiumx.elrankup.rankup.RankupManager;
+import com.ellisiumx.elrankup.spawner.SpawnerManager;
 import com.ellisiumx.elrankup.vanish.VanishManager;
 import com.ellisiumx.elrankup.warp.WarpManager;
 import org.bukkit.Bukkit;
@@ -41,6 +42,7 @@ import java.util.logging.Level;
 
 public class ELRankup extends JavaPlugin implements Listener {
     private static ELRankup context;
+    private ScoreboardData data;
 
     @Override
     public void onLoad() {
@@ -55,7 +57,8 @@ public class ELRankup extends JavaPlugin implements Listener {
         reloadConfig();
         new RankupConfiguration();
         DBPool.registerDataSource("rankup", "elrankup");
-        ScoreboardData data = ScoreboardManager.getContext().getData("default", true);
+        data = ScoreboardManager.getContext().getData("default", true);
+        data.write("aaa yes");
         Explosion.SetDebris(false);
         Explosion.SetLiquidDamage(false);
         Explosion.SetRegenerate(false);
@@ -76,7 +79,7 @@ public class ELRankup extends JavaPlugin implements Listener {
         new CashManager(context);
         new ScoreboardManager(context);
         new RankupManager(context);
-        //new SpawnManager(context);
+        new SpawnerManager(context);
         new KitManager(context);
         new WarpManager(context);
         new ChatManager(context);

@@ -23,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -811,6 +812,20 @@ public class ClanManager implements Listener {
                 playerUpdateBuffer.push(killerClanPlayer);
             }
         });
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerDamage(EntityDamageByEntityEvent event) {
+        if(!(event.getEntity() instanceof Player)) return;
+        if(!(event.getDamager() instanceof Player)) return;
+        Player victim = (Player) event.getEntity();
+        ClanPlayer victimInfo = getClanPlayer(victim);
+        if(victimInfo.clan == null) return;
+        if(victimInfo.clan.friendFire) return;
+        Player damager = (Player) event.getDamager();
+        ClanPlayer damagerInfo = getClanPlayer(damager);
+        if(victimInfo.clan != damagerInfo.clan) return;
+        event.setCancelled(true);
     }
 
     @EventHandler

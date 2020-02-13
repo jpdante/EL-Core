@@ -1,9 +1,14 @@
 package com.ellisiumx.elcore.permissions;
 
+import com.ellisiumx.elcore.lang.LanguageManager;
+import com.ellisiumx.elcore.preferences.PreferencesManager;
+import com.ellisiumx.elcore.preferences.UserPreferences;
 import com.ellisiumx.elcore.utils.UtilChat;
 import com.ellisiumx.elcore.utils.UtilPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+
+import java.util.prefs.Preferences;
 
 public enum Rank {
     OWNER("Owner", ChatColor.DARK_RED),
@@ -19,8 +24,8 @@ public enum Rank {
     TWITCH("Twitch", ChatColor.DARK_PURPLE),
     MVP_PLUS("MVP+", ChatColor.AQUA),
     MVP("MVP", ChatColor.AQUA),
-    VIP_PLUS("Vip+", ChatColor.LIGHT_PURPLE),
-    VIP("Vip", ChatColor.GREEN),
+    VIP_PLUS("VIP+", ChatColor.LIGHT_PURPLE),
+    VIP("VIP", ChatColor.GREEN),
     ALL("", ChatColor.WHITE);
 
     private ChatColor Color;
@@ -49,10 +54,17 @@ public enum Rank {
         }
         if (compareTo(rank) <= 0) return true;
         if (inform) {
-            UtilPlayer.message(player, UtilChat.mHead + "Permissions> " +
-                    UtilChat.mBody + "This requires Permission Rank [" +
-                    UtilChat.mHead + rank.Name.toUpperCase() +
-                    UtilChat.mBody + "].");
+            UserPreferences preferences = PreferencesManager.get(player);
+            UtilPlayer.message(player,
+                    UtilChat.mHead +
+                            LanguageManager.getTranslation(preferences.getLanguage(), "RankPermissions") +
+                            UtilChat.mBody +
+                            LanguageManager.getTranslation(preferences.getLanguage(), "RankRequiredRank") +
+                            UtilChat.mHead +
+                            rank.Name.toUpperCase() +
+                            UtilChat.mBody +
+                            "]."
+            );
         }
         return false;
     }

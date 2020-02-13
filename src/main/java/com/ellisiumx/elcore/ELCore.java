@@ -7,6 +7,7 @@ import com.ellisiumx.elcore.configuration.CoreConfiguration;
 import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elcore.explosion.Explosion;
 import com.ellisiumx.elcore.hologram.HologramManager;
+import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.memory.MemoryFix;
 import com.ellisiumx.elcore.monitor.LagMeter;
@@ -59,6 +60,15 @@ public class ELCore extends JavaPlugin {
         new LagMeter(context);
         this.getServer().setWhitelist(false);
         this.getLogger().log(Level.INFO, "Enabled!");
+        insertTranslations();
+    }
+
+    private void insertTranslations() {
+        for (LanguageDB languageDB : LanguageManager.getLanguages()) {
+            languageDB.insertTranslation("RankPermissions", "Permissions> ");
+            languageDB.insertTranslation("RankRequiredRank", "This requires Permission Rank [");
+        }
+        if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
     }
 
     @Override

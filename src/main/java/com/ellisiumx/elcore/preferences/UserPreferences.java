@@ -23,11 +23,14 @@ public class UserPreferences implements Data {
     private boolean updated = false;
     @Expose(serialize = false)
     private String uuid = "";
+    @Expose(serialize = false)
+    private int accountId = -1;
 
     public UserPreferences() {}
 
-    public UserPreferences(String uuid, String lang, boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean g, boolean h, boolean i, boolean j, boolean k, boolean l, boolean m) {
+    public UserPreferences(String uuid, int accountId, String lang, boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean g, boolean h, boolean i, boolean j, boolean k, boolean l, boolean m) {
         this.uuid = uuid;
+        this.accountId = accountId;
         language = lang;
         filterChat = a;
         hubGames = b;
@@ -180,6 +183,10 @@ public class UserPreferences implements Data {
 
     public void setUUID(String uuid) {
         this.uuid = uuid;
+    }
+
+    public int getAccountId() {
+        return accountId;
     }
 
     @Override

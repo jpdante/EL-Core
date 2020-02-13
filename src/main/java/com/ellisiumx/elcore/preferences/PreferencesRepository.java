@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 public class PreferencesRepository extends RepositoryBase {
 
@@ -25,14 +26,15 @@ public class PreferencesRepository extends RepositoryBase {
     protected void update() {
     }
 
-    public void saveUserPreferences(HashMap<String, UserPreferences> preferences) {
+    public void saveUserPreferences(Stack<UserPreferences> buffer) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO accountPreferences (uuid, preferences) VALUES (?, ?) ON DUPLICATE KEY UPDATE preferences = ?;");
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO accountPreferences (accountId, preferences) VALUES (?, ?) ON DUPLICATE KEY UPDATE preferences = ?;");
         ){
-            for (Map.Entry<String, UserPreferences> entry : preferences.entrySet()) {
-                preparedStatement.setString(1, entry.getKey());
-                String json = UtilGson.serialize(entry.getValue());
+            while (!buffer.empty()) {
+                UserPreferences preferences = buffer.pop();
+                preparedStatement.setInt(1, preferences.getAccountId());
+                String json = UtilGson.serialize(preferences);
                 preparedStatement.setString(2, json);
                 preparedStatement.setString(3, json);
                 preparedStatement.addBatch();

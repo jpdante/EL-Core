@@ -16,6 +16,9 @@ chat:
   default-channel: L
 kits: {}
 spawn: "world,0,0,0,0,0"
+tab:
+  header: "&a&lFightCraft\n&2&lSecond Line"
+  footer: "&b&lhttp://fightcraft.com.br/\n&2&lSecond Line"
 warp:
   rank-delay:
     ALL: 5

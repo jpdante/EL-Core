@@ -4,10 +4,13 @@ import com.ellisiumx.elcore.ELCore;
 import com.ellisiumx.elcore.account.CoreClientManager;
 import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elcore.explosion.Explosion;
+import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.scoreboard.ScoreboardData;
 import com.ellisiumx.elcore.scoreboard.ScoreboardManager;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
+import com.ellisiumx.elcore.utils.UtilTabTitle;
+import com.ellisiumx.elrankup.autolapis.AutoLapis;
 import com.ellisiumx.elrankup.cash.CashManager;
 import com.ellisiumx.elrankup.chat.ChatManager;
 import com.ellisiumx.elrankup.clan.ClanManager;
@@ -84,6 +87,8 @@ public class ELRankup extends JavaPlugin implements Listener {
         new WarpManager(context);
         new ChatManager(context);
         new DropManager(context);
+        // Other
+        new AutoLapis(context);
         // Commands
         new SetSpawnCommand(context);
         new SetWorldSpawnCommand(context);
@@ -139,6 +144,7 @@ public class ELRankup extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.setJoinMessage(null);
+        UtilTabTitle.doHeaderAndFooter(event.getPlayer(), RankupConfiguration.TabHeader, RankupConfiguration.TabFooter);
     }
 
     @EventHandler

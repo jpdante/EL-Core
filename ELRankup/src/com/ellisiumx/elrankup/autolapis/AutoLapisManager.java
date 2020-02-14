@@ -15,12 +15,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 
-public class AutoLapis implements Listener {
+public class AutoLapisManager implements Listener {
 
     private ArrayList<EnchantingInventory> inventories;
     private ItemStack lapis;
 
-    public AutoLapis(JavaPlugin plugin) {
+    public AutoLapisManager(JavaPlugin plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         inventories = new ArrayList<>();
         Dye d = new Dye();

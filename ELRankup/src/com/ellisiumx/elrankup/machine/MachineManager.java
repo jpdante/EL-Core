@@ -450,50 +450,6 @@ public class MachineManager implements Listener {
         return itemStack;
     }
 
-
-    /*@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBlockBreak(BlockBreakEvent event) {
-        if(!initialized) return;
-        Block block = event.getBlock();
-        if(block == null || block.getType() == Material.AIR) return;
-        if(!machines.containsKey(event.getBlock().getLocation())) return;
-        event.setCancelled(true);
-        Bukkit.broadcastMessage("MAQUINA AAAAAAAAAAA");
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBlockPlace(BlockPlaceEvent event) {
-        if(!initialized) return;
-        Block block = event.getBlockPlaced();
-        if(block == null) return;
-        if(!UtilNBT.contains(event.getItemInHand(), "Machine")) return;
-        Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
-            Date date = new Date();
-            Machine machine = new Machine(-1, RankupConfiguration.MachineTypes.get(0),
-                    CoreClientManager.get(event.getPlayer()).getAccountId(),
-                    0, 0, 0,
-                    block.getLocation(),
-                    new Timestamp(date.getTime()),
-                    new Timestamp(date.getTime())
-            );
-            machines.put(machine.getLocation(), machine);
-            repository.createMachine(machine);
-            event.getPlayer().sendMessage("Machine " + machine.getId() + " created!");
-        });
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        if(event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        Block block = event.getClickedBlock();
-        if(block == null || block.getType() == Material.AIR) return;
-        if(!machines.containsKey(block.getLocation())) return;
-        event.setCancelled(true);
-        Bukkit.broadcastMessage("MAQUINA AAAAAAAAAAA");
-        // TODO: Abrir menu maquinas
-    }*/
-
-
     public static MachineManager getContext() {
         return context;
     }

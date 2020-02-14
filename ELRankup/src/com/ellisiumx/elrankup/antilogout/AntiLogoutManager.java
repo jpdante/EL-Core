@@ -3,13 +3,12 @@ package com.ellisiumx.elrankup.antilogout;
 import com.ellisiumx.elcore.ELCore;
 import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
+import com.ellisiumx.elcore.preferences.PreferencesManager;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
-import com.ellisiumx.elcore.utils.UtilAction;
-import com.ellisiumx.elcore.utils.UtilChat;
-import com.ellisiumx.elcore.utils.UtilPlayer;
-import com.ellisiumx.elcore.utils.UtilTextBottom;
+import com.ellisiumx.elcore.utils.*;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,18 +30,10 @@ public class AntiLogoutManager implements Listener {
         combatDelays = new HashMap<>();
         for (LanguageDB languageDB : LanguageManager.getLanguages()) {
             // TODO: Insert messages
-            /*languageDB.insertTranslation("MachineTransactionFailure", "&f[&aMachines&f] &cFailed to transfer, please try again later. %ErrorMessage%");
-            languageDB.insertTranslation("MachineNotEnoughMoney", "&f[&aMachines&f] &cYou don't have enough money to buy %MachineType%&c, it costs %Cost%");
-            languageDB.insertTranslation("FuelNotEnoughMoney", "&f[&aMachines&f] &cYou don't have enough money to buy Fuel, it costs &a%Cost%");
-            languageDB.insertTranslation("MachineLimitReached", "&f[&aMachines&f] &cMachine limit for %MachineType%&c has been reached!");
-            languageDB.insertTranslation("MachineBought", "&f[&aMachines&f] &aMachine %MachineType%&a bought successfully!");
-            languageDB.insertTranslation("MachineFuelBought", "&f[&aMachines&f] &aFuel bought successfully!");
-            languageDB.insertTranslation("MachineUpgraded", "&f[&aMachines&f] &aMachine successfully upgraded!");
-            languageDB.insertTranslation("MachineFullDrop", "&f[&aMachines&f] &cThe machine is already full and can no longer work, sell the drops to get it back to work.");
-            languageDB.insertTranslation("MachineTankAlreadyFull", "&f[&aMachines&f] &cThe fuel tank of the machine is already full!");
-            languageDB.insertTranslation("MachineTankReFull", "&f[&aMachines&f] &aThe machine has been replenished!");
-            languageDB.insertTranslation("MachineDropsSold", "&f[&aMachines&f] &a%DropsAmount% drops were sold for %TotalPrice%, your new balance is %Balance%.");
-            languageDB.insertTranslation("MachineNoMenu", "&f[&aMachines&f] &cYou need to buy at least one machine to be able to see your machines.");*/
+            languageDB.insertTranslation("AntiLogoutBottomText", "&cYou're in combat for &b%Delay% &cseconds.");
+            languageDB.insertTranslation("AntiLogoutExitCombat", "&aYou got out of combat, now you can log out!");
+            languageDB.insertTranslation("AntiLogoutEnterCombat", "&cYou went into combat, if you log out you will be punished!");
+            languageDB.insertTranslation("AntiLogoutBroadcastPunish", "&f[&3AntiLogout&f] &cPlayer '&b%PlayerName%&c' logged out in PVP and was punished!");
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
     }
@@ -61,14 +52,23 @@ public class AntiLogoutManager implements Listener {
     public void onTimerElapsed(UpdateEvent event) {
         if (event.getType() == UpdateType.SEC) {
             synchronized (combatDelays) {
-                for(String key : combatDelays.keySet()) {
+                for (String key : combatDelays.keySet()) {
                     int delay = combatDelays.get(key);
-                    if(combatDelays.get(key) <= 20) {
-                        // TODO: Fix message
-                        UtilTextBottom.display(UtilChat.cRed + "You're in combat for " + UtilChat.cDPurple + delay + UtilChat.cRed + " seconds.", UtilPlayer.searchExact(key));
-                        if(combatDelays.get(key) <= 0) {
+                    if (combatDelays.get(key) <= 20) {
+                        Player player = UtilPlayer.searchExact(key);
+                        if (player == null) {
                             combatDelays.remove(key);
-                            // TODO: Remove from combat
+                            continue;
+                        }
+                        UtilTextBottom.display(
+                                LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "AntiLogoutBottomText")
+                                        .replaceAll("%Delay%", String.valueOf(delay))
+                                        .replace('&', ChatColor.COLOR_CHAR),
+                                player
+                        );
+                        if (combatDelays.get(key) <= 0) {
+                            combatDelays.remove(key);
+                            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "AntiLogoutExitCombat").replace('&', ChatColor.COLOR_CHAR));
                         }
                     }
                     combatDelays.replace(key, combatDelays.get(key) - 1);
@@ -80,28 +80,37 @@ public class AntiLogoutManager implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         combatDelays.remove(event.getEntity().getName());
-        // TODO: Tell exited combat
+        event.getEntity().sendMessage(LanguageManager.getTranslation(PreferencesManager.get((Player) event.getEntity()).getLanguage(), "AntiLogoutExitCombat").replace('&', ChatColor.COLOR_CHAR));
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        if(combatDelays.containsKey(event.getPlayer().getName())) {
+        if (combatDelays.containsKey(event.getPlayer().getName())) {
             combatDelays.remove(event.getPlayer().getName());
-            // TODO: Kill and Punish
+            event.getPlayer().setHealth(0);
+            for (Player player : UtilServer.getPlayers()) {
+                player.sendMessage(
+                        LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "AntiLogoutBroadcastPunish")
+                                .replace("%PlayerName%", event.getPlayer().getDisplayName())
+                                .replace('&', ChatColor.COLOR_CHAR)
+                );
+            }
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         // Victim
-        if(!combatDelays.containsKey(event.getEntity().getName())) {
+        if (!combatDelays.containsKey(event.getEntity().getName())) {
             combatDelays.put(event.getEntity().getName(), 30);
+            LanguageManager.getTranslation(PreferencesManager.get((Player) event.getEntity()).getLanguage(), "AntiLogoutEnterCombat").replace('&', ChatColor.COLOR_CHAR);
         } else {
             combatDelays.replace(event.getEntity().getName(), 30);
         }
         // Damager
-        if(!combatDelays.containsKey(event.getDamager().getName())) {
+        if (!combatDelays.containsKey(event.getDamager().getName())) {
             combatDelays.put(event.getDamager().getName(), 30);
+            LanguageManager.getTranslation(PreferencesManager.get((Player) event.getDamager()).getLanguage(), "AntiLogoutEnterCombat").replace('&', ChatColor.COLOR_CHAR);
         } else {
             combatDelays.replace(event.getDamager().getName(), 30);
         }

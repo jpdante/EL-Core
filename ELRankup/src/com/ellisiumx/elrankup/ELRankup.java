@@ -5,6 +5,7 @@ import com.ellisiumx.elcore.explosion.Explosion;
 import com.ellisiumx.elcore.scoreboard.ScoreboardData;
 import com.ellisiumx.elcore.scoreboard.ScoreboardManager;
 import com.ellisiumx.elcore.utils.UtilTabTitle;
+import com.ellisiumx.elrankup.antilogout.AntiLogoutManager;
 import com.ellisiumx.elrankup.autolapis.AutoLapisManager;
 import com.ellisiumx.elrankup.cash.CashManager;
 import com.ellisiumx.elrankup.chat.ChatManager;
@@ -82,7 +83,7 @@ public class ELRankup extends JavaPlugin implements Listener {
         new WarpManager(context);
         new ChatManager(context);
         new DropManager(context);
-        // Other
+        new AntiLogoutManager(context);
         new AutoLapisManager(context);
         // Commands
         new SetSpawnCommand(context);

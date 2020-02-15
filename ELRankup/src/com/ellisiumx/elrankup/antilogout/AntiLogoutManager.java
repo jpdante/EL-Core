@@ -100,6 +100,7 @@ public class AntiLogoutManager implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if(!(event.getEntity() instanceof Player) || !(event.getDamager() instanceof Player)) return;
         // Victim
         if (!combatDelays.containsKey(event.getEntity().getName())) {
             combatDelays.put(event.getEntity().getName(), 30);

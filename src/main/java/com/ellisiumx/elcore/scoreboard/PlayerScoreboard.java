@@ -15,28 +15,19 @@ import org.bukkit.scoreboard.Team;
 import java.util.ArrayList;
 
 public class PlayerScoreboard {
-    private String scoreboardData = "default";
 
-    private ScoreboardManager manager;
-    private Scoreboard scoreboard;
-    private Objective sideObjective;
-
-    private ArrayList<String> currentLines = new ArrayList<String>();
-
-    private String[] teamNames;
-
-    public PlayerScoreboard(ScoreboardManager manager) {
-        this.manager = manager;
-    }
+    private String _scoreboardData = "default";
+    private Scoreboard _scoreboard;
+    private Objective _sideObjective;
+    private ArrayList<String> _currentLines = new ArrayList<String>();
+    private String[] _teamNames;
 
     private void addTeams(Player player) {
         for (Rank rank : Rank.values()) {
-            if (rank != Rank.ALL)
-                scoreboard.registerNewTeam(rank.Name).setPrefix(rank.getTag(true, true) + ChatColor.RESET + " ");
-            else
-                scoreboard.registerNewTeam(rank.Name).setPrefix("");
+            if (rank != Rank.ALL) _scoreboard.registerNewTeam(rank.Name).setPrefix(rank.getTag(true, true) + ChatColor.RESET + " ");
+            else _scoreboard.registerNewTeam(rank.Name).setPrefix("");
         }
-        scoreboard.registerNewTeam("Party").setPrefix(ChatColor.LIGHT_PURPLE + UtilChat.Bold + "Party" + ChatColor.RESET + " ");
+        _scoreboard.registerNewTeam("Party").setPrefix(ChatColor.LIGHT_PURPLE + UtilChat.Bold + "Party" + ChatColor.RESET + " ");
         for (Player otherPlayer : Bukkit.getOnlinePlayers()) {
             if (CoreClientManager.get(otherPlayer) == null) continue;
             String rankName = CoreClientManager.get(player).getRank().Name;
@@ -47,99 +38,61 @@ public class PlayerScoreboard {
             if (!CoreClientManager.get(otherPlayer).getRank().has(Rank.MVP)) {
                 otherRankName = Rank.MVP.Name;
             }
-            //Add Other to Self
-            scoreboard.getTeam(otherRankName).addPlayer(otherPlayer);
-            //Add Self to Other
+            _scoreboard.getTeam(otherRankName).addPlayer(otherPlayer);
             otherPlayer.getScoreboard().getTeam(rankName).addPlayer(player);
         }
     }
 
     private ScoreboardData getData() {
-        ScoreboardData data = manager.getData(scoreboardData, false);
+        ScoreboardData data = ScoreboardManager.context.getData(_scoreboardData, false);
         if (data != null) return data;
-        scoreboardData = "default";
-        return manager.getData(scoreboardData, false);
+        _scoreboardData = "default";
+        return ScoreboardManager.context.getData(_scoreboardData, false);
     }
 
     public void draw(ScoreboardManager manager, Player player) {
         ScoreboardData data = getData();
         if (data == null) return;
         for (int i = 0; i < data.getLines(manager, player).size(); i++) {
-            //Get New Line
             String newLine = data.getLines(manager, player).get(i);
-            //Check if Unchanged
-            if (currentLines.size() > i) {
-                String oldLine = currentLines.get(i);
+            if (_currentLines.size() > i) {
+                String oldLine = _currentLines.get(i);
                 if (oldLine.equals(newLine)) continue;
             }
-            //Update
-            Team team = scoreboard.getTeam(teamNames[i]);
+            Team team = _scoreboard.getTeam(_teamNames[i]);
             if (team == null) {
                 System.out.println("Scoreboard Error: Line Team Not Found!");
                 return;
             }
-            //Set Line Prefix/Suffix
             team.setPrefix(newLine.substring(0, Math.min(newLine.length(), 16)));
             team.setSuffix(ChatColor.getLastColors(newLine) + newLine.substring(team.getPrefix().length(), Math.min(newLine.length(), 32)));
-
-            //Line
-            sideObjective.getScore(teamNames[i]).setScore(15 - i);
+            _sideObjective.getScore(_teamNames[i]).setScore(15 - i);
         }
-        //Hide Old Unused
-        if (currentLines.size() > data.getLines(manager, player).size()) {
-            for (int i = data.getLines(manager, player).size(); i < currentLines.size(); i++) {
-                scoreboard.resetScores(teamNames[i]);
+        if (_currentLines.size() > data.getLines(manager, player).size()) {
+            for (int i = data.getLines(manager, player).size(); i < _currentLines.size(); i++) {
+                _scoreboard.resetScores(_teamNames[i]);
             }
         }
-        //Save New State
-        currentLines = data.getLines(manager, player);
+        _currentLines = data.getLines(manager, player);
     }
 
     public void setTitle(String out) {
-        sideObjective.setDisplayName(out);
+        _sideObjective.setDisplayName(out);
     }
 
     public void assignScoreboard(Player player, ScoreboardData data) {
-        //Scoreboard
-        scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        //Side Obj
-        sideObjective = scoreboard.registerNewObjective(player.getName() + UtilMath.r(999999999), "dummy");
-        sideObjective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        sideObjective.setDisplayName(UtilChat.Bold + "   FIGHTCRAFT   ");
-        //Teams
+        _scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        _sideObjective = _scoreboard.registerNewObjective(player.getName() + UtilMath.r(999999999), "dummy");
+        _sideObjective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        _sideObjective.setDisplayName(UtilChat.Bold + "   MINEPLEX   ");
         addTeams(player);
-        //Create Line Teams - There will always be 16 teams, with static line allocations.
-        teamNames = new String[16];
+        _teamNames = new String[16];
         for (int i = 0; i < 16; i++) {
             String teamName = ChatColor.COLOR_CHAR + "" + ("1234567890abcdefghijklmnopqrstuvwxyz".toCharArray())[i] + ChatColor.RESET;
-            teamNames[i] = teamName;
-            Team team = scoreboard.registerNewTeam(teamName);
+            _teamNames[i] = teamName;
+            Team team = _scoreboard.registerNewTeam(teamName);
             team.addEntry(teamName);
         }
-        //
-//		if (data.getDisplayRanks())
-//		for (Player otherPlayer : Bukkit.getOnlinePlayers())
-//		{
-//			if (_clientManager.Get(otherPlayer) == null)
-//				continue;
-//
-//			String rankName = _clientManager.Get(player).GetRank().Name;
-//			String otherRankName = _clientManager.Get(otherPlayer).GetRank().Name;
-//
-//			if (!_clientManager.Get(player).GetRank().Has(Rank.ULTRA) && _donationManager.Get(player.getName()).OwnsUltraPackage())
-//			{
-//				rankName = Rank.ULTRA.Name;
-//			}
-//
-//			if (!_clientManager.Get(otherPlayer).GetRank().Has(Rank.ULTRA) && _donationManager.Get(otherPlayer.getName()).OwnsUltraPackage())
-//			{
-//				otherRankName = Rank.ULTRA.Name;
-//			}
-//
-//			//Add Other to Self
-//			board.getTeam(otherRankName).addPlayer(otherPlayer);
-//		}
-        //Set Scoreboard
-        player.setScoreboard(scoreboard);
+        player.setScoreboard(_scoreboard);
     }
 }

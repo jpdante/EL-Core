@@ -6,6 +6,7 @@ import com.ellisiumx.elcore.utils.UtilChat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -16,65 +17,70 @@ import java.util.Iterator;
 
 public class ScoreboardManager implements Listener {
 
-    private static ScoreboardManager context;
+    public static ScoreboardManager context;
 
-    private HashMap<Player, PlayerScoreboard> playerScoreboards = new HashMap<>();
-    private HashMap<String, ScoreboardData> scoreboards = new HashMap<>();
+    private HashMap<Player, PlayerScoreboard> _playerScoreboards = new HashMap<Player, PlayerScoreboard>();
+    private HashMap<String, ScoreboardData> _scoreboards = new HashMap<String, ScoreboardData>();
 
-    //Title
-    private String _title = "   FIGHTCRAFT   ";
+    private String _title = "   FightCraft   ";
     private int _shineIndex;
     private boolean _shineDirection = true;
 
     public ScoreboardManager(JavaPlugin plugin) {
         context = this;
-    }
-
-    public PlayerScoreboard get(Player player) {
-        synchronized (playerScoreboards) {
-            return playerScoreboards.get(player);
-        }
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) {
-        playerScoreboards.put(event.getPlayer(), new PlayerScoreboard(this));
+        _playerScoreboards.put(event.getPlayer(), new PlayerScoreboard());
     }
 
     @EventHandler
     public void playerQuit(PlayerQuitEvent event) {
-        playerScoreboards.remove(event.getPlayer());
+        _playerScoreboards.remove(event.getPlayer());
     }
 
     public void draw() {
-        Iterator<Player> playerIterator = playerScoreboards.keySet().iterator();
+        Iterator<Player> playerIterator = _playerScoreboards.keySet().iterator();
+
         while (playerIterator.hasNext()) {
             Player player = playerIterator.next();
+
             //Offline
             if (!player.isOnline()) {
                 playerIterator.remove();
                 continue;
             }
-            playerScoreboards.get(player).draw(this, player);
+
+            _playerScoreboards.get(player).draw(this, player);
         }
     }
 
 
     public ScoreboardData getData(String scoreboardName, boolean create) {
-        if (!create) return scoreboards.get(scoreboardName);
-        if (!scoreboards.containsKey(scoreboardName)) scoreboards.put(scoreboardName, new ScoreboardData());
-        return scoreboards.get(scoreboardName);
+        if (!create)
+            return _scoreboards.get(scoreboardName);
+
+        if (!_scoreboards.containsKey(scoreboardName))
+            _scoreboards.put(scoreboardName, new ScoreboardData());
+
+        return _scoreboards.get(scoreboardName);
     }
 
     @EventHandler
     public void updateTitle(UpdateEvent event) {
-        if (event.getType() != UpdateType.FASTER) return;
+        if (event.getType() != UpdateType.FASTER)
+            return;
+
         String out;
+
         if (_shineDirection) {
             out = UtilChat.cGold + UtilChat.Bold;
         } else {
             out = UtilChat.cWhite + UtilChat.Bold;
         }
+
         for (int i = 0; i < _title.length(); i++) {
             char c = _title.charAt(i);
 
@@ -94,19 +100,16 @@ public class ScoreboardManager implements Listener {
 
             out += c;
         }
-        for (PlayerScoreboard ps : playerScoreboards.values()) {
+
+        for (PlayerScoreboard ps : _playerScoreboards.values()) {
             ps.setTitle(out);
         }
+
         _shineIndex++;
+
         if (_shineIndex == _title.length() * 2) {
             _shineIndex = 0;
             _shineDirection = !_shineDirection;
         }
-        draw();
-    }
-
-    public static ScoreboardManager getContext() {
-        return context;
     }
 }
-

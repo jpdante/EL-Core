@@ -12,6 +12,7 @@ import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.memory.MemoryFix;
 import com.ellisiumx.elcore.monitor.LagMeter;
 import com.ellisiumx.elcore.preferences.PreferencesManager;
+import com.ellisiumx.elcore.preventer.PreventManager;
 import com.ellisiumx.elcore.punish.PunishSystem;
 import com.ellisiumx.elcore.recharge.Recharge;
 import com.ellisiumx.elcore.redis.RedisManager;
@@ -50,11 +51,11 @@ public class ELCore extends JavaPlugin {
         //new PunishSystem(context);
         new LanguageManager();
         new HologramManager(context);
-        new ScoreboardManager(context);
         new BlockRestore(context);
         new Explosion(context);
         new Recharge(context);
         new CommandCenter(context);
+        new PreventManager(context);
         // UTILS
         new MemoryFix(context);
         new LagMeter(context);

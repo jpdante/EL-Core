@@ -118,10 +118,10 @@ public class RedisDataRepository<T extends Data> implements DataRepository<T> {
             String setKey = getElementSetKey();
             String dataKey = generateKey(element);
             long expiry = currentTime() + timeout;
-
             Transaction transaction = jedis.multi();
             transaction.set(dataKey, serializedData);
             transaction.zadd(setKey, expiry, dataId.toString());
+            transaction.expire(setKey, timeout);
             transaction.exec();
         } catch (JedisConnectionException exception) {
             exception.printStackTrace();
@@ -136,7 +136,7 @@ public class RedisDataRepository<T extends Data> implements DataRepository<T> {
 
     @Override
     public void addElement(T element) {
-        addElement(element, 60 * 60 * 24 * 7 * 4 * 12 * 10);    // Set the timeout to 10 years
+        addElement(element, 3600);    // Set the timeout to 10 years
     }
 
     @Override

@@ -9,7 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class ClearChatCommand extends CommandBase {
 
     public ClearChatCommand(JavaPlugin plugin) {
-        super(plugin, Rank.ALL, "clearchat", "cc");
+        super(plugin, Rank.ALL, "clearchat", "cch");
         this.setCommandCenter(CommandCenter.context);
         CommandCenter.addCommand(this);
     }

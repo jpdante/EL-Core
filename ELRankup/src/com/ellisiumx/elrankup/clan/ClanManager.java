@@ -130,6 +130,7 @@ public class ClanManager implements Listener {
             languageDB.insertTranslation("ClansRivalRemove", "&aRival successfully removed!");
             languageDB.insertTranslation("ClansAllieAccepted", "&aThe clan leader or moderator has agreed to ally with %ClanName% %ClanTag%");
             languageDB.insertTranslation("ClansAllieRejected", "&aThe clan leader or moderator has declined to ally with %ClanName% %ClanTag%");
+            languageDB.insertTranslation("ClansChatMessage", "&7[%ClanName%&7] &7%PlayerName%&7: &b%Message%");
 
             // Commands
             languageDB.insertTranslation("ClansCommands", "&6Clans commands");
@@ -221,6 +222,25 @@ public class ClanManager implements Listener {
             ChatManager.regenerateTags(player);
             player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClanCreated").replaceAll("%ClanName%", finalName).replace('&', ChatColor.COLOR_CHAR));
         });
+    }
+
+    public void clanChat(Player player, String message) {
+        ClanPlayer clanPlayer = ClanManager.getClanPlayer(player);
+        if(clanPlayer.clan == null) {
+            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansParticipationError").replace('&', ChatColor.COLOR_CHAR));
+            return;
+        }
+        for(String member : clanPlayer.clan.members) {
+            Player clanMember = UtilPlayer.searchExact(member);
+            if(clanMember == null) continue;
+            clanMember.sendMessage(
+                    LanguageManager.getTranslation("en-us", "ClansChatMessage")
+                            .replace("%ClanName%", clanPlayer.clan.colorTag)
+                            .replace("%PlayerName%", player.getDisplayName())
+                            .replace("%Message%", ChatColor.stripColor(message))
+                            .replace('&', ChatColor.COLOR_CHAR)
+            );
+        }
     }
 
     public void listClans(Player player, String args[]) {

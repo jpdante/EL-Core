@@ -1,5 +1,6 @@
 package com.ellisiumx.elrankup;
 
+import com.ellisiumx.elcore.ELCore;
 import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elcore.explosion.Explosion;
 import com.ellisiumx.elcore.scoreboard.ScoreboardData;
@@ -41,7 +42,6 @@ import java.util.logging.Level;
 
 public class ELRankup extends JavaPlugin implements Listener {
     private static ELRankup context;
-    private ScoreboardData data;
 
     @Override
     public void onLoad() {
@@ -56,8 +56,6 @@ public class ELRankup extends JavaPlugin implements Listener {
         reloadConfig();
         new RankupConfiguration();
         DBPool.registerDataSource("rankup", "elrankup");
-        data = ScoreboardManager.getContext().getData("default", true);
-        data.write("aaa yes");
         Explosion.SetDebris(false);
         Explosion.SetLiquidDamage(false);
         Explosion.SetRegenerate(false);
@@ -76,7 +74,6 @@ public class ELRankup extends JavaPlugin implements Listener {
         new ClanManager(context);
         new CrateManager(context);
         new CashManager(context);
-        new ScoreboardManager(context);
         new RankupManager(context);
         new SpawnerManager(context);
         new KitManager(context);
@@ -137,7 +134,7 @@ public class ELRankup extends JavaPlugin implements Listener {
         event.setQuitMessage(null);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.setJoinMessage(null);
         UtilTabTitle.doHeaderAndFooter(event.getPlayer(), RankupConfiguration.TabHeader, RankupConfiguration.TabFooter);

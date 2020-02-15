@@ -186,7 +186,7 @@ public class CoreClientManager implements Listener {
         }
         TimingManager.stop(client.getPlayerName() + " load client");
         System.out.println("[ClientManager] [" + client.getPlayerName() + "'s account id = " + client.getAccountId() + "]");
-        if (client.getAccountId() > 0) cacheDataRepository.addElement(new ClientCache(client.getAccountId(), uuid.toString(), client.getPlayerName(), client.getRank()));
+        if (client.getAccountId() > 0) cacheDataRepository.addElement(new ClientCache(client.getAccountId(), uuid.toString(), client.getPlayerName(), client.getRank()), 3600);
         return !clientLoginLock.containsKey(client.getPlayerName());
     }
 

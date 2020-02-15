@@ -122,6 +122,13 @@ public class ClanCommand extends CommandBase {
                 return;
             }
             ClanManager.context.rejectPlayerInvite(caller);
+        } else if (args[0].equalsIgnoreCase("chat")) {
+            if(args.length == 1) return;
+            StringBuilder message = new StringBuilder();
+            for(int i = 1; i < args.length; i++) {
+                message.append(args[i]).append(" ");
+            }
+            ClanManager.context.clanChat(caller, message.toString());
         }
     }
 

@@ -67,6 +67,9 @@ public class RankupConfiguration {
     public static String TabHeader;
     public static String TabFooter;
 
+    public static MenuConfig DropUpgradeMenu;
+    public static MenuConfig DropsMenu;
+
     public RankupConfiguration() {
         FileConfiguration config = ELRankup.getContext().getConfig();
 
@@ -205,6 +208,9 @@ public class RankupConfiguration {
         SpawnLocation = UtilConvert.getLocationFromString(config.getString("spawn"));
         TabHeader = config.getString("tab.header").replace('&', ChatColor.COLOR_CHAR).replace("\n", System.lineSeparator());
         TabFooter = config.getString("tab.footer").replace('&', ChatColor.COLOR_CHAR).replace("\n", System.lineSeparator());
+
+        DropUpgradeMenu = new MenuConfig(config.getConfigurationSection("drops.menus.upgrade"));
+        DropsMenu = new MenuConfig(config.getConfigurationSection("drops.menus.drops"));
     }
 
     public static void save() {

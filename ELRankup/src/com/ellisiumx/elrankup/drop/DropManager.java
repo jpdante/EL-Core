@@ -4,6 +4,7 @@ import com.ellisiumx.elrankup.chat.command.ChangeChannelCommand;
 import com.ellisiumx.elrankup.chat.command.TellCommand;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.drop.holder.DropsMenuHolder;
+import com.ellisiumx.elrankup.drop.repository.DropRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -29,12 +30,14 @@ public class DropManager implements Listener {
 
     public static DropManager context;
 
+    public DropRepository dropRepository;
     public HashMap<String, DropPickaxe> dropPickaxes;
     public HashMap<String, PlayerDrops> playerDrops;
     public Stack<PlayerDrops> updateBuffer;
 
     public DropManager(JavaPlugin plugin) {
         context = this;
+        dropRepository = new DropRepository(plugin);
         Bukkit.getPluginManager().registerEvents(this, plugin);
         dropPickaxes = new HashMap<>();
         playerDrops = new HashMap<>();

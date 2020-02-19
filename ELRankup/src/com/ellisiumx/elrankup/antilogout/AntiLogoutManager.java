@@ -29,7 +29,6 @@ public class AntiLogoutManager implements Listener {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         combatDelays = new HashMap<>();
         for (LanguageDB languageDB : LanguageManager.getLanguages()) {
-            // TODO: Insert messages
             languageDB.insertTranslation("AntiLogoutBottomText", "&cYou're in combat for &b%Delay% &cseconds.");
             languageDB.insertTranslation("AntiLogoutExitCombat", "&aYou got out of combat, now you can log out!");
             languageDB.insertTranslation("AntiLogoutEnterCombat", "&cYou went into combat, if you log out you will be punished!");
@@ -79,8 +78,10 @@ public class AntiLogoutManager implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        combatDelays.remove(event.getEntity().getName());
-        event.getEntity().sendMessage(LanguageManager.getTranslation(PreferencesManager.get((Player) event.getEntity()).getLanguage(), "AntiLogoutExitCombat").replace('&', ChatColor.COLOR_CHAR));
+        if(combatDelays.containsKey(event.getEntity().getName())) {
+            combatDelays.remove(event.getEntity().getName());
+            event.getEntity().sendMessage(LanguageManager.getTranslation(PreferencesManager.get((Player) event.getEntity()).getLanguage(), "AntiLogoutExitCombat").replace('&', ChatColor.COLOR_CHAR));
+        }
     }
 
     @EventHandler

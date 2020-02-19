@@ -17,7 +17,7 @@ chat:
 kits: {}
 spawn: "world,0,0,0,0,0"
 drops:
-  menu:
+  menus:
     drops:
       name: "&3&lDrops"
       size: 27
@@ -44,7 +44,7 @@ drops:
         - "26,160:15,1,false,,&l,"
     upgrade:
       name: "&b&lPickaxe Upgrader"
-      size: 64
+      size: 54
       items:
         - "0,160:15,1,false,,&l,"
         - "1,160:15,1,false,,&l,"
@@ -108,7 +108,7 @@ warp:
     ALL: 5
   warps: {}
 mine-reseter:
-  enabled: false
+  enabled: true
   alert-times:
     - 180
     - 120
@@ -120,17 +120,7 @@ mine-reseter:
     - 3
     - 2
     - 1
-  mines:
-    0:
-      name: "Mina 1"
-      enabled: false
-      alert-area: 200
-      point1: "world,-3,0,3,0,0"
-      point2: "world,-32,20,26,0,0"
-      delay: 60
-      ores:
-        - "0.5,1:0"
-        - "0.5,3:0"
+  mines: {}
 rankup:
   default-rank: "Slave"
   ranks:

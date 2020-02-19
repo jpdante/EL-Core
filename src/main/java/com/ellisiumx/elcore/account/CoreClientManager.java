@@ -213,7 +213,15 @@ public class CoreClientManager implements Listener {
         del(event.getPlayer());
     }
 
-    public void addStoredProcedureLoginProcessor(ILoginProcessor processor) {
-        loginProcessors.put(processor.getName(), processor);
+    public static void addStoredProcedureLoginProcessor(ILoginProcessor processor) {
+        context.loginProcessors.put(processor.getName(), processor);
+    }
+
+    public static void removeStoredProcedureLoginProcessor(ILoginProcessor processor) {
+        context.loginProcessors.remove(processor.getName());
+    }
+
+    public static void removeStoredProcedureLoginProcessor(String name) {
+        context.loginProcessors.remove(name);
     }
 }

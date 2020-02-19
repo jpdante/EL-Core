@@ -4,6 +4,8 @@ import com.ellisiumx.elcore.command.CommandBase;
 import com.ellisiumx.elcore.command.CommandCenter;
 import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.utils.UtilServer;
+import com.ellisiumx.elrankup.drop.DropManager;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,11 +23,12 @@ public class DropsCommand extends CommandBase {
 
     @Override
     public void execute(Player caller, String[] args) {
-
+        DropManager.context.openDrops(caller);
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, String commandLabel, String[] args) {
+        Bukkit.broadcastMessage("a");
         ArrayList<String> list = new ArrayList<>();
         for(Player player : UtilServer.getPlayers()) {
             list.add(player.getName());

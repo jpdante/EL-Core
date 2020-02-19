@@ -1,21 +1,24 @@
 package com.ellisiumx.elrankup.drop;
 
-import org.bukkit.entity.Player;
-
 public class PlayerDrops {
 
-    private Player player;
+    private int accountId;
     private long drops;
 
-    public PlayerDrops(long drops) {
+    public PlayerDrops(int accountId, long drops) {
+        this.accountId = accountId;
         this.drops = drops;
     }
 
-    public Player getPlayer() { return player; }
+    public int getAccountId() { return accountId; }
 
-    public void setPlayer(Player player) { this.player = player; }
+    public void setAccountId(int accountId) { this.accountId = accountId; }
 
     public long getDrops() { return drops; }
 
     public void setDrops(long drops) { this.drops = drops; }
+
+    public void addDrops(long drops) {
+        this.drops += drops;
+    }
 }

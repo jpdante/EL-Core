@@ -4,6 +4,7 @@ import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elcore.database.RepositoryBase;
 import com.ellisiumx.elcore.utils.UtilGson;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
+import com.ellisiumx.elrankup.drop.PlayerDrops;
 import com.ellisiumx.elrankup.kit.KitStamp;
 import com.ellisiumx.elrankup.kit.PlayerKit;
 import org.bukkit.entity.Player;
@@ -30,43 +31,36 @@ public class DropRepository extends RepositoryBase {
     protected void update() {
     }
 
-    public PlayerKit getPlayerKit(int accountId, Player player) {
-        PlayerKit playerKit = null;
+    public PlayerDrops getPlayerDrops(int accountId) {
+        PlayerDrops playerDrops = null;
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO kits (accountId, kitstamps) VALUES (?, ?);")) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO drops (accountId, drops) VALUES (?, 0);")) {
                 statement.setInt(1, accountId);
-                statement.setString(2, UtilGson.serialize(new KitStamp()));
                 statement.executeUpdate();
             }
-            try (PreparedStatement statement = connection.prepareStatement("SELECT kitstamps FROM kits WHERE accountId = ? LIMIT 1;")) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT drops FROM drops WHERE accountId = ? LIMIT 1;")) {
                 statement.setInt(1, accountId);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while(resultSet.next()) {
-                        playerKit = new PlayerKit(player);
-                        KitStamp kitStamps = UtilGson.deserialize(resultSet.getString(1), KitStamp.class);
-                        for(Map.Entry<String, Timestamp> stamp : kitStamps.kitDelay.entrySet()) {
-                            if(RankupConfiguration.Kits.containsKey(stamp.getKey())) {
-                                playerKit.getKitDelay().put(RankupConfiguration.Kits.get(stamp.getKey()), stamp.getValue());
-                            }
-                        }
+                        playerDrops = new PlayerDrops(accountId, resultSet.getLong(1));
                     }
                 }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return playerKit;
+        return playerDrops;
     }
 
-    public void updatePlayerKit(Stack<PlayerKit> playerKits) {
+    public void updatePlayerDrops(Stack<PlayerDrops> playerDrops) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("UPDATE kits SET kitstamps = ? WHERE accountId = ?;");
+                PreparedStatement statement = connection.prepareStatement("UPDATE drops SET drops = ? WHERE accountId = ?;");
         ) {
-            while (!playerKits.isEmpty()) {
-                PlayerKit playerKit = playerKits.pop();
-                statement.setString(1, UtilGson.serialize(new KitStamp(playerKit)));
-                statement.setInt(2, playerKit.getAccountId());
+            while (!playerDrops.isEmpty()) {
+                PlayerDrops drops = playerDrops.pop();
+                statement.setLong(1, drops.getDrops());
+                statement.setInt(2, drops.getAccountId());
                 statement.addBatch();
             }
             statement.executeBatch();

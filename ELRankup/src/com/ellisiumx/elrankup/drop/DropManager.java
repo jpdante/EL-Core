@@ -4,13 +4,16 @@ import com.ellisiumx.elcore.ELCore;
 import com.ellisiumx.elcore.account.CoreClientManager;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
-import com.ellisiumx.elcore.utils.UtilServer;
-import com.ellisiumx.elcore.utils.UtilSound;
+import com.ellisiumx.elcore.utils.*;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.crate.holder.CrateMenuHolder;
 import com.ellisiumx.elrankup.drop.command.DropsCommand;
 import com.ellisiumx.elrankup.drop.holder.DropsMenuHolder;
 import com.ellisiumx.elrankup.drop.repository.DropRepository;
+import com.ellisiumx.elrankup.mapedit.CompositionEntry;
+import com.ellisiumx.elrankup.mapedit.PastedBlock;
+import com.ellisiumx.elrankup.mine.MineData;
+import com.ellisiumx.elrankup.mine.MineReset;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -25,12 +28,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
 
 public class DropManager implements Listener {
 
@@ -65,8 +66,11 @@ public class DropManager implements Listener {
         if(event.getAction() != Action.RIGHT_CLICK_AIR) return;
         if(event.getItem() == null) return;
         if(event.getItem().getType() != Material.DIAMOND_PICKAXE) return;
-        event.getPlayer().getOpenInventory().close();
-        event.getPlayer().openInventory(RankupConfiguration.DropUpgradeMenu.createMenu(new DropsMenuHolder()));
+        event.getPlayer().closeInventory();
+        DropsMenuHolder holder = new DropsMenuHolder();
+        holder.item = event.getItem();
+        holder.upgradeMode = true;
+        event.getPlayer().openInventory(RankupConfiguration.DropUpgradeMenu.createMenu(holder));
     }
 
     @EventHandler
@@ -85,6 +89,68 @@ public class DropManager implements Listener {
         if (event.getInventory().getHolder() == null) return;
         if (!(event.getInventory().getHolder() instanceof DropsMenuHolder)) return;
         event.setCancelled(true);
+        Player player = (Player) event.getWhoClicked();
+        DropsMenuHolder holder = (DropsMenuHolder) event.getInventory().getHolder();
+        if(holder.upgradeMode) {
+            player.getInventory().remove(holder.item);
+            ItemStack itemStack = holder.item;
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            if(event.getCurrentItem() == null) return;
+            if(UtilNBT.contains(event.getCurrentItem(), "MenuItem")) {
+                String command = UtilNBT.getString(event.getCurrentItem(), "MenuCommand");
+                if(command == null) return;
+                if(command.equalsIgnoreCase("upgrade-efficiency")) {
+                    int speed = itemMeta.getEnchantLevel(Enchantment.DIG_SPEED);
+                    itemMeta.addEnchant(Enchantment.DIG_SPEED, speed + 1, true);
+                    itemStack.setItemMeta(itemMeta);
+                } else if(command.equalsIgnoreCase("upgrade-unbreaking")) {
+                    int durability = itemMeta.getEnchantLevel(Enchantment.DURABILITY);
+                    itemMeta.addEnchant(Enchantment.DURABILITY, durability + 1, true);
+                    itemStack.setItemMeta(itemMeta);
+                } else if(command.equalsIgnoreCase("upgrade-fortune")) {
+                    int lootBonus = itemMeta.getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS);
+                    itemMeta.addEnchant(Enchantment.LOOT_BONUS_BLOCKS, lootBonus + 1, true);
+                    itemStack.setItemMeta(itemMeta);
+                } else if(command.equalsIgnoreCase("upgrade-silktouch")) {
+                    itemMeta.addEnchant(Enchantment.SILK_TOUCH, 1, true);
+                    itemStack.setItemMeta(itemMeta);
+                } else if(command.equalsIgnoreCase("upgrade-explosion")) {
+                    if(UtilNBT.contains(itemStack, "Explode")) {
+                        int i = UtilNBT.getInt(itemStack, "Explode");
+                        itemStack = UtilNBT.set(itemStack, i + 1, "Explode");
+                    } else {
+                        itemStack = UtilNBT.set(itemStack, 1, "Explode");
+                    }
+                } else if(command.equalsIgnoreCase("upgrade-laser")) {
+                    if(UtilNBT.contains(itemStack, "Laser")) {
+                        int i = UtilNBT.getInt(itemStack, "Laser");
+                        itemStack = UtilNBT.set(itemStack, i + 1, "Laser");
+                    } else {
+                        itemStack = UtilNBT.set(itemStack, 1, "Laser");
+                    }
+                } else if(command.equalsIgnoreCase("upgrade-nuke")) {
+                    if(UtilNBT.contains(itemStack, "Nuke")) {
+                        int i = UtilNBT.getInt(itemStack, "Nuke");
+                        itemStack = UtilNBT.set(itemStack, i + 1, "Nuke");
+                    } else {
+                        itemStack = UtilNBT.set(itemStack, 1, "Nuke");
+                    }
+                } else if(command.equalsIgnoreCase("upgrade-weasel")) {
+                    if(UtilNBT.contains(itemStack, "Weasel")) {
+                        int i = UtilNBT.getInt(itemStack, "Weasel");
+                        itemStack = UtilNBT.set(itemStack, i + 1, "Weasel");
+                    } else {
+                        itemStack = UtilNBT.set(itemStack, 1, "Weasel");
+                    }
+                }
+                itemStack = UtilNBT.set(itemStack, 1, "CustomEnchanted");
+                player.getInventory().addItem(itemStack);
+                holder.item = itemStack;
+                player.playSound(player.getLocation(), Sound.LEVEL_UP, 0.5f, 1f);
+            } else return;
+        } else {
+
+        }
     }
 
     public void openDrops(Player player) {
@@ -185,7 +251,7 @@ public class DropManager implements Listener {
                 i = event.getPlayer().getItemInHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
             }
             int totalDrops;
-            if(random.nextDouble() < 0.01) {
+            if(random.nextDouble() < 0.1) {
                 totalDrops = customEnchantBreak(event.getPlayer(), event.getPlayer().getItemInHand(), event.getBlock(), i);
             } else {
                 totalDrops = normalBreak(event.getPlayer(), event.getBlock(), i);
@@ -256,7 +322,117 @@ public class DropManager implements Listener {
     }
 
     public int customEnchantBreak(Player player, ItemStack itemStack, Block block, int lootBonus) {
-        int dropCount = getDropCount(player, block, lootBonus);
+        if(UtilNBT.contains(itemStack, "CustomEnchanted")) {
+            List<Pair<CustomEnchantTypes, Integer>> list = new ArrayList<>();
+            if(UtilNBT.contains(itemStack, "Explode")) list.add(new Pair<>(CustomEnchantTypes.Explosion, UtilNBT.getInt(itemStack, "Explode")));
+            if(UtilNBT.contains(itemStack, "Laser")) list.add(new Pair<>(CustomEnchantTypes.Laser, UtilNBT.getInt(itemStack, "Laser")));
+            if(UtilNBT.contains(itemStack, "Nuke")) list.add(new Pair<>(CustomEnchantTypes.Nuke, UtilNBT.getInt(itemStack, "Nuke")));
+            if(UtilNBT.contains(itemStack, "Weasel")) list.add(new Pair<>(CustomEnchantTypes.Weasel, UtilNBT.getInt(itemStack, "Weasel")));
+            for(Pair<CustomEnchantTypes, Integer> data : list) {
+                Bukkit.broadcastMessage(data.getLeft().toString());
+            }
+            if(list.size() <= 0) return normalBreak(player, block, lootBonus);
+            Pair<CustomEnchantTypes, Integer> enchant = list.get(random.nextInt(list.size()));
+            Bukkit.broadcastMessage("> " + enchant.getLeft().toString());
+            int dropCount = getDropCount(player, block, lootBonus);
+            switch (enchant.getLeft()) {
+                case Explosion:
+                    return explosionBreak(player, block, dropCount * enchant.getRight());
+                case Laser:
+                    return laserBreak(player, block, dropCount * enchant.getRight());
+                case Nuke:
+                    return nukeBreak(player, block, dropCount * enchant.getRight());
+                case Weasel:
+                    return weaselBreak(player, block, dropCount * enchant.getRight());
+            }
+        }
+        return normalBreak(player, block, lootBonus);
+    }
+
+    public int laserBreak(Player player, Block block, int dropCount) {
+        int totalDrops = 0;
+        Location loc = block.getLocation();
+        Material type = block.getType();
+        if(random.nextBoolean()) {
+            for(int x = -50; x <= 50; x++) {
+                Block b = loc.getWorld().getBlockAt(loc.getBlockX() + x, loc.getBlockY(), loc.getBlockZ());
+                if(b.getType() != type) continue;
+                totalDrops += dropCount;
+                b.setType(Material.AIR);
+                b.getDrops().clear();
+            }
+        } else {
+            for(int z = -50; z <= 50; z++) {
+                Block b = loc.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ() + z);
+                if(b.getType() != type) continue;
+                totalDrops += dropCount;
+                b.setType(Material.AIR);
+                b.getDrops().clear();
+            }
+        }
+        player.playSound(player.getLocation(), Sound.EXPLODE, 0.3f, 0.6f);
+        return totalDrops;
+    }
+
+    public int nukeBreak(Player player, Block block, int dropCount) {
+        int totalDrops = 0;
+        Location loc = block.getLocation();
+        boolean inside = false;
+        for(MineData mineData : RankupConfiguration.Mines) {
+            if(mineData.isInside(loc)) {
+                inside = true;
+                for (int x = mineData.getMinX(); x <= mineData.getMaxX(); ++x) {
+                    for (int y = mineData.getMinY(); y <= mineData.getMaxY(); ++y) {
+                        for (int z = mineData.getMinZ(); z <= mineData.getMaxZ(); ++z) {
+                            Block b = loc.getWorld().getBlockAt(x, y, z);
+                            totalDrops += dropCount;
+                            b.setType(Material.AIR);
+                            b.getDrops().clear();
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        if(!inside) {
+            Block b = loc.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+            totalDrops += dropCount;
+            b.setType(Material.AIR);
+            b.getDrops().clear();
+        }
+        player.playSound(player.getLocation(), Sound.EXPLODE, 0.2f, 2f);
+        return totalDrops;
+    }
+
+    public int weaselBreak(Player player, Block block, int dropCount) {
+        int totalDrops = 0;
+        Location loc = block.getLocation();
+        Material type = block.getType();
+        totalDrops += dropCount;
+        block.setType(Material.AIR);
+        block.getDrops().clear();
+        if(random.nextBoolean()) {
+            for(int x = -50; x <= 50; x++) {
+                Block b = loc.getWorld().getBlockAt(loc.getBlockX() + x, loc.getBlockY() - 1, loc.getBlockZ());
+                if(b.getType() != type) continue;
+                totalDrops += dropCount;
+                b.setType(Material.AIR);
+                b.getDrops().clear();
+            }
+        } else {
+            for(int z = -50; z <= 50; z++) {
+                Block b = loc.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY() - 1, loc.getBlockZ() + z);
+                if(b.getType() != type) continue;
+                totalDrops += dropCount;
+                b.setType(Material.AIR);
+                b.getDrops().clear();
+            }
+        }
+        player.playSound(player.getLocation(), Sound.EXPLODE, 0.3f, 0.6f);
+        return totalDrops;
+    }
+
+    public int explosionBreak(Player player, Block block, int dropCount) {
         int totalDrops = 0;
         Location loc = block.getLocation();
         Material type = block.getType();
@@ -285,6 +461,10 @@ public class DropManager implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         playerDrops.remove(event.getPlayer().getName());
+    }
+
+    public enum CustomEnchantTypes {
+        Explosion, Laser, Nuke, Weasel
     }
 
 }

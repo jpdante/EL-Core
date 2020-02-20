@@ -60,6 +60,30 @@ public class MineData {
         return point2;
     }
 
+    public int getMinX() {
+        return minX;
+    }
+
+    public int getMinY() {
+        return minY;
+    }
+
+    public int getMinZ() {
+        return minZ;
+    }
+
+    public int getMaxX() {
+        return maxX;
+    }
+
+    public int getMaxY() {
+        return maxY;
+    }
+
+    public int getMaxZ() {
+        return maxZ;
+    }
+
     public void setPoints(Location point1, Location point2) {
         try {
             Tuple<Location, Location> points = MapEditor.getSetterPoints(point1, point2);
@@ -86,6 +110,13 @@ public class MineData {
 
     public boolean isInside(Player p) {
         Location l = p.getLocation();
+        return l.getWorld().equals(world)
+                && (l.getX() >= minX && l.getX() <= maxX)
+                && (l.getY() >= minY && l.getY() <= maxY)
+                && (l.getZ() >= minZ && l.getZ() <= maxZ);
+    }
+
+    public boolean isInside(Location l) {
         return l.getWorld().equals(world)
                 && (l.getX() >= minX && l.getX() <= maxX)
                 && (l.getY() >= minY && l.getY() <= maxY)

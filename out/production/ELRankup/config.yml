@@ -17,6 +17,16 @@ chat:
 kits: {}
 spawn: "world,0,0,0,0,0"
 drops:
+  price:
+    ores: 1000.0
+    efficiency-upgrade: 1000.0
+    unbreaking-upgrade: 3000.0
+    fortune-upgrade: 5000.0
+    silktouch-upgrade: 5000.0
+    explosion-upgrade: 10000.0
+    laser-upgrade: 50000.0
+    nuke-upgrade: 100000.0
+    weasel-upgrade: 50000.0
   menus:
     drops:
       name: "&3&lDrops"
@@ -56,13 +66,13 @@ drops:
         - "7,160:15,1,false,,&l,"
         - "8,160:15,1,false,,&l,"
         - "9,160:15,1,false,,&l,"
-        - "10,160:15,1,false,,&l,"
+        - "10,278:0,1,true,upgrade-efficiency,&a&lUpgrade Eficiency,"
         - "11,160:15,1,false,,&l,"
-        - "12,160:15,1,false,,&l,"
+        - "12,145:0,1,true,upgrade-unbreaking,&b&lUpgrade Unbreaking,"
         - "13,160:15,1,false,,&l,"
-        - "14,160:15,1,false,,&l,"
+        - "14,264:0,1,true,upgrade-fortune,&d&lUpgrade Fortune,"
         - "15,160:15,1,false,,&l,"
-        - "16,160:15,1,false,,&l,"
+        - "16,1:0,1,true,upgrade-silktouch,&e&lUpgrade Silk Touch,"
         - "17,160:15,1,false,,&l,"
         - "18,160:15,1,false,,&l,"
         - "19,160:15,1,false,,&l,"
@@ -74,13 +84,13 @@ drops:
         - "25,160:15,1,false,,&l,"
         - "26,160:15,1,false,,&l,"
         - "27,160:15,1,false,,&l,"
-        - "28,160:15,1,false,,&l,"
+        - "28,46:0,1,true,upgrade-explosion,&c&lUpgrade Explosion,"
         - "29,160:15,1,false,,&l,"
-        - "30,160:15,1,false,,&l,"
+        - "30,369:0,1,true,upgrade-laser,&6&lUpgrade Laser,"
         - "31,160:15,1,false,,&l,"
-        - "32,160:15,1,false,,&l,"
+        - "32,152:0,1,true,upgrade-nuke,&8&l&k|||&4&lUpgrade Nuke&8&l&k|||,"
         - "33,160:15,1,false,,&l,"
-        - "34,160:15,1,false,,&l,"
+        - "34,381:0,1,true,upgrade-weasel,&7&lUpgrade Weasel,"
         - "35,160:15,1,false,,&l,"
         - "36,160:15,1,false,,&l,"
         - "37,160:15,1,false,,&l,"

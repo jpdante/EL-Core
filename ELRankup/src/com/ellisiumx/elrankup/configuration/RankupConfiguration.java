@@ -69,6 +69,14 @@ public class RankupConfiguration {
 
     public static MenuConfig DropUpgradeMenu;
     public static MenuConfig DropsMenu;
+    public static double EfficiencyUpgrade;
+    public static double UnbreakingUpgrade;
+    public static double FortuneUpgrade;
+    public static double SilktouchUpgrade;
+    public static double ExplosionUpgrade;
+    public static double LaserUpgrade;
+    public static double NukeUpgrade;
+    public static double WeaselUpgrade;
 
     public RankupConfiguration() {
         FileConfiguration config = ELRankup.getContext().getConfig();

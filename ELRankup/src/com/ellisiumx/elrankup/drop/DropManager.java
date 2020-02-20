@@ -2,19 +2,18 @@ package com.ellisiumx.elrankup.drop;
 
 import com.ellisiumx.elcore.ELCore;
 import com.ellisiumx.elcore.account.CoreClientManager;
+import com.ellisiumx.elcore.lang.LanguageDB;
+import com.ellisiumx.elcore.lang.LanguageManager;
+import com.ellisiumx.elcore.preferences.PreferencesManager;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elcore.utils.*;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
-import com.ellisiumx.elrankup.crate.holder.CrateMenuHolder;
 import com.ellisiumx.elrankup.drop.command.DropsCommand;
 import com.ellisiumx.elrankup.drop.holder.DropsMenuHolder;
 import com.ellisiumx.elrankup.drop.repository.DropRepository;
 import com.ellisiumx.elrankup.economy.EconomyManager;
-import com.ellisiumx.elrankup.mapedit.CompositionEntry;
-import com.ellisiumx.elrankup.mapedit.PastedBlock;
 import com.ellisiumx.elrankup.mine.MineData;
-import com.ellisiumx.elrankup.mine.MineReset;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -50,6 +49,12 @@ public class DropManager implements Listener {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         playerDrops = new HashMap<>();
         updateBuffer = new Stack<>();
+        for (LanguageDB languageDB : LanguageManager.getLanguages()) {
+            // Errors
+            languageDB.insertTranslation("DropNotEnoughMoney", "&cYou do not have enough money upgrade!");
+            languageDB.insertTranslation("DropTransactionFailure", "&cFailed to transfer, please try again later. %ErrorMessage%");
+        }
+        if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         new DropsCommand(plugin);
     }
 
@@ -109,10 +114,16 @@ public class DropManager implements Listener {
                             itemMeta.addEnchant(Enchantment.DIG_SPEED, speed + 1, true);
                             itemStack.setItemMeta(itemMeta);
                         } else {
-
+                            player.closeInventory();
+                            player.sendMessage(
+                                    LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropTransactionFailure")
+                                            .replace("%ErrorMessage%", response.errorMessage)
+                                            .replace('&', ChatColor.COLOR_CHAR)
+                            );
                         }
                     } else {
-
+                        player.closeInventory();
+                        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-unbreaking")) {
                     if (EconomyManager.economy.has(player, RankupConfiguration.UnbreakingUpgrade)) {
@@ -122,10 +133,16 @@ public class DropManager implements Listener {
                             itemMeta.addEnchant(Enchantment.DURABILITY, durability + 1, true);
                             itemStack.setItemMeta(itemMeta);
                         } else {
-
+                            player.closeInventory();
+                            player.sendMessage(
+                                    LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropTransactionFailure")
+                                            .replace("%ErrorMessage%", response.errorMessage)
+                                            .replace('&', ChatColor.COLOR_CHAR)
+                            );
                         }
                     } else {
-
+                        player.closeInventory();
+                        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-fortune")) {
                     if (EconomyManager.economy.has(player, RankupConfiguration.FortuneUpgrade)) {
@@ -135,10 +152,16 @@ public class DropManager implements Listener {
                             itemMeta.addEnchant(Enchantment.LOOT_BONUS_BLOCKS, lootBonus + 1, true);
                             itemStack.setItemMeta(itemMeta);
                         } else {
-
+                            player.closeInventory();
+                            player.sendMessage(
+                                    LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropTransactionFailure")
+                                            .replace("%ErrorMessage%", response.errorMessage)
+                                            .replace('&', ChatColor.COLOR_CHAR)
+                            );
                         }
                     } else {
-
+                        player.closeInventory();
+                        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-silktouch")) {
                     if (EconomyManager.economy.has(player, RankupConfiguration.SilktouchUpgrade)) {
@@ -147,10 +170,16 @@ public class DropManager implements Listener {
                             itemMeta.addEnchant(Enchantment.SILK_TOUCH, 1, true);
                             itemStack.setItemMeta(itemMeta);
                         } else {
-
+                            player.closeInventory();
+                            player.sendMessage(
+                                    LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropTransactionFailure")
+                                            .replace("%ErrorMessage%", response.errorMessage)
+                                            .replace('&', ChatColor.COLOR_CHAR)
+                            );
                         }
                     } else {
-
+                        player.closeInventory();
+                        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-explosion")) {
                     if (EconomyManager.economy.has(player, RankupConfiguration.ExplosionUpgrade)) {
@@ -163,10 +192,16 @@ public class DropManager implements Listener {
                                 itemStack = UtilNBT.set(itemStack, 1, "Explode");
                             }
                         } else {
-
+                            player.closeInventory();
+                            player.sendMessage(
+                                    LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropTransactionFailure")
+                                            .replace("%ErrorMessage%", response.errorMessage)
+                                            .replace('&', ChatColor.COLOR_CHAR)
+                            );
                         }
                     } else {
-
+                        player.closeInventory();
+                        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-laser")) {
                     if (EconomyManager.economy.has(player, RankupConfiguration.LaserUpgrade)) {
@@ -179,10 +214,16 @@ public class DropManager implements Listener {
                                 itemStack = UtilNBT.set(itemStack, 1, "Laser");
                             }
                         } else {
-
+                            player.closeInventory();
+                            player.sendMessage(
+                                    LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropTransactionFailure")
+                                            .replace("%ErrorMessage%", response.errorMessage)
+                                            .replace('&', ChatColor.COLOR_CHAR)
+                            );
                         }
                     } else {
-
+                        player.closeInventory();
+                        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-nuke")) {
                     if (EconomyManager.economy.has(player, RankupConfiguration.NukeUpgrade)) {
@@ -195,10 +236,16 @@ public class DropManager implements Listener {
                                 itemStack = UtilNBT.set(itemStack, 1, "Nuke");
                             }
                         } else {
-
+                            player.closeInventory();
+                            player.sendMessage(
+                                    LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropTransactionFailure")
+                                            .replace("%ErrorMessage%", response.errorMessage)
+                                            .replace('&', ChatColor.COLOR_CHAR)
+                            );
                         }
                     } else {
-
+                        player.closeInventory();
+                        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-weasel")) {
                     if (EconomyManager.economy.has(player, RankupConfiguration.WeaselUpgrade)) {
@@ -211,10 +258,16 @@ public class DropManager implements Listener {
                                 itemStack = UtilNBT.set(itemStack, 1, "Weasel");
                             }
                         } else {
-
+                            player.closeInventory();
+                            player.sendMessage(
+                                    LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropTransactionFailure")
+                                            .replace("%ErrorMessage%", response.errorMessage)
+                                            .replace('&', ChatColor.COLOR_CHAR)
+                            );
                         }
                     } else {
-
+                        player.closeInventory();
+                        player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 }
                 itemStack = UtilNBT.set(itemStack, 1, "CustomEnchanted");

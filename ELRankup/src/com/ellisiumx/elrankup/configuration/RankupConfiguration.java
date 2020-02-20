@@ -219,6 +219,14 @@ public class RankupConfiguration {
 
         DropUpgradeMenu = new MenuConfig(config.getConfigurationSection("drops.menus.upgrade"));
         DropsMenu = new MenuConfig(config.getConfigurationSection("drops.menus.drops"));
+        EfficiencyUpgrade = config.getDouble("drops.price.efficiency-upgrade");
+        UnbreakingUpgrade = config.getDouble("drops.price.unbreaking-upgrade");
+        FortuneUpgrade = config.getDouble("drops.price.fortune-upgrade");
+        SilktouchUpgrade = config.getDouble("drops.price.silktouch-upgrade");
+        ExplosionUpgrade = config.getDouble("drops.price.explosion-upgrade");
+        LaserUpgrade = config.getDouble("drops.price.laser-upgrade");
+        NukeUpgrade = config.getDouble("drops.price.nuke-upgrade");
+        WeaselUpgrade = config.getDouble("drops.price.weasel-upgrade");
     }
 
     public static void save() {

@@ -77,6 +77,8 @@ public class RankupConfiguration {
     public static double LaserUpgrade;
     public static double NukeUpgrade;
     public static double WeaselUpgrade;
+    public static double OresPrice;
+    public static double FarmsPrice;
 
     public RankupConfiguration() {
         FileConfiguration config = ELRankup.getContext().getConfig();
@@ -227,6 +229,7 @@ public class RankupConfiguration {
         LaserUpgrade = config.getDouble("drops.price.laser-upgrade");
         NukeUpgrade = config.getDouble("drops.price.nuke-upgrade");
         WeaselUpgrade = config.getDouble("drops.price.weasel-upgrade");
+        OresPrice = config.getDouble("drops.price.ores");
     }
 
     public static void save() {

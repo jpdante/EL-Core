@@ -6,12 +6,14 @@ import com.ellisiumx.elcore.utils.UtilConvert;
 import com.ellisiumx.elrankup.clan.Clan;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.machine.Machine;
+import com.ellisiumx.elrankup.machine.MachineManager;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Stack;
 
 public class MachineRepository extends RepositoryBase {
 
@@ -124,6 +126,27 @@ public class MachineRepository extends RepositoryBase {
             statement.setTimestamp(5, machine.getLastRefuel());
             statement.setInt(6, machine.getId());
             statement.executeUpdate();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void updateMachines(Stack<Machine> machines) {
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("UPDATE machines SET level = ?, drops = ?, fuel = ?, lastMenuOpen = ?, lastRefuel = ? WHERE id = ?");
+        ){
+            while(!machines.empty()) {
+                Machine machine = machines.pop();
+                statement.setInt(1, machine.getLevel());
+                statement.setInt(2, machine.getDrops());
+                statement.setInt(3, machine.getFuel());
+                statement.setTimestamp(4, machine.getLastMenuOpen());
+                statement.setTimestamp(5, machine.getLastRefuel());
+                statement.setInt(6, machine.getId());
+                statement.addBatch();
+            }
+            statement.executeBatch();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

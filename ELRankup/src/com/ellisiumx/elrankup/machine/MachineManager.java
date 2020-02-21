@@ -38,13 +38,13 @@ import java.util.logging.Level;
 public class MachineManager implements Listener {
     public boolean initialized;
 
-    private static MachineManager context;
-    private MachineRepository repository;
-    private ArrayList<Machine> machines;
-    private HashMap<Integer, Machine> machinesIds;
-    private HashMap<Integer, MachineOwner> ownerMachines;
-    private Inventory mainMenu;
-    private Inventory shopMenu;
+    public static MachineManager context;
+    public MachineRepository repository;
+    public ArrayList<Machine> machines;
+    public HashMap<Integer, Machine> machinesIds;
+    public HashMap<Integer, MachineOwner> ownerMachines;
+    public Inventory mainMenu;
+    public Inventory shopMenu;
 
     public MachineManager(JavaPlugin plugin) {
         context = this;
@@ -448,9 +448,5 @@ public class MachineManager implements Listener {
         itemStack = UtilNBT.set(itemStack, liters, "Liters");
         itemStack = UtilNBT.set(itemStack, boost, "Boost");
         return itemStack;
-    }
-
-    public static MachineManager getContext() {
-        return context;
     }
 }

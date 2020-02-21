@@ -4,6 +4,7 @@ import com.ellisiumx.elcore.ELCore;
 import com.ellisiumx.elcore.account.CoreClientManager;
 import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
+import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.preferences.PreferencesManager;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
@@ -13,7 +14,10 @@ import com.ellisiumx.elrankup.drop.command.DropsCommand;
 import com.ellisiumx.elrankup.drop.holder.DropsMenuHolder;
 import com.ellisiumx.elrankup.drop.repository.DropRepository;
 import com.ellisiumx.elrankup.economy.EconomyManager;
+import com.ellisiumx.elrankup.machine.Machine;
+import com.ellisiumx.elrankup.machine.MachineManager;
 import com.ellisiumx.elrankup.mine.MineData;
+import com.ellisiumx.elrankup.rankup.RankupManager;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -28,10 +32,13 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 public class DropManager implements Listener {
@@ -68,6 +75,71 @@ public class DropManager implements Listener {
         }
     }
 
+    public Inventory getUpgradeInventory(DropsMenuHolder holder) {
+        Inventory inventory = RankupConfiguration.DropUpgradeMenu.createMenu(holder);
+        for(int i = 0; i < inventory.getSize(); i++) {
+            ItemStack itemStack = inventory.getItem(i);
+            if(itemStack == null) continue;
+            if(itemStack.getType() == Material.STAINED_GLASS_PANE) continue;
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            if(itemMeta.getLore() != null) {
+                int level = 0;
+                double price = 0;
+                String command = UtilNBT.getString(itemStack, "MenuCommand");
+                if(command == null) continue;
+                if(command.equalsIgnoreCase("upgrade-efficiency")) {
+                    level = holder.item.getEnchantmentLevel(Enchantment.DIG_SPEED);
+                    price = (level + 1) * RankupConfiguration.EfficiencyUpgrade;
+                } else if(command.equalsIgnoreCase("upgrade-unbreaking")) {
+                    level = holder.item.getEnchantmentLevel(Enchantment.DURABILITY);
+                    price = (level + 1) * RankupConfiguration.UnbreakingUpgrade;
+                } else if(command.equalsIgnoreCase("upgrade-fortune")) {
+                    level = holder.item.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
+                    price = (level + 1) * RankupConfiguration.FortuneUpgrade;
+                } else if(command.equalsIgnoreCase("upgrade-silktouch")) {
+                    level = holder.item.getEnchantmentLevel(Enchantment.SILK_TOUCH);
+                    price = (level + 1) * RankupConfiguration.SilktouchUpgrade;
+                } else if(command.equalsIgnoreCase("upgrade-explosion")) {
+                    if (UtilNBT.contains(holder.item, "Explode")) {
+                        level = UtilNBT.getInt(holder.item, "Explode");
+                    }
+                    price = (level + 1) * RankupConfiguration.ExplosionUpgrade;
+                } else if(command.equalsIgnoreCase("upgrade-laser")) {
+                    if (UtilNBT.contains(holder.item, "Laser")) {
+                        level = UtilNBT.getInt(holder.item, "Laser");
+                    }
+                    price = (level + 1) * RankupConfiguration.LaserUpgrade;
+                } else if(command.equalsIgnoreCase("upgrade-nuke")) {
+                    if (UtilNBT.contains(holder.item, "Nuke")) {
+                        level = UtilNBT.getInt(holder.item, "Nuke");
+                    }
+                    price = (level + 1) * RankupConfiguration.NukeUpgrade;
+                } else if(command.equalsIgnoreCase("upgrade-weasel")) {
+                    if (UtilNBT.contains(holder.item, "Weasel")) {
+                        level = UtilNBT.getInt(holder.item, "Weasel");
+                    }
+                    price = (level + 1) * RankupConfiguration.WeaselUpgrade;
+                }
+                ArrayList<String> lore = new ArrayList<>();
+                for(String data : itemMeta.getLore()) {
+                    lore.add(parseUpgradeString(data, level, price));
+                }
+                itemMeta.setLore(lore);
+            }
+            itemStack.setItemMeta(itemMeta);
+            inventory.setItem(i, itemStack);
+
+        }
+        return inventory;
+    }
+
+    public String parseUpgradeString(String data, int currentLevel, double price) {
+        return data
+                .replace("%CurrentLevel%", String.valueOf(currentLevel))
+                .replace("%NextLevel%", String.valueOf(currentLevel + 1))
+                .replace("%Price%", String.valueOf(price));
+    }
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_AIR) return;
@@ -77,7 +149,7 @@ public class DropManager implements Listener {
         DropsMenuHolder holder = new DropsMenuHolder();
         holder.item = event.getItem();
         holder.upgradeMode = true;
-        event.getPlayer().openInventory(RankupConfiguration.DropUpgradeMenu.createMenu(holder));
+        event.getPlayer().openInventory(getUpgradeInventory(holder));
     }
 
     @EventHandler
@@ -274,14 +346,164 @@ public class DropManager implements Listener {
                 player.getInventory().addItem(itemStack);
                 holder.item = itemStack;
                 player.playSound(player.getLocation(), Sound.LEVEL_UP, 0.5f, 1f);
+                player.openInventory(getUpgradeInventory(holder));
             } else return;
         } else {
+            if (event.getCurrentItem() == null) return;
+            if (UtilNBT.contains(event.getCurrentItem(), "MenuItem")) {
+                String command = UtilNBT.getString(event.getCurrentItem(), "MenuCommand");
+                if (command == null) return;
+                int rankBoost = 0;
+                int groupBoost = 0;
+                int boostPercentage = 0;
+                if(CoreClientManager.get(player).getRank().has(Rank.VIP)) groupBoost = 10;
+                boostPercentage = rankBoost + groupBoost;
+                if (command.equalsIgnoreCase("sell-mobs")) {
 
+                } else if (command.equalsIgnoreCase("sell-ores")) {
+                    long dropsQuantity = get(player).getDrops();
+                    double sellPrice = dropsQuantity * RankupConfiguration.OresPrice;
+                    double boostPrice = sellPrice * (boostPercentage / 100.0d);
+                    EconomyResponse response = EconomyManager.economy.depositPlayer(player, sellPrice + boostPrice);
+                    if(response.transactionSuccess()) {
+                        PlayerDrops playerDrops = get(player);
+                        playerDrops.setDrops(0);
+                        if (!updateBuffer.contains(playerDrops)) {
+                            updateBuffer.push(playerDrops);
+                        }
+                    } else {
+                        player.closeInventory();
+                        player.sendMessage(
+                                LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropTransactionFailure")
+                                        .replace("%ErrorMessage%", response.errorMessage)
+                                        .replace('&', ChatColor.COLOR_CHAR)
+                        );
+                    }
+                } else if (command.equalsIgnoreCase("sell-drops")) {
+                    int dropsQuantity = 0;
+                    double sellPrice = 0;
+                    for(Machine machine : MachineManager.context.ownerMachines.get(CoreClientManager.get(player).getAccountId()).getMachines()) {
+                        dropsQuantity += machine.getDrops();
+                        sellPrice += machine.getDrops() * machine.getType().getDropPrice();
+                    }
+                    double boostPrice = sellPrice * (boostPercentage / 100.0d);
+                    EconomyResponse response = EconomyManager.economy.depositPlayer(player, sellPrice + boostPrice);
+                    if(response.transactionSuccess()) {
+                        Stack<Machine> buffer = new Stack<>();
+                        Date date = new Date();
+                        for(Machine machine : MachineManager.context.ownerMachines.get(CoreClientManager.get(player).getAccountId()).getMachines()) {
+                            machine.setDrops(0);
+                            Timestamp lastMenuOpen = machine.getLastMenuOpen();
+                            Timestamp newMenuOpen = new Timestamp(date.getTime());
+                            long menuOpenDiference = newMenuOpen.getTime() - lastMenuOpen.getTime();
+                            long diffSeconds = menuOpenDiference / 1000 % 60;
+                            int dropDelay = machine.getType().getLevels().get(machine.getLevel()).getDropDelay();
+                            int dropMultiplier = 0;
+                            int fuel = machine.getFuel();
+                            for (int i = 0; i < machine.getFuel(); i++) {
+                                long result = diffSeconds - dropDelay;
+                                if (result <= 0) break;
+                                else {
+                                    diffSeconds = result;
+                                    dropMultiplier++;
+                                    fuel--;
+                                }
+                            }
+                            machine.setFuel(fuel);
+                            machine.setDrops(machine.getDrops() + dropMultiplier * machine.getType().getLevels().get(machine.getLevel()).getDropQuantity());
+                            machine.setLastMenuOpen(newMenuOpen);
+                            buffer.add(machine);
+                        }
+                        Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
+                            MachineManager.context.repository.updateMachines(buffer);
+                        });
+                    } else {
+                        player.closeInventory();
+                        player.sendMessage(
+                                LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropTransactionFailure")
+                                        .replace("%ErrorMessage%", response.errorMessage)
+                                        .replace('&', ChatColor.COLOR_CHAR)
+                        );
+                    }
+                } else if (command.equalsIgnoreCase("sell-farms")) {
+
+                } else if (command.equalsIgnoreCase("sell-all")) {
+
+                } else if (command.equalsIgnoreCase("auto-sell")) {
+
+                }
+            }
         }
     }
 
     public void openDrops(Player player) {
-        player.openInventory(RankupConfiguration.DropsMenu.createMenu(new DropsMenuHolder()));
+        Inventory inventory = RankupConfiguration.DropsMenu.createMenu(new DropsMenuHolder());
+        int rankBoost = 0;
+        int groupBoost = 0;
+        int boostPercentage = 0;
+        if(CoreClientManager.get(player).getRank().has(Rank.VIP)) groupBoost = 10;
+        boostPercentage = rankBoost + groupBoost;
+        for(int i = 0; i < inventory.getSize(); i++) {
+            ItemStack itemStack = inventory.getItem(i);
+            if(itemStack == null) continue;
+            if(itemStack.getType() == Material.STAINED_GLASS_PANE) continue;
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            if(itemMeta.getLore() != null) {
+                String command = UtilNBT.getString(itemStack, "MenuCommand");
+                if(command == null) continue;
+                long dropsQuantity = 0;
+                double sellPrice = 0;
+                double boostPrice = 0;
+                if(command.equalsIgnoreCase("sell-mobs")) {
+                } else if(command.equalsIgnoreCase("sell-ores")) {
+                    dropsQuantity = get(player).getDrops();
+                    sellPrice = dropsQuantity * RankupConfiguration.OresPrice;
+                    boostPrice = sellPrice * (boostPercentage / 100.0d);
+                } else if(command.equalsIgnoreCase("sell-drops")) {
+                    for(Machine machine : MachineManager.context.ownerMachines.get(CoreClientManager.get(player).getAccountId()).getMachines()) {
+                        dropsQuantity += machine.getDrops();
+                        sellPrice += machine.getDrops() * machine.getType().getDropPrice();
+                    }
+                    boostPrice = sellPrice * (boostPercentage / 100.0d);
+                } else if(command.equalsIgnoreCase("sell-farms")) {
+                } else if(command.equalsIgnoreCase("sell-all")) {
+                    long oresDrops = get(player).getDrops();
+                    double oresSellPrice = dropsQuantity * RankupConfiguration.OresPrice;
+                    double oresBoostPrice = sellPrice * (boostPercentage / 100.0d);
+
+                    long machineDrops = 0;
+                    double machineSellPrice = 0;
+                    for(Machine machine : MachineManager.context.ownerMachines.get(CoreClientManager.get(player).getAccountId()).getMachines()) {
+                        machineDrops += machine.getDrops();
+                        machineSellPrice += machine.getDrops() * machine.getType().getDropPrice();
+                    }
+                    double machineBoostPrice = machineSellPrice * (boostPercentage / 100.0d);
+
+                    dropsQuantity = oresDrops + machineDrops;
+                    sellPrice = oresSellPrice + machineSellPrice;
+                    boostPrice = oresBoostPrice + machineBoostPrice;
+                }
+                ArrayList<String> lore = new ArrayList<>();
+                for(String data : itemMeta.getLore()) {
+                    lore.add(parseDropsString(data, dropsQuantity, sellPrice, boostPercentage, boostPrice, rankBoost, groupBoost));
+                }
+                itemMeta.setLore(lore);
+            }
+            itemStack.setItemMeta(itemMeta);
+            inventory.setItem(i, itemStack);
+
+        }
+        player.openInventory(inventory);
+    }
+
+    public String parseDropsString(String data, long dropsQuantity, double sellPrice, int boostPercentage, double boostPrice, int rankBoost, int groupBoost) {
+        return data
+                .replace("%DropsQuantity%", String.valueOf(dropsQuantity))
+                .replace("%BoostPercentage%", String.valueOf(boostPercentage))
+                .replace("%SellPrice%", String.valueOf(sellPrice))
+                .replace("%RankBoost%", String.valueOf(rankBoost))
+                .replace("%GroupBoost%", String.valueOf(groupBoost))
+                .replace("%BoostPrice%", String.valueOf(boostPrice));
     }
 
     public int a(Player p, Block block, Random random) {
@@ -378,7 +600,7 @@ public class DropManager implements Listener {
                 i = event.getPlayer().getItemInHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
             }
             int totalDrops;
-            if (random.nextDouble() < 0.1) {
+            if (random.nextDouble() < 0.01) {
                 totalDrops = customEnchantBreak(event.getPlayer(), event.getPlayer().getItemInHand(), event.getBlock(), i);
             } else {
                 totalDrops = normalBreak(event.getPlayer(), event.getBlock(), i);
@@ -459,12 +681,8 @@ public class DropManager implements Listener {
                 list.add(new Pair<>(CustomEnchantTypes.Nuke, UtilNBT.getInt(itemStack, "Nuke")));
             if (UtilNBT.contains(itemStack, "Weasel"))
                 list.add(new Pair<>(CustomEnchantTypes.Weasel, UtilNBT.getInt(itemStack, "Weasel")));
-            for (Pair<CustomEnchantTypes, Integer> data : list) {
-                Bukkit.broadcastMessage(data.getLeft().toString());
-            }
             if (list.size() <= 0) return normalBreak(player, block, lootBonus);
             Pair<CustomEnchantTypes, Integer> enchant = list.get(random.nextInt(list.size()));
-            Bukkit.broadcastMessage("> " + enchant.getLeft().toString());
             int dropCount = getDropCount(player, block, lootBonus);
             switch (enchant.getLeft()) {
                 case Explosion:

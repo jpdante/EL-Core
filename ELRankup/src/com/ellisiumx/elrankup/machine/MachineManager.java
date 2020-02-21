@@ -144,15 +144,15 @@ public class MachineManager implements Listener {
                 repository.updateMachine(holder.machine);
                 player.sendMessage(
                         LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineDropsSold")
-                                .replaceAll("%DropsAmount%", String.valueOf(drops))
-                                .replaceAll("%TotalPrice%", String.valueOf(response.amount))
-                                .replaceAll("%Balance%", String.valueOf(response.balance))
+                                .replace("%DropsAmount%", String.valueOf(drops))
+                                .replace("%TotalPrice%", String.valueOf(response.amount))
+                                .replace("%Balance%", String.valueOf(response.balance))
                                 .replace('&', ChatColor.COLOR_CHAR)
                 );
             } else {
                 player.sendMessage(
                         LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineTransactionFailure")
-                                .replaceAll("%ErrorMessage%", response.errorMessage)
+                                .replace("%ErrorMessage%", response.errorMessage)
                                 .replace('&', ChatColor.COLOR_CHAR)
                 );
             }
@@ -315,7 +315,7 @@ public class MachineManager implements Listener {
                 if (!EconomyManager.economy.has(player, price)) {
                     player.sendMessage(
                             LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "FuelNotEnoughMoney")
-                                    .replaceAll("%Cost%", String.valueOf(price))
+                                    .replace("%Cost%", String.valueOf(price))
                                     .replace('&', ChatColor.COLOR_CHAR)
                     );
                     return;
@@ -327,7 +327,7 @@ public class MachineManager implements Listener {
                 } else {
                     player.sendMessage(
                             LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineTransactionFailure")
-                                    .replaceAll("%ErrorMessage%", response.errorMessage)
+                                    .replace("%ErrorMessage%", response.errorMessage)
                                     .replace('&', ChatColor.COLOR_CHAR)
                     );
                     return;
@@ -349,7 +349,7 @@ public class MachineManager implements Listener {
         if (client.getRank().has(Rank.ALL) && ownerMachines.containsKey(client.getAccountId()) && ownerMachines.get(client.getAccountId()).getCountMachineType(machineType) >= 1) {
             player.sendMessage(
                     LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineLimitReached")
-                            .replaceAll("%MachineType%", machineType.getName())
+                            .replace("%MachineType%", machineType.getName())
                             .replace('&', ChatColor.COLOR_CHAR)
             );
             return;
@@ -359,8 +359,8 @@ public class MachineManager implements Listener {
             if (!EconomyManager.economy.has(player, price)) {
                 player.sendMessage(
                         LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineNotEnoughMoney")
-                                .replaceAll("%MachineType%", machineType.getName())
-                                .replaceAll("%Cost%", String.valueOf(price))
+                                .replace("%MachineType%", machineType.getName())
+                                .replace("%Cost%", String.valueOf(price))
                                 .replace('&', ChatColor.COLOR_CHAR)
                 );
                 return;
@@ -369,7 +369,7 @@ public class MachineManager implements Listener {
             if (!response.transactionSuccess()) {
                 player.sendMessage(
                         LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineTransactionFailure")
-                                .replaceAll("%ErrorMessage%", response.errorMessage)
+                                .replace("%ErrorMessage%", response.errorMessage)
                                 .replace('&', ChatColor.COLOR_CHAR)
                 );
                 return;
@@ -391,7 +391,7 @@ public class MachineManager implements Listener {
             }
             player.sendMessage(
                     LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineBought")
-                            .replaceAll("%MachineType%", machineType.getName())
+                            .replace("%MachineType%", machineType.getName())
                             .replace('&', ChatColor.COLOR_CHAR)
             );
         });
@@ -408,7 +408,7 @@ public class MachineManager implements Listener {
                 if (!EconomyManager.economy.has(player, price)) {
                     player.sendMessage(
                             LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "FuelNotEnoughMoney")
-                                    .replaceAll("%Cost%", String.valueOf(price))
+                                    .replace("%Cost%", String.valueOf(price))
                                     .replace('&', ChatColor.COLOR_CHAR)
                     );
                     return;
@@ -417,7 +417,7 @@ public class MachineManager implements Listener {
                 if (!response.transactionSuccess()) {
                     player.sendMessage(
                             LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineTransactionFailure")
-                                    .replaceAll("%ErrorMessage%", response.errorMessage)
+                                    .replace("%ErrorMessage%", response.errorMessage)
                                     .replace('&', ChatColor.COLOR_CHAR)
                     );
                     return;
@@ -435,11 +435,11 @@ public class MachineManager implements Listener {
         ItemStack itemStack = RankupConfiguration.Fuel.clone();
         itemStack.setAmount(amount);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(itemMeta.getDisplayName().replaceAll("%liters%", String.valueOf(liters)));
+        itemMeta.setDisplayName(itemMeta.getDisplayName().replace("%liters%", String.valueOf(liters)));
         if (itemMeta.getLore() != null) {
             ArrayList<String> lore = new ArrayList<>();
             for (String loreItem : itemMeta.getLore()) {
-                lore.add(loreItem.replaceAll("%liters%", String.valueOf(liters)).replaceAll("%boost%", String.valueOf(boost)));
+                lore.add(loreItem.replace("%liters%", String.valueOf(liters)).replace("%boost%", String.valueOf(boost)));
             }
             itemMeta.setLore(lore);
         }

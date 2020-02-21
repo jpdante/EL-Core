@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="ELRankup">
-    <output-path>X:/plugins</output-path>
+    <output-path>$USER_HOME$/Desktop/DevServer/plugins</output-path>
     <root id="archive" name="ELRankup.jar">
       <element id="module-output" name="ELRankup" />
     </root>

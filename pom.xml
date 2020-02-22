@@ -20,7 +20,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.3.1</version>
                 <configuration>
-                    <outputDirectory>C:\Users\jpdante\Desktop\DevServer\plugins</outputDirectory>
+                    <outputDirectory>C:\DevServer\plugins</outputDirectory>
                 </configuration>
             </plugin>
             <plugin>

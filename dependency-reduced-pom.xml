@@ -17,7 +17,7 @@
         <artifactId>maven-jar-plugin</artifactId>
         <version>2.3.1</version>
         <configuration>
-          <outputDirectory>C:\Users\jpdante\Desktop\DevServer\plugins</outputDirectory>
+          <outputDirectory>C:\DevServer\plugins</outputDirectory>
         </configuration>
       </plugin>
       <plugin>
@@ -68,7 +68,7 @@
       <artifactId>spigot</artifactId>
       <version>1.8.8</version>
       <scope>system</scope>
-      <systemPath>C:\Users\jpdante\Desktop\DevServer\spigot-1.8.8-R0.1-SNAPSHOT-latest.jar</systemPath>
+      <systemPath>C:\DevServer\spigot-1.8.8-R0.1-SNAPSHOT-latest.jar</systemPath>
     </dependency>
   </dependencies>
   <properties>

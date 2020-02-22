@@ -11,18 +11,18 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Desktop/DevServer/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar!/" />
+          <root url="jar://C:/DevServer/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/Desktop/DevServer/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar!/" />
+          <root url="jar://C:/DevServer/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Desktop/DevServer/plugins/Vault.jar!/" />
+          <root url="jar://C:/DevServer/plugins/Vault.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

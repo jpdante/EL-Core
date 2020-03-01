@@ -123,8 +123,10 @@ public final class UtilConvert {
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         if (itemEnchanted) itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
         itemStack.setItemMeta(itemMeta);
-        itemStack = UtilNBT.set(itemStack, "true", "MenuItem");
-        itemStack = UtilNBT.set(itemStack, command, "MenuCommand");
+        if(!command.equalsIgnoreCase("")) {
+            itemStack = UtilNBT.set(itemStack, "true", "MenuItem");
+            itemStack = UtilNBT.set(itemStack, command, "MenuCommand");
+        }
         return new Pair<>(slot, itemStack);
     }
 

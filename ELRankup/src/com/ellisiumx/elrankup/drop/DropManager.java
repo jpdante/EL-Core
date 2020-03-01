@@ -17,7 +17,6 @@ import com.ellisiumx.elrankup.economy.EconomyManager;
 import com.ellisiumx.elrankup.machine.Machine;
 import com.ellisiumx.elrankup.machine.MachineManager;
 import com.ellisiumx.elrankup.mine.MineData;
-import com.ellisiumx.elrankup.rankup.RankupManager;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -33,7 +32,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -60,6 +59,14 @@ public class DropManager implements Listener {
             // Errors
             languageDB.insertTranslation("DropNotEnoughMoney", "&cYou do not have enough money upgrade!");
             languageDB.insertTranslation("DropTransactionFailure", "&cFailed to transfer, please try again later. %ErrorMessage%");
+            languageDB.insertTranslation("ItemLoreEfficiency", "&bEfficiency&f: &a%Level%");
+            languageDB.insertTranslation("ItemLoreUnbreakable", "&bUnbreakable&f: &a%Level%");
+            languageDB.insertTranslation("ItemLoreFortune", "&bFortune&f: &a%Level%");
+            languageDB.insertTranslation("ItemLoreSilkTouch", "&bSilkTouch&f: &a%Level%");
+            languageDB.insertTranslation("ItemLoreExplosion", "&bExplosion&f: &a%Level% &8(Chance &7%Chance%%&8)");
+            languageDB.insertTranslation("ItemLoreLaser", "&bLaser&f: &a%Level% &8(Chance &7%Chance%%&8)");
+            languageDB.insertTranslation("ItemLoreNuke", "&bNuke&f: &a%Level% &8(Chance &7%Chance%%&8)");
+            languageDB.insertTranslation("ItemLoreWeasel", "&bWeasel&f: &a%Level% &8(Chance &7%Chance%%&8)");
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         new DropsCommand(plugin);
@@ -171,17 +178,18 @@ public class DropManager implements Listener {
         Player player = (Player) event.getWhoClicked();
         DropsMenuHolder holder = (DropsMenuHolder) event.getInventory().getHolder();
         if (holder.upgradeMode) {
-            player.getInventory().remove(holder.item);
-            ItemStack itemStack = holder.item;
-            ItemMeta itemMeta = itemStack.getItemMeta();
             if (event.getCurrentItem() == null) return;
             if (UtilNBT.contains(event.getCurrentItem(), "MenuItem")) {
+                player.getInventory().remove(holder.item);
+                ItemStack itemStack = holder.item;
                 String command = UtilNBT.getString(event.getCurrentItem(), "MenuCommand");
                 if (command == null) return;
                 if (command.equalsIgnoreCase("upgrade-efficiency")) {
+                    if(itemStack.getItemMeta().getEnchantLevel(Enchantment.DIG_SPEED) >= 50) return;
                     if (EconomyManager.economy.has(player, RankupConfiguration.EfficiencyUpgrade)) {
                         EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.EfficiencyUpgrade);
                         if (response.transactionSuccess()) {
+                            ItemMeta itemMeta = itemStack.getItemMeta();
                             int speed = itemMeta.getEnchantLevel(Enchantment.DIG_SPEED);
                             itemMeta.addEnchant(Enchantment.DIG_SPEED, speed + 1, true);
                             itemStack.setItemMeta(itemMeta);
@@ -198,9 +206,11 @@ public class DropManager implements Listener {
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-unbreaking")) {
+                    if(itemStack.getItemMeta().getEnchantLevel(Enchantment.DURABILITY) >= 50) return;
                     if (EconomyManager.economy.has(player, RankupConfiguration.UnbreakingUpgrade)) {
                         EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.UnbreakingUpgrade);
                         if (response.transactionSuccess()) {
+                            ItemMeta itemMeta = itemStack.getItemMeta();
                             int durability = itemMeta.getEnchantLevel(Enchantment.DURABILITY);
                             itemMeta.addEnchant(Enchantment.DURABILITY, durability + 1, true);
                             itemStack.setItemMeta(itemMeta);
@@ -217,9 +227,11 @@ public class DropManager implements Listener {
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-fortune")) {
+                    if(itemStack.getItemMeta().getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS) >= 50) return;
                     if (EconomyManager.economy.has(player, RankupConfiguration.FortuneUpgrade)) {
                         EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.FortuneUpgrade);
                         if (response.transactionSuccess()) {
+                            ItemMeta itemMeta = itemStack.getItemMeta();
                             int lootBonus = itemMeta.getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS);
                             itemMeta.addEnchant(Enchantment.LOOT_BONUS_BLOCKS, lootBonus + 1, true);
                             itemStack.setItemMeta(itemMeta);
@@ -236,9 +248,11 @@ public class DropManager implements Listener {
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-silktouch")) {
+                    if(itemStack.getItemMeta().getEnchantLevel(Enchantment.SILK_TOUCH) >= 1) return;
                     if (EconomyManager.economy.has(player, RankupConfiguration.SilktouchUpgrade)) {
                         EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.SilktouchUpgrade);
                         if (response.transactionSuccess()) {
+                            ItemMeta itemMeta = itemStack.getItemMeta();
                             itemMeta.addEnchant(Enchantment.SILK_TOUCH, 1, true);
                             itemStack.setItemMeta(itemMeta);
                         } else {
@@ -254,6 +268,7 @@ public class DropManager implements Listener {
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-explosion")) {
+                    if(UtilNBT.contains(itemStack, "Explode") && UtilNBT.getInt(itemStack, "Explode") >= 50) return;
                     if (EconomyManager.economy.has(player, RankupConfiguration.ExplosionUpgrade)) {
                         EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.ExplosionUpgrade);
                         if (response.transactionSuccess()) {
@@ -276,6 +291,7 @@ public class DropManager implements Listener {
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-laser")) {
+                    if(UtilNBT.contains(itemStack, "Laser") && UtilNBT.getInt(itemStack, "Laser") >= 50) return;
                     if (EconomyManager.economy.has(player, RankupConfiguration.LaserUpgrade)) {
                         EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.LaserUpgrade);
                         if (response.transactionSuccess()) {
@@ -298,6 +314,7 @@ public class DropManager implements Listener {
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-nuke")) {
+                    if(UtilNBT.contains(itemStack, "Nuke") && UtilNBT.getInt(itemStack, "Nuke") >= 50) return;
                     if (EconomyManager.economy.has(player, RankupConfiguration.NukeUpgrade)) {
                         EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.NukeUpgrade);
                         if (response.transactionSuccess()) {
@@ -320,6 +337,7 @@ public class DropManager implements Listener {
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 } else if (command.equalsIgnoreCase("upgrade-weasel")) {
+                    if(UtilNBT.contains(itemStack, "Weasel") && UtilNBT.getInt(itemStack, "Weasel") >= 50) return;
                     if (EconomyManager.economy.has(player, RankupConfiguration.WeaselUpgrade)) {
                         EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.WeaselUpgrade);
                         if (response.transactionSuccess()) {
@@ -343,6 +361,67 @@ public class DropManager implements Listener {
                     }
                 }
                 itemStack = UtilNBT.set(itemStack, 1, "CustomEnchanted");
+                ItemMeta itemMeta = itemStack.getItemMeta();
+                itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                List<String> lore = new ArrayList<>();
+                if(itemMeta.getEnchantLevel(Enchantment.DIG_SPEED) > 0) {
+                    lore.add(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ItemLoreEfficiency")
+                            .replace("%Level%", String.valueOf(itemMeta.getEnchantLevel(Enchantment.DIG_SPEED)))
+                            .replace('&', ChatColor.COLOR_CHAR)
+                    );
+                }
+                if(itemMeta.getEnchantLevel(Enchantment.DURABILITY) > 0) {
+                    lore.add(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ItemLoreUnbreakable")
+                            .replace("%Level%", String.valueOf(itemMeta.getEnchantLevel(Enchantment.DURABILITY)))
+                            .replace('&', ChatColor.COLOR_CHAR)
+                    );
+                }
+                if(itemMeta.getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS) > 0) {
+                    lore.add(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ItemLoreFortune")
+                            .replace("%Level%", String.valueOf(itemMeta.getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS)))
+                            .replace('&', ChatColor.COLOR_CHAR)
+                    );
+                }
+                if(itemMeta.getEnchantLevel(Enchantment.SILK_TOUCH) > 0) {
+                    lore.add(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ItemLoreSilkTouch")
+                            .replace("%Level%", String.valueOf(itemMeta.getEnchantLevel(Enchantment.SILK_TOUCH)))
+                            .replace('&', ChatColor.COLOR_CHAR)
+                    );
+                }
+                if(UtilNBT.contains(itemStack, "Explode")) {
+                    int value = UtilNBT.getInt(itemStack, "Explode");
+                    lore.add(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ItemLoreExplosion")
+                            .replace("%Level%", String.valueOf(value))
+                            .replace("%Chance%", String.valueOf(value * 3.0d / 50.0d))
+                            .replace('&', ChatColor.COLOR_CHAR)
+                    );
+                }
+                if(UtilNBT.contains(itemStack, "Laser")) {
+                    int value = UtilNBT.getInt(itemStack, "Laser");
+                    lore.add(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ItemLoreLaser")
+                            .replace("%Level%", String.valueOf(value))
+                            .replace("%Chance%", String.valueOf(value * 3.0d / 50.0d))
+                            .replace('&', ChatColor.COLOR_CHAR)
+                    );
+                }
+                if(UtilNBT.contains(itemStack, "Nuke")) {
+                    int value = UtilNBT.getInt(itemStack, "Nuke");
+                    lore.add(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ItemLoreNuke")
+                            .replace("%Level%", String.valueOf(value))
+                            .replace("%Chance%", String.valueOf(value * 3.0d / 50.0d))
+                            .replace('&', ChatColor.COLOR_CHAR)
+                    );
+                }
+                if(UtilNBT.contains(itemStack, "Weasel")) {
+                    int value = UtilNBT.getInt(itemStack, "Weasel");
+                    lore.add(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ItemLoreWeasel")
+                            .replace("%Level%", String.valueOf(value))
+                            .replace("%Chance%", String.valueOf(value * 3.0d / 50.0d))
+                            .replace('&', ChatColor.COLOR_CHAR)
+                    );
+                }
+                itemMeta.setLore(lore);
+                itemStack.setItemMeta(itemMeta);
                 player.getInventory().addItem(itemStack);
                 holder.item = itemStack;
                 player.playSound(player.getLocation(), Sound.LEVEL_UP, 0.5f, 1f);
@@ -371,6 +450,7 @@ public class DropManager implements Listener {
                         if (!updateBuffer.contains(playerDrops)) {
                             updateBuffer.push(playerDrops);
                         }
+                        player.closeInventory();
                     } else {
                         player.closeInventory();
                         player.sendMessage(
@@ -417,6 +497,7 @@ public class DropManager implements Listener {
                         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
                             MachineManager.context.repository.updateMachines(buffer);
                         });
+                        player.closeInventory();
                     } else {
                         player.closeInventory();
                         player.sendMessage(
@@ -760,22 +841,12 @@ public class DropManager implements Listener {
         totalDrops += dropCount;
         block.setType(Material.AIR);
         block.getDrops().clear();
-        if (random.nextBoolean()) {
-            for (int x = -50; x <= 50; x++) {
-                Block b = loc.getWorld().getBlockAt(loc.getBlockX() + x, loc.getBlockY() - 1, loc.getBlockZ());
-                if (b.getType() != type) continue;
-                totalDrops += dropCount;
-                b.setType(Material.AIR);
-                b.getDrops().clear();
-            }
-        } else {
-            for (int z = -50; z <= 50; z++) {
-                Block b = loc.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY() - 1, loc.getBlockZ() + z);
-                if (b.getType() != type) continue;
-                totalDrops += dropCount;
-                b.setType(Material.AIR);
-                b.getDrops().clear();
-            }
+        for (int y = -50; y <= 50; y++) {
+            Block b = loc.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY() + y, loc.getBlockZ());
+            if (b.getType() != type) continue;
+            totalDrops += dropCount;
+            b.setType(Material.AIR);
+            b.getDrops().clear();
         }
         player.playSound(player.getLocation(), Sound.EXPLODE, 0.3f, 0.6f);
         return totalDrops;

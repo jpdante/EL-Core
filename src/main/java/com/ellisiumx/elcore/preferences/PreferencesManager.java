@@ -1,8 +1,8 @@
 package com.ellisiumx.elcore.preferences;
 
 import com.ellisiumx.elcore.ELCore;
-import com.ellisiumx.elcore.account.ClientCache;
 import com.ellisiumx.elcore.account.CoreClientManager;
+import com.ellisiumx.elcore.preferences.repository.PreferencesRepository;
 import com.ellisiumx.elcore.redis.DataRepository;
 import com.ellisiumx.elcore.redis.RedisDataRepository;
 import com.ellisiumx.elcore.redis.RedisManager;
@@ -18,7 +18,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Stack;
 
 public class PreferencesManager implements Listener {

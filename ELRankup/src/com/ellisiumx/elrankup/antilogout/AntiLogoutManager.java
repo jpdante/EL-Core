@@ -22,7 +22,7 @@ import java.util.HashMap;
 public class AntiLogoutManager implements Listener {
 
     public static AntiLogoutManager context;
-    private final HashMap<String, Integer> combatDelays;
+    private final HashMap<String, PlayerCombat> combatDelays;
 
     public AntiLogoutManager(JavaPlugin plugin) {
         context = this;
@@ -47,30 +47,32 @@ public class AntiLogoutManager implements Listener {
         }
     }
 
+    public PlayerCombat get(Player player) { return get(player.getName()); }
+
+    public PlayerCombat get(String playerName) {
+        synchronized (combatDelays) {
+            return combatDelays.get(playerName);
+        }
+    }
+
     @EventHandler
     public void onTimerElapsed(UpdateEvent event) {
         if (event.getType() == UpdateType.SEC) {
             synchronized (combatDelays) {
                 for (String key : combatDelays.keySet()) {
-                    int delay = combatDelays.get(key);
-                    if (combatDelays.get(key) <= 20) {
-                        Player player = UtilPlayer.searchExact(key);
-                        if (player == null) {
-                            combatDelays.remove(key);
-                            continue;
-                        }
+                    PlayerCombat playerCombat = get(key);
+                    if (playerCombat.getDelay() <= 20) {
                         UtilTextBottom.display(
-                                LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "AntiLogoutBottomText")
-                                        .replaceAll("%Delay%", String.valueOf(delay))
+                                LanguageManager.getTranslation(PreferencesManager.get(playerCombat.getPlayer()).getLanguage(), "AntiLogoutBottomText")
+                                        .replaceAll("%Delay%", String.valueOf(playerCombat.getDelay()))
                                         .replace('&', ChatColor.COLOR_CHAR),
-                                player
+                                playerCombat.getPlayer()
                         );
-                        if (combatDelays.get(key) <= 0) {
-                            combatDelays.remove(key);
-                            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "AntiLogoutExitCombat").replace('&', ChatColor.COLOR_CHAR));
-                        }
                     }
-                    combatDelays.replace(key, combatDelays.get(key) - 1);
+                    if (playerCombat.reduceTimeout()) {
+                        combatDelays.remove(key);
+                        playerCombat.getPlayer().sendMessage(LanguageManager.getTranslation(PreferencesManager.get(playerCombat.getPlayer()).getLanguage(), "AntiLogoutExitCombat").replace('&', ChatColor.COLOR_CHAR));
+                    }
                 }
             }
         }
@@ -104,17 +106,17 @@ public class AntiLogoutManager implements Listener {
         if(!(event.getEntity() instanceof Player) || !(event.getDamager() instanceof Player)) return;
         // Victim
         if (!combatDelays.containsKey(event.getEntity().getName())) {
-            combatDelays.put(event.getEntity().getName(), 30);
+            combatDelays.put(event.getEntity().getName(), new PlayerCombat((Player) event.getEntity(), 30));
             LanguageManager.getTranslation(PreferencesManager.get((Player) event.getEntity()).getLanguage(), "AntiLogoutEnterCombat").replace('&', ChatColor.COLOR_CHAR);
         } else {
-            combatDelays.replace(event.getEntity().getName(), 30);
+            get(event.getEntity().getName()).setDelay(30);
         }
         // Damager
         if (!combatDelays.containsKey(event.getDamager().getName())) {
-            combatDelays.put(event.getDamager().getName(), 30);
+            combatDelays.put(event.getEntity().getName(), new PlayerCombat((Player) event.getDamager(), 30));
             LanguageManager.getTranslation(PreferencesManager.get((Player) event.getDamager()).getLanguage(), "AntiLogoutEnterCombat").replace('&', ChatColor.COLOR_CHAR);
         } else {
-            combatDelays.replace(event.getDamager().getName(), 30);
+            get(event.getDamager().getName()).setDelay(30);
         }
     }
 

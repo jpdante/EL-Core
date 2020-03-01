@@ -16,6 +16,7 @@ import com.ellisiumx.elrankup.drop.repository.DropRepository;
 import com.ellisiumx.elrankup.economy.EconomyManager;
 import com.ellisiumx.elrankup.machine.Machine;
 import com.ellisiumx.elrankup.machine.MachineManager;
+import com.ellisiumx.elrankup.machine.MachineOwner;
 import com.ellisiumx.elrankup.mine.MineData;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.*;
@@ -180,7 +181,6 @@ public class DropManager implements Listener {
         if (holder.upgradeMode) {
             if (event.getCurrentItem() == null) return;
             if (UtilNBT.contains(event.getCurrentItem(), "MenuItem")) {
-                player.getInventory().remove(holder.item);
                 ItemStack itemStack = holder.item;
                 String command = UtilNBT.getString(event.getCurrentItem(), "MenuCommand");
                 if (command == null) return;
@@ -360,6 +360,7 @@ public class DropManager implements Listener {
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
                     }
                 }
+                player.getInventory().remove(holder.item);
                 itemStack = UtilNBT.set(itemStack, 1, "CustomEnchanted");
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -541,11 +542,14 @@ public class DropManager implements Listener {
                     sellPrice = dropsQuantity * RankupConfiguration.OresPrice;
                     boostPrice = sellPrice * (boostPercentage / 100.0d);
                 } else if(command.equalsIgnoreCase("sell-drops")) {
-                    for(Machine machine : MachineManager.context.ownerMachines.get(CoreClientManager.get(player).getAccountId()).getMachines()) {
-                        dropsQuantity += machine.getDrops();
-                        sellPrice += machine.getDrops() * machine.getType().getDropPrice();
+                    MachineOwner machineOwner = MachineManager.context.ownerMachines.get(CoreClientManager.get(player).getAccountId());
+                    if(machineOwner != null) {
+                        for(Machine machine : machineOwner.getMachines()) {
+                            dropsQuantity += machine.getDrops();
+                            sellPrice += machine.getDrops() * machine.getType().getDropPrice();
+                        }
+                        boostPrice = sellPrice * (boostPercentage / 100.0d);
                     }
-                    boostPrice = sellPrice * (boostPercentage / 100.0d);
                 } else if(command.equalsIgnoreCase("sell-farms")) {
                 } else if(command.equalsIgnoreCase("sell-all")) {
                     long oresDrops = get(player).getDrops();
@@ -554,11 +558,15 @@ public class DropManager implements Listener {
 
                     long machineDrops = 0;
                     double machineSellPrice = 0;
-                    for(Machine machine : MachineManager.context.ownerMachines.get(CoreClientManager.get(player).getAccountId()).getMachines()) {
-                        machineDrops += machine.getDrops();
-                        machineSellPrice += machine.getDrops() * machine.getType().getDropPrice();
+                    double machineBoostPrice = 0;
+                    MachineOwner machineOwner = MachineManager.context.ownerMachines.get(CoreClientManager.get(player).getAccountId());
+                    if(machineOwner != null) {
+                        for (Machine machine : machineOwner.getMachines()) {
+                            machineDrops += machine.getDrops();
+                            machineSellPrice += machine.getDrops() * machine.getType().getDropPrice();
+                        }
+                        machineBoostPrice = machineSellPrice * (boostPercentage / 100.0d);
                     }
-                    double machineBoostPrice = machineSellPrice * (boostPercentage / 100.0d);
 
                     dropsQuantity = oresDrops + machineDrops;
                     sellPrice = oresSellPrice + machineSellPrice;

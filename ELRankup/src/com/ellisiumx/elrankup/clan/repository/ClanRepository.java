@@ -59,7 +59,7 @@ public class ClanRepository extends RepositoryBase {
         ArrayList<String> members = new ArrayList<>();
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT name FROM clanPlayers WHERE clan = ?;");
+                PreparedStatement statement = connection.prepareStatement("SELECT name FROM clan_players WHERE clan = ?;");
         ) {
             statement.setInt(1, clanId);
             try(ResultSet resultSet = statement.executeQuery()) {
@@ -77,7 +77,7 @@ public class ClanRepository extends RepositoryBase {
         Date date = new Date();
         ClanPlayer player = null;
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO clanPlayers (accountId, name, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate, isClanMod, rank) VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, false, NULL);")) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO clan_players (accountId, name, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate, isClanMod, rank) VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, false, NULL);")) {
                 statement.setInt(1, accountId);
                 statement.setString(2, name);
                 statement.setBoolean(3, false);
@@ -89,7 +89,7 @@ public class ClanRepository extends RepositoryBase {
                 statement.setTimestamp(9, new Timestamp(date.getTime()));
                 statement.executeUpdate();
             }
-            try (PreparedStatement statement = connection.prepareStatement("SELECT id, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate, isClanMod, rank FROM clanPlayers WHERE accountId = ? LIMIT 1;")) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT id, clan, friendlyFire, neutralKills, rivalKills, civilianKills, deaths, lastSeen, joinDate, isClanMod, rank FROM clan_players WHERE accountId = ? LIMIT 1;")) {
                 statement.setInt(1, accountId);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while(resultSet.next()) {
@@ -124,7 +124,7 @@ public class ClanRepository extends RepositoryBase {
     public void updateClanPlayers(Stack<ClanPlayer> clanPlayers) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("UPDATE clanPlayers SET clan = ?, friendlyFire = ?, neutralKills = ?, rivalKills = ?, civilianKills = ?, deaths = ?, lastSeen = ?, joinDate = ?, isClanMod = ?, rank = ? WHERE id = ?;");
+                PreparedStatement statement = connection.prepareStatement("UPDATE clan_players SET clan = ?, friendlyFire = ?, neutralKills = ?, rivalKills = ?, civilianKills = ?, deaths = ?, lastSeen = ?, joinDate = ?, isClanMod = ?, rank = ? WHERE id = ?;");
         ) {
             while (!clanPlayers.isEmpty()) {
                 ClanPlayer clanPlayer = clanPlayers.pop();
@@ -151,7 +151,7 @@ public class ClanRepository extends RepositoryBase {
     public void setClanNullForMembers(ArrayList<String> members) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("UPDATE clanPlayers SET clan = NULL WHERE name = ?;");
+                PreparedStatement statement = connection.prepareStatement("UPDATE clan_players SET clan = NULL WHERE name = ?;");
         ) {
             for(String member : members) {
                 statement.setString(1, member);

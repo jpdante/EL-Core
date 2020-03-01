@@ -1,7 +1,8 @@
-package com.ellisiumx.elcore.preferences;
+package com.ellisiumx.elcore.preferences.repository;
 
 import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elcore.database.RepositoryBase;
+import com.ellisiumx.elcore.preferences.UserPreferences;
 import com.ellisiumx.elcore.utils.UtilGson;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -29,7 +30,7 @@ public class PreferencesRepository extends RepositoryBase {
     public void saveUserPreferences(Stack<UserPreferences> buffer) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO accountPreferences (accountId, preferences) VALUES (?, ?) ON DUPLICATE KEY UPDATE preferences = ?;");
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO account_preferences (accountId, preferences) VALUES (?, ?) ON DUPLICATE KEY UPDATE preferences = ?;");
         ){
             while (!buffer.empty()) {
                 UserPreferences preferences = buffer.pop();
@@ -49,7 +50,7 @@ public class PreferencesRepository extends RepositoryBase {
         UserPreferences userPreferences = null;
         try (
                 Connection connection = getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("SELECT preferences FROM accountPreferences WHERE uuid = ? LIMIT 1;");
+                PreparedStatement preparedStatement = connection.prepareStatement("SELECT preferences FROM account_preferences WHERE uuid = ? LIMIT 1;");
         ){
             preparedStatement.setString(1, uuid);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {

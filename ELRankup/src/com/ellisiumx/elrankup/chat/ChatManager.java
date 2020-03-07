@@ -7,6 +7,8 @@ import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.preferences.PreferencesManager;
 import com.ellisiumx.elcore.utils.UtilPlayer;
 import com.ellisiumx.elrankup.chat.command.ChangeChannelCommand;
+import com.ellisiumx.elrankup.chat.command.SetGlobalCommand;
+import com.ellisiumx.elrankup.chat.command.SetLocalCommand;
 import com.ellisiumx.elrankup.chat.command.TellCommand;
 import com.ellisiumx.elrankup.clan.ClanManager;
 import com.ellisiumx.elrankup.clan.ClanPlayer;
@@ -45,6 +47,8 @@ public class ChatManager implements Listener {
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         new ChangeChannelCommand(plugin);
+        new SetGlobalCommand(plugin);
+        new SetLocalCommand(plugin);
         new TellCommand(plugin);
     }
 

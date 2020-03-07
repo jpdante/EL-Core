@@ -18,6 +18,7 @@ import com.ellisiumx.elrankup.machine.Machine;
 import com.ellisiumx.elrankup.machine.MachineManager;
 import com.ellisiumx.elrankup.machine.MachineOwner;
 import com.ellisiumx.elrankup.mine.MineData;
+import com.ellisiumx.elrankup.rankup.RankupManager;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -442,7 +443,7 @@ public class DropManager implements Listener {
 
                 } else if (command.equalsIgnoreCase("sell-ores")) {
                     long dropsQuantity = get(player).getDrops();
-                    double sellPrice = dropsQuantity * RankupConfiguration.OresPrice;
+                    double sellPrice = dropsQuantity * RankupManager.get(player).oresPrice;
                     double boostPrice = sellPrice * (boostPercentage / 100.0d);
                     EconomyResponse response = EconomyManager.economy.depositPlayer(player, sellPrice + boostPrice);
                     if(response.transactionSuccess()) {
@@ -539,7 +540,7 @@ public class DropManager implements Listener {
                 if(command.equalsIgnoreCase("sell-mobs")) {
                 } else if(command.equalsIgnoreCase("sell-ores")) {
                     dropsQuantity = get(player).getDrops();
-                    sellPrice = dropsQuantity * RankupConfiguration.OresPrice;
+                    sellPrice = dropsQuantity * RankupManager.get(player).oresPrice;
                     boostPrice = sellPrice * (boostPercentage / 100.0d);
                 } else if(command.equalsIgnoreCase("sell-drops")) {
                     MachineOwner machineOwner = MachineManager.context.ownerMachines.get(CoreClientManager.get(player).getAccountId());
@@ -553,7 +554,7 @@ public class DropManager implements Listener {
                 } else if(command.equalsIgnoreCase("sell-farms")) {
                 } else if(command.equalsIgnoreCase("sell-all")) {
                     long oresDrops = get(player).getDrops();
-                    double oresSellPrice = dropsQuantity * RankupConfiguration.OresPrice;
+                    double oresSellPrice = dropsQuantity * RankupManager.get(player).oresPrice;
                     double oresBoostPrice = sellPrice * (boostPercentage / 100.0d);
 
                     long machineDrops = 0;

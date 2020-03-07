@@ -44,7 +44,6 @@ com\ellisiumx\elcore\utils\UtilTime.class
 com\ellisiumx\elcore\database\DBPool.class
 com\ellisiumx\elcore\utils\UtilPlayer$Vector3D.class
 com\ellisiumx\elcore\permissions\Rank.class
-com\ellisiumx\elcore\preferences\PreferencesRepository.class
 com\ellisiumx\elcore\utils\UtilParticle$ViewDist.class
 com\ellisiumx\elcore\account\repository\AccountRepository.class
 com\ellisiumx\elcore\account\CoreClient.class

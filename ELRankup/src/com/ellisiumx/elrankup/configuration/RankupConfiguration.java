@@ -77,7 +77,6 @@ public class RankupConfiguration {
     public static double LaserUpgrade;
     public static double NukeUpgrade;
     public static double WeaselUpgrade;
-    public static double OresPrice;
     public static double FarmsPrice;
 
     public RankupConfiguration() {
@@ -139,8 +138,9 @@ public class RankupConfiguration {
             String rankDisplayName = config.getString("rankup.ranks." + key + ".display-name");
             String color = config.getString("rankup.ranks." + key + ".color");
             double cost = config.getDouble("rankup.ranks." + key + ".cost");
+            double ores = config.getDouble("rankup.ranks." + key + ".ores");
             boolean canLevelUp = config.getBoolean("rankup.ranks." + key + ".can-level-up");
-            Ranks.add(new RankLevel(rankName, rankDisplayName, color, cost, canLevelUp));
+            Ranks.add(new RankLevel(rankName, rankDisplayName, color, cost, ores, canLevelUp));
         }
 
         CrateTypes = new ArrayList<>();
@@ -229,7 +229,6 @@ public class RankupConfiguration {
         LaserUpgrade = config.getDouble("drops.price.laser-upgrade");
         NukeUpgrade = config.getDouble("drops.price.nuke-upgrade");
         WeaselUpgrade = config.getDouble("drops.price.weasel-upgrade");
-        OresPrice = config.getDouble("drops.price.ores");
     }
 
     public static void save() {

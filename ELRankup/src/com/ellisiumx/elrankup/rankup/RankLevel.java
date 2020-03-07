@@ -7,12 +7,14 @@ public class RankLevel {
     public String color;
     public boolean canLevelUp;
     public double cost;
+    public double oresPrice;
 
-    public RankLevel(String name, String tag, String color, double cost, boolean canLevelUp) {
+    public RankLevel(String name, String tag, String color, double cost, double oresPrice, boolean canLevelUp) {
         this.name = name;
         this.tag = tag;
         this.color = color;
         this.cost = cost;
+        this.oresPrice = oresPrice;
         this.canLevelUp = canLevelUp;
     }
 

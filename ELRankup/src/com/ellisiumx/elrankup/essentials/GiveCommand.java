@@ -94,7 +94,7 @@ public class GiveCommand extends CommandBase {
     }
 
     public Material getMaterial(String s) {
-        String materialRaw = s.split(":", 2)[0];
+        String materialRaw = s.toUpperCase().split(":", 2)[0];
         try {
             int id = Integer.parseInt(materialRaw);
             return Material.getMaterial(id);

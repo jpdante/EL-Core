@@ -257,12 +257,12 @@ public class ClanManager implements Listener {
             player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansIntUnderflow").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
-        if (ClanManager.context.clans.size() - (index * 10) == -10) {
+        if (ClanManager.context.clans.size() - (index * 10) <= -8) {
             player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansIntOverflow").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansListTitle")
-                .replaceAll("%PageNumber%", String.valueOf(index))
+                .replaceAll("%PageNumber%", String.valueOf(index + 1))
                 .replace('&', ChatColor.COLOR_CHAR)
         );
         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ClansListRowTitle").replace('&', ChatColor.COLOR_CHAR));
@@ -565,7 +565,7 @@ public class ClanManager implements Listener {
         if (clanPlayer.clan.leader != CoreClientManager.get(caller).getAccountId() && !clanPlayer.isClanMod) {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoPermission").replace('&', ChatColor.COLOR_CHAR));
         }
-        clanAllieInvites.put(clan.id, new ClanAllieInvite(clanPlayer.clan, clan, 5));
+        clanAllieInvites.put(clan.id, new ClanAllieInvite(clanPlayer.clan, clan, RankupConfiguration.ClanInviteExpiration));
         for (String member : clan.members) {
             Player player = UtilPlayer.searchExact(member);
             if(player == null) continue;
@@ -650,7 +650,7 @@ public class ClanManager implements Listener {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansParticipationError").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
-        if (!clanAllieInvites.containsKey(clanPlayer.id)) {
+        if (!clanAllieInvites.containsKey(clanPlayer.clan.id)) {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoInvite").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
@@ -690,7 +690,7 @@ public class ClanManager implements Listener {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansParticipationError").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
-        if (!clanAllieInvites.containsKey(clanPlayer.id)) {
+        if (!clanAllieInvites.containsKey(clanPlayer.clan.id)) {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "ClansNoInvite").replace('&', ChatColor.COLOR_CHAR));
             return;
         }

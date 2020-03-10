@@ -4,12 +4,14 @@ import com.ellisiumx.elcore.ELCore;
 import com.ellisiumx.elcore.account.CoreClientManager;
 import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
+import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.preferences.PreferencesManager;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elcore.utils.*;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.kit.command.KitCommand;
+import com.ellisiumx.elrankup.kit.command.KitsCommand;
 import com.ellisiumx.elrankup.kit.holder.KitMenuHolder;
 import com.ellisiumx.elrankup.kit.repository.KitRepository;
 import org.bukkit.Bukkit;
@@ -46,9 +48,11 @@ public class KitManager implements Listener {
             languageDB.insertTranslation("KitNoSpace", "&f[&aKits&f] &cYou don't have enough space to get the kit!");
             languageDB.insertTranslation("KitNoRank", "&f[&aKits&f] &cYou do not have the necessary rank to open this kit!");
             languageDB.insertTranslation("KitWaitDelay", "&f[&aKits&f] &cYou need to wait to be able to get this kit again!");
+            languageDB.insertTranslation("KitsMessage", "&f[&aKits&f] &6Kits: &f%kits%");
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         new KitCommand(plugin);
+        new KitsCommand(plugin);
     }
 
     public static PlayerKit get(Player player) { return get(player.getName()); }
@@ -107,7 +111,18 @@ public class KitManager implements Listener {
     }
 
     public void openKits(Player player) {
-
+        StringBuilder message = new StringBuilder();
+        Rank playerRank = CoreClientManager.get(player).getRank();
+        for(Map.Entry<String, Kit> kits : RankupConfiguration.Kits.entrySet()) {
+            if(playerRank.has(kits.getValue().getRank())) {
+                message.append(kits.getValue().getKey()).append(", ");
+            }
+        }
+        player.sendMessage(
+                LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "KitsMessage")
+                        .replaceAll("%kits%", message.toString())
+                        .replace('&', ChatColor.COLOR_CHAR)
+        );
     }
 
     public void openKit(Player player, String kitName) {

@@ -455,7 +455,7 @@ public class DropManager implements Listener {
                     int value = UtilNBT.getInt(itemStack, "Laser");
                     lore.add(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ItemLoreLaser")
                             .replace("%Level%", String.valueOf(value))
-                            .replace("%Chance%", String.valueOf(value * 3.0d / 50.0d))
+                            .replace("%Chance%", String.valueOf(value * 1.0d / 50.0d))
                             .replace('&', ChatColor.COLOR_CHAR)
                     );
                 }
@@ -463,7 +463,7 @@ public class DropManager implements Listener {
                     int value = UtilNBT.getInt(itemStack, "Nuke");
                     lore.add(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ItemLoreNuke")
                             .replace("%Level%", String.valueOf(value))
-                            .replace("%Chance%", String.valueOf(value * 3.0d / 50.0d))
+                            .replace("%Chance%", String.valueOf(value * 0.0001d / 50.0d))
                             .replace('&', ChatColor.COLOR_CHAR)
                     );
                 }
@@ -471,7 +471,7 @@ public class DropManager implements Listener {
                     int value = UtilNBT.getInt(itemStack, "Weasel");
                     lore.add(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "ItemLoreWeasel")
                             .replace("%Level%", String.valueOf(value))
-                            .replace("%Chance%", String.valueOf(value * 3.0d / 50.0d))
+                            .replace("%Chance%", String.valueOf(value * 1.0d / 50.0d))
                             .replace('&', ChatColor.COLOR_CHAR)
                     );
                 }

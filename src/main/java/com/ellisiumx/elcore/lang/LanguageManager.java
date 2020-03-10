@@ -33,7 +33,7 @@ public class LanguageManager {
             BufferedWriter writer = null;
             try {
                 writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Paths.get(ELCore.getContext().getDataFolder().getPath(), languageDB.getFilename()).toString(), false), StandardCharsets.UTF_8));
-                writer.write(UtilGson.serialize(languageDB));
+                writer.write(UtilGson.serialize(languageDB, true));
                 writer.flush();
                 saved = true;
             } catch (Exception e) {

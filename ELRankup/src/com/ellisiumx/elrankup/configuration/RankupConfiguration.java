@@ -212,7 +212,7 @@ public class RankupConfiguration {
         for (String key : config.getConfigurationSection("warp.warps").getKeys(false)) {
             Location location = UtilConvert.getLocationFromString(config.getString("warp.warps." + key + ".location"));
             Rank rank = Rank.valueOf(config.getString("warp.warps." + key + ".rank"));
-            Warps.put(key, new Warp(location, rank));
+            Warps.put(key.toLowerCase(), new Warp(key, location, rank));
         }
 
         SpawnLocation = UtilConvert.getLocationFromString(config.getString("spawn"));

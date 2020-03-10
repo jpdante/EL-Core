@@ -32,7 +32,7 @@ public class WarpsCommand extends CommandBase {
         Rank playerRank = CoreClientManager.get(caller).getRank();
         for(Map.Entry<String, Warp> warp : RankupConfiguration.Warps.entrySet()) {
             if(playerRank.has(warp.getValue().getRank())) {
-                message.append(warp.getKey()).append(", ");
+                message.append(warp.getValue().getName()).append(", ");
             }
         }
         caller.sendMessage(

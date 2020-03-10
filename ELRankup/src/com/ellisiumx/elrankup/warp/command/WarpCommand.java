@@ -27,7 +27,7 @@ public class WarpCommand extends CommandBase {
         if(args == null || args.length == 0) {
             ShowCommands(caller);
         } else if (args.length == 1) {
-            WarpManager.context.warpPlayer(caller, args[0]);
+            WarpManager.context.warpPlayer(caller, args[0].toLowerCase());
         } else if (args.length == 2 && CoreClientManager.get(caller).getRank().has(Rank.DEVELOPER)) {
             if(args[0].equalsIgnoreCase("del")) {
                 WarpManager.context.deleteWarp(caller, args[1]);

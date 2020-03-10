@@ -13,7 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class ClearInventoryCommand extends CommandBase {
 
     public ClearInventoryCommand(JavaPlugin plugin) {
-        super(plugin, Rank.HELPER, "clearinventory", "clearinv", "ci");
+        super(plugin, Rank.HELPER, "clearinventory", "clearinv", "ci", "clear");
         this.setCommandCenter(CommandCenter.context);
         CommandCenter.addCommand(this);
     }

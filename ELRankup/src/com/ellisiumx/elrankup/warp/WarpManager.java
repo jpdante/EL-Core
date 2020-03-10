@@ -62,11 +62,11 @@ public class WarpManager implements Listener {
             player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "AlreadyWarping").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
-        if (!RankupConfiguration.Warps.containsKey(warp)) {
+        if (!RankupConfiguration.Warps.containsKey(warp.toLowerCase())) {
             player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "WarpDontExist").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
-        Warp warpLocation = RankupConfiguration.Warps.get(warp);
+        Warp warpLocation = RankupConfiguration.Warps.get(warp.toLowerCase());
         Rank playerRank = CoreClientManager.get(player).getRank();
         if (!playerRank.has(warpLocation.getRank())) {
             player.sendMessage(
@@ -114,7 +114,7 @@ public class WarpManager implements Listener {
 
     public void setWarp(Player player, String warp, Rank rank) {
         RankupConfiguration.Warps.remove(warp);
-        RankupConfiguration.Warps.put(warp, new Warp(player.getLocation(), rank));
+        RankupConfiguration.Warps.put(warp, new Warp(warp, player.getLocation(), rank));
         RankupConfiguration.save();
         player.sendMessage(UtilMessage.main("Warp", UtilChat.cGreen + "Warp '" + warp + "' set!"));
     }

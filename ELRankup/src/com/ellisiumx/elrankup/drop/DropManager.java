@@ -98,36 +98,36 @@ public class DropManager implements Listener {
                 if(command == null) continue;
                 if(command.equalsIgnoreCase("upgrade-efficiency")) {
                     level = holder.item.getEnchantmentLevel(Enchantment.DIG_SPEED);
-                    price = (level + 1) * RankupConfiguration.EfficiencyUpgrade;
+                    price = (int)(RankupConfiguration.EfficiencyUpgrade * getMultiplier(level));
                 } else if(command.equalsIgnoreCase("upgrade-unbreaking")) {
                     level = holder.item.getEnchantmentLevel(Enchantment.DURABILITY);
-                    price = (level + 1) * RankupConfiguration.UnbreakingUpgrade;
+                    price = (int)(RankupConfiguration.UnbreakingUpgrade * getMultiplier(level));
                 } else if(command.equalsIgnoreCase("upgrade-fortune")) {
                     level = holder.item.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
-                    price = (level + 1) * RankupConfiguration.FortuneUpgrade;
+                    price = (int)(RankupConfiguration.FortuneUpgrade * getMultiplier(level));
                 } else if(command.equalsIgnoreCase("upgrade-silktouch")) {
                     level = holder.item.getEnchantmentLevel(Enchantment.SILK_TOUCH);
-                    price = (level + 1) * RankupConfiguration.SilktouchUpgrade;
+                    price = (int)(RankupConfiguration.SilktouchUpgrade * getMultiplier(level));
                 } else if(command.equalsIgnoreCase("upgrade-explosion")) {
                     if (UtilNBT.contains(holder.item, "Explode")) {
                         level = UtilNBT.getInt(holder.item, "Explode");
                     }
-                    price = (level + 1) * RankupConfiguration.ExplosionUpgrade;
+                    price = (int)(RankupConfiguration.ExplosionUpgrade * getMultiplier(level));
                 } else if(command.equalsIgnoreCase("upgrade-laser")) {
                     if (UtilNBT.contains(holder.item, "Laser")) {
                         level = UtilNBT.getInt(holder.item, "Laser");
                     }
-                    price = (level + 1) * RankupConfiguration.LaserUpgrade;
+                    price = (int)(RankupConfiguration.LaserUpgrade * getMultiplier(level));
                 } else if(command.equalsIgnoreCase("upgrade-nuke")) {
                     if (UtilNBT.contains(holder.item, "Nuke")) {
                         level = UtilNBT.getInt(holder.item, "Nuke");
                     }
-                    price = (level + 1) * RankupConfiguration.NukeUpgrade;
+                    price = (int)(RankupConfiguration.NukeUpgrade * getMultiplier(level));
                 } else if(command.equalsIgnoreCase("upgrade-weasel")) {
                     if (UtilNBT.contains(holder.item, "Weasel")) {
                         level = UtilNBT.getInt(holder.item, "Weasel");
                     }
-                    price = (level + 1) * RankupConfiguration.WeaselUpgrade;
+                    price = (int)(RankupConfiguration.WeaselUpgrade * getMultiplier(level));
                 }
                 ArrayList<String> lore = new ArrayList<>();
                 for(String data : itemMeta.getLore()) {
@@ -172,6 +172,15 @@ public class DropManager implements Listener {
         }
     }
 
+    public double getMultiplier(int level) {
+        if (level <= 0) return 1;
+        if (level > 10 && level <= 20) return level * 1.25;
+        else if (level > 20 && level <= 30) return level * 1.5;
+        else if (level > 30 && level <= 40) return level * 2;
+        else if (level > 40) return level * 3;
+        return level;
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getInventory().getHolder() == null) return;
@@ -186,10 +195,13 @@ public class DropManager implements Listener {
                 String command = UtilNBT.getString(event.getCurrentItem(), "MenuCommand");
                 if (command == null) return;
                 if (command.equalsIgnoreCase("upgrade-efficiency")) {
-                    if(itemStack.getItemMeta().getEnchantLevel(Enchantment.DIG_SPEED) >= 50) return;
-                    if (EconomyManager.economy.has(player, RankupConfiguration.EfficiencyUpgrade)) {
-                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.EfficiencyUpgrade);
+                    int level = itemStack.getItemMeta().getEnchantLevel(Enchantment.DIG_SPEED);
+                    if(level >= 50) return;
+                    double multiplier = getMultiplier(level);
+                    if (EconomyManager.economy.has(player, (int)(RankupConfiguration.EfficiencyUpgrade * multiplier))) {
+                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, (int)(RankupConfiguration.EfficiencyUpgrade * multiplier));
                         if (response.transactionSuccess()) {
+                            UtilInv.removeItemStack(player, holder.item, 1);
                             ItemMeta itemMeta = itemStack.getItemMeta();
                             int speed = itemMeta.getEnchantLevel(Enchantment.DIG_SPEED);
                             itemMeta.addEnchant(Enchantment.DIG_SPEED, speed + 1, true);
@@ -201,16 +213,21 @@ public class DropManager implements Listener {
                                             .replace("%ErrorMessage%", response.errorMessage)
                                             .replace('&', ChatColor.COLOR_CHAR)
                             );
+                            return;
                         }
                     } else {
                         player.closeInventory();
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
+                        return;
                     }
                 } else if (command.equalsIgnoreCase("upgrade-unbreaking")) {
-                    if(itemStack.getItemMeta().getEnchantLevel(Enchantment.DURABILITY) >= 50) return;
-                    if (EconomyManager.economy.has(player, RankupConfiguration.UnbreakingUpgrade)) {
-                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.UnbreakingUpgrade);
+                    int level = itemStack.getItemMeta().getEnchantLevel(Enchantment.DURABILITY);
+                    if (level >= 50) return;
+                    double multiplier = getMultiplier(level);
+                    if (EconomyManager.economy.has(player, (int)(RankupConfiguration.UnbreakingUpgrade * multiplier))) {
+                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, (int)(RankupConfiguration.UnbreakingUpgrade * multiplier));
                         if (response.transactionSuccess()) {
+                            UtilInv.removeItemStack(player, holder.item, 1);
                             ItemMeta itemMeta = itemStack.getItemMeta();
                             int durability = itemMeta.getEnchantLevel(Enchantment.DURABILITY);
                             itemMeta.addEnchant(Enchantment.DURABILITY, durability + 1, true);
@@ -222,16 +239,22 @@ public class DropManager implements Listener {
                                             .replace("%ErrorMessage%", response.errorMessage)
                                             .replace('&', ChatColor.COLOR_CHAR)
                             );
+                            return;
                         }
                     } else {
                         player.closeInventory();
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
+                        return;
                     }
                 } else if (command.equalsIgnoreCase("upgrade-fortune")) {
-                    if(itemStack.getItemMeta().getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS) >= 50) return;
-                    if (EconomyManager.economy.has(player, RankupConfiguration.FortuneUpgrade)) {
-                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.FortuneUpgrade);
+                    int level = itemStack.getItemMeta().getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS);
+                    if (level >= 50) return;
+                    double multiplier = getMultiplier(level);
+                    if (EconomyManager.economy.has(player, (int)(RankupConfiguration.FortuneUpgrade * multiplier))) {
+                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, (int)(RankupConfiguration.FortuneUpgrade * multiplier));
                         if (response.transactionSuccess()) {
+                            UtilInv.removeItemStack(player, holder.item, 1);
+                            UtilInv.removeItemStack(player, holder.item, 1);
                             ItemMeta itemMeta = itemStack.getItemMeta();
                             int lootBonus = itemMeta.getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS);
                             itemMeta.addEnchant(Enchantment.LOOT_BONUS_BLOCKS, lootBonus + 1, true);
@@ -243,16 +266,21 @@ public class DropManager implements Listener {
                                             .replace("%ErrorMessage%", response.errorMessage)
                                             .replace('&', ChatColor.COLOR_CHAR)
                             );
+                            return;
                         }
                     } else {
                         player.closeInventory();
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
+                        return;
                     }
                 } else if (command.equalsIgnoreCase("upgrade-silktouch")) {
-                    if(itemStack.getItemMeta().getEnchantLevel(Enchantment.SILK_TOUCH) >= 1) return;
-                    if (EconomyManager.economy.has(player, RankupConfiguration.SilktouchUpgrade)) {
-                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.SilktouchUpgrade);
+                    int level = itemStack.getItemMeta().getEnchantLevel(Enchantment.SILK_TOUCH);
+                    if (level >= 1) return;
+                    double multiplier = getMultiplier(level);
+                    if (EconomyManager.economy.has(player, (int)(RankupConfiguration.SilktouchUpgrade * multiplier))) {
+                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, (int)(RankupConfiguration.SilktouchUpgrade * multiplier));
                         if (response.transactionSuccess()) {
+                            UtilInv.removeItemStack(player, holder.item, 1);
                             ItemMeta itemMeta = itemStack.getItemMeta();
                             itemMeta.addEnchant(Enchantment.SILK_TOUCH, 1, true);
                             itemStack.setItemMeta(itemMeta);
@@ -263,16 +291,22 @@ public class DropManager implements Listener {
                                             .replace("%ErrorMessage%", response.errorMessage)
                                             .replace('&', ChatColor.COLOR_CHAR)
                             );
+                            return;
                         }
                     } else {
                         player.closeInventory();
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
+                        return;
                     }
                 } else if (command.equalsIgnoreCase("upgrade-explosion")) {
-                    if(UtilNBT.contains(itemStack, "Explode") && UtilNBT.getInt(itemStack, "Explode") >= 50) return;
-                    if (EconomyManager.economy.has(player, RankupConfiguration.ExplosionUpgrade)) {
-                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.ExplosionUpgrade);
+                    int level = 0;
+                    if(UtilNBT.contains(itemStack, "Explode")) level = UtilNBT.getInt(itemStack, "Explode");
+                    if(level >= 50) return;
+                    double multiplier = getMultiplier(level);
+                    if (EconomyManager.economy.has(player, (int)(RankupConfiguration.ExplosionUpgrade * multiplier))) {
+                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, (int)(RankupConfiguration.ExplosionUpgrade * multiplier));
                         if (response.transactionSuccess()) {
+                            UtilInv.removeItemStack(player, holder.item, 1);
                             if (UtilNBT.contains(itemStack, "Explode")) {
                                 int i = UtilNBT.getInt(itemStack, "Explode");
                                 itemStack = UtilNBT.set(itemStack, i + 1, "Explode");
@@ -286,16 +320,22 @@ public class DropManager implements Listener {
                                             .replace("%ErrorMessage%", response.errorMessage)
                                             .replace('&', ChatColor.COLOR_CHAR)
                             );
+                            return;
                         }
                     } else {
                         player.closeInventory();
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
+                        return;
                     }
                 } else if (command.equalsIgnoreCase("upgrade-laser")) {
-                    if(UtilNBT.contains(itemStack, "Laser") && UtilNBT.getInt(itemStack, "Laser") >= 50) return;
-                    if (EconomyManager.economy.has(player, RankupConfiguration.LaserUpgrade)) {
-                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.LaserUpgrade);
+                    int level = 0;
+                    if(UtilNBT.contains(itemStack, "Laser")) level = UtilNBT.getInt(itemStack, "Laser");
+                    if(level >= 50) return;
+                    double multiplier = getMultiplier(level);
+                    if (EconomyManager.economy.has(player, (int)(RankupConfiguration.LaserUpgrade * multiplier))) {
+                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, (int)(RankupConfiguration.LaserUpgrade * multiplier));
                         if (response.transactionSuccess()) {
+                            UtilInv.removeItemStack(player, holder.item, 1);
                             if (UtilNBT.contains(itemStack, "Laser")) {
                                 int i = UtilNBT.getInt(itemStack, "Laser");
                                 itemStack = UtilNBT.set(itemStack, i + 1, "Laser");
@@ -309,16 +349,22 @@ public class DropManager implements Listener {
                                             .replace("%ErrorMessage%", response.errorMessage)
                                             .replace('&', ChatColor.COLOR_CHAR)
                             );
+                            return;
                         }
                     } else {
                         player.closeInventory();
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
+                        return;
                     }
                 } else if (command.equalsIgnoreCase("upgrade-nuke")) {
-                    if(UtilNBT.contains(itemStack, "Nuke") && UtilNBT.getInt(itemStack, "Nuke") >= 50) return;
-                    if (EconomyManager.economy.has(player, RankupConfiguration.NukeUpgrade)) {
-                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.NukeUpgrade);
+                    int level = 0;
+                    if(UtilNBT.contains(itemStack, "Nuke")) level = UtilNBT.getInt(itemStack, "Nuke");
+                    if(level >= 50) return;
+                    double multiplier = getMultiplier(level);
+                    if (EconomyManager.economy.has(player, (int)(RankupConfiguration.NukeUpgrade * multiplier))) {
+                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, (int)(RankupConfiguration.NukeUpgrade * multiplier));
                         if (response.transactionSuccess()) {
+                            UtilInv.removeItemStack(player, holder.item, 1);
                             if (UtilNBT.contains(itemStack, "Nuke")) {
                                 int i = UtilNBT.getInt(itemStack, "Nuke");
                                 itemStack = UtilNBT.set(itemStack, i + 1, "Nuke");
@@ -332,16 +378,22 @@ public class DropManager implements Listener {
                                             .replace("%ErrorMessage%", response.errorMessage)
                                             .replace('&', ChatColor.COLOR_CHAR)
                             );
+                            return;
                         }
                     } else {
                         player.closeInventory();
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
+                        return;
                     }
                 } else if (command.equalsIgnoreCase("upgrade-weasel")) {
-                    if(UtilNBT.contains(itemStack, "Weasel") && UtilNBT.getInt(itemStack, "Weasel") >= 50) return;
-                    if (EconomyManager.economy.has(player, RankupConfiguration.WeaselUpgrade)) {
-                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, RankupConfiguration.WeaselUpgrade);
+                    int level = 0;
+                    if(UtilNBT.contains(itemStack, "Weasel")) level = UtilNBT.getInt(itemStack, "Weasel");
+                    if(level >= 50) return;
+                    double multiplier = getMultiplier(level);
+                    if (EconomyManager.economy.has(player, (int)(RankupConfiguration.WeaselUpgrade * multiplier))) {
+                        EconomyResponse response = EconomyManager.economy.withdrawPlayer(player, (int)(RankupConfiguration.WeaselUpgrade * multiplier));
                         if (response.transactionSuccess()) {
+                            UtilInv.removeItemStack(player, holder.item, 1);
                             if (UtilNBT.contains(itemStack, "Weasel")) {
                                 int i = UtilNBT.getInt(itemStack, "Weasel");
                                 itemStack = UtilNBT.set(itemStack, i + 1, "Weasel");
@@ -355,13 +407,14 @@ public class DropManager implements Listener {
                                             .replace("%ErrorMessage%", response.errorMessage)
                                             .replace('&', ChatColor.COLOR_CHAR)
                             );
+                            return;
                         }
                     } else {
                         player.closeInventory();
                         player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "DropNotEnoughMoney").replace('&', ChatColor.COLOR_CHAR));
+                        return;
                     }
                 }
-                player.getInventory().remove(holder.item);
                 itemStack = UtilNBT.set(itemStack, 1, "CustomEnchanted");
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -820,6 +873,7 @@ public class DropManager implements Listener {
         for (MineData mineData : RankupConfiguration.Mines) {
             if (mineData.isInside(loc)) {
                 inside = true;
+                mineData.currentDelay = 1;
                 for (int x = mineData.getMinX(); x <= mineData.getMaxX(); ++x) {
                     for (int y = mineData.getMinY(); y <= mineData.getMaxY(); ++y) {
                         for (int z = mineData.getMinZ(); z <= mineData.getMaxZ(); ++z) {

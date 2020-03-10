@@ -3,6 +3,7 @@ package com.ellisiumx.elcore.utils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -202,6 +203,29 @@ public class UtilInv {
             player.getInventory().remove(item);
 
         return count;
+    }
+
+    public static boolean removeItemStack(Player player, ItemStack itemStack, int quantity) {
+        Map<Integer, ? extends ItemStack> ammo = player.getInventory().all(itemStack);
+        int found = 0;
+
+        for (ItemStack stack : ammo.values()) found += stack.getAmount();
+
+        if (quantity > found) return false;
+
+        for (Integer index : ammo.keySet()) {
+            ItemStack stack = ammo.get(index);
+
+            int removed = Math.min(quantity, stack.getAmount());
+            quantity -= removed;
+
+            if (stack.getAmount() == removed) player.getInventory().setItem(index, null);
+            else stack.setAmount(stack.getAmount() - removed);
+            if (quantity <= 0) break;
+        }
+
+        player.updateInventory();
+        return true;
     }
 
     public static byte GetData(ItemStack stack) {

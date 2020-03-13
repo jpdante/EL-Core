@@ -40,11 +40,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class DropManager implements Listener {
 
     private static Random random = new Random();
+    private static DecimalFormat decimalFormat = new DecimalFormat("#.0");
     public static DropManager context;
 
     public DropRepository repository;
@@ -574,11 +576,13 @@ public class DropManager implements Listener {
 
     public void openDrops(Player player) {
         Inventory inventory = RankupConfiguration.DropsMenu.createMenu(new DropsMenuHolder());
-        int rankBoost = 0;
-        int groupBoost = 0;
-        int boostPercentage = 0;
-        if(CoreClientManager.get(player).getRank().has(Rank.VIP)) groupBoost = 10;
-        boostPercentage = rankBoost + groupBoost;
+        double rankBoost = RankupManager.get(player).boost;
+        double groupBoost = 0;
+        Rank playerRank = CoreClientManager.get(player).getRank();
+        if(RankupConfiguration.GroupBoost.containsKey(playerRank)) {
+            groupBoost = RankupConfiguration.GroupBoost.get(playerRank);
+        }
+        double boostPercentage = rankBoost + groupBoost;
         for(int i = 0; i < inventory.getSize(); i++) {
             ItemStack itemStack = inventory.getItem(i);
             if(itemStack == null) continue;
@@ -639,13 +643,13 @@ public class DropManager implements Listener {
         player.openInventory(inventory);
     }
 
-    public String parseDropsString(String data, long dropsQuantity, double sellPrice, int boostPercentage, double boostPrice, int rankBoost, int groupBoost) {
+    public String parseDropsString(String data, long dropsQuantity, double sellPrice, double boostPercentage, double boostPrice, double rankBoost, double groupBoost) {
         return data
                 .replace("%DropsQuantity%", String.valueOf(dropsQuantity))
-                .replace("%BoostPercentage%", String.valueOf(boostPercentage))
+                .replace("%BoostPercentage%", decimalFormat.format(boostPercentage))
                 .replace("%SellPrice%", String.valueOf(sellPrice))
-                .replace("%RankBoost%", String.valueOf(rankBoost))
-                .replace("%GroupBoost%", String.valueOf(groupBoost))
+                .replace("%RankBoost%", decimalFormat.format(rankBoost))
+                .replace("%GroupBoost%", decimalFormat.format(groupBoost))
                 .replace("%BoostPrice%", String.valueOf(boostPrice));
     }
 

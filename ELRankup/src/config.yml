@@ -17,6 +17,12 @@ chat:
 kits: {}
 spawn: "world,0,0,0,0,0"
 drops:
+  group-boost:
+    ALL: 0.0
+    VIP: 5.0
+    VIP_PLUS: 10.0
+    MVP: 15.0
+    MVP_PLUS: 20.0
   price:
     efficiency-upgrade: 1000.0
     unbreaking-upgrade: 3000.0
@@ -173,6 +179,7 @@ rankup:
       can-level-up: true
       display-name: "&7Slave"
       ores: 1000.0
+      boost: 0.0
       color: "&7"
     1:
       name: "Merchant"
@@ -180,6 +187,7 @@ rankup:
       can-level-up: true
       display-name: "&bMerchant"
       ores: 1000.0
+      boost: 1.0
       color: "&b"
     2:
       name: "God"
@@ -187,6 +195,7 @@ rankup:
       can-level-up: false
       display-name: "&aGod"
       ores: 1000.0
+      boost: 5.0
       color: "&a"
 clans:
   create-price: 1000.0
@@ -252,7 +261,7 @@ machines:
           drop-delay: 8
           drop-quantity: 2
           max-tank: 200
-          max-drops-count: 120
+          max-drop-count: 120
           upgrade-cost: 2000.0
         2:
           drop-delay: 6

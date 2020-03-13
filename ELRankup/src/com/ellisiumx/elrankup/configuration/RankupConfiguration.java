@@ -78,6 +78,7 @@ public class RankupConfiguration {
     public static double NukeUpgrade;
     public static double WeaselUpgrade;
     public static double FarmsPrice;
+    public static HashMap<Rank, Double> GroupBoost;
 
     public RankupConfiguration() {
         FileConfiguration config = ELRankup.getContext().getConfig();
@@ -139,8 +140,9 @@ public class RankupConfiguration {
             String color = config.getString("rankup.ranks." + key + ".color");
             double cost = config.getDouble("rankup.ranks." + key + ".cost");
             double ores = config.getDouble("rankup.ranks." + key + ".ores");
+            double boost = config.getDouble("rankup.ranks." + key + ".boost");
             boolean canLevelUp = config.getBoolean("rankup.ranks." + key + ".can-level-up");
-            Ranks.add(new RankLevel(rankName, rankDisplayName, color, cost, ores, canLevelUp));
+            Ranks.add(new RankLevel(rankName, rankDisplayName, color, cost, ores, boost, canLevelUp));
         }
 
         CrateTypes = new ArrayList<>();
@@ -229,6 +231,12 @@ public class RankupConfiguration {
         LaserUpgrade = config.getDouble("drops.price.laser-upgrade");
         NukeUpgrade = config.getDouble("drops.price.nuke-upgrade");
         WeaselUpgrade = config.getDouble("drops.price.weasel-upgrade");
+        GroupBoost = new HashMap<>();
+        for (String key : config.getConfigurationSection("drops.group-boost").getKeys(false)) {
+            Rank rank = Rank.valueOf(key);
+            double boost = config.getDouble("drops.group-boost." + key);
+            GroupBoost.put(rank, boost);
+        }
     }
 
     public static void save() {

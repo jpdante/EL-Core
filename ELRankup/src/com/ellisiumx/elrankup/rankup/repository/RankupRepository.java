@@ -31,7 +31,7 @@ public class RankupRepository extends RepositoryBase {
     public void updateRank(int accountId, String rank) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("UPDATE ranks SET rank = ? WHERE accountId = ?;")
+                PreparedStatement statement = connection.prepareStatement("UPDATE ranks SET rank = ? WHERE account_id = ?;")
         ) {
             statement.setString(1, rank.toUpperCase());
             statement.setInt(2, accountId);
@@ -44,12 +44,12 @@ public class RankupRepository extends RepositoryBase {
     public String getRank(int accountId, String defaultRank) {
         String rank = null;
         try (Connection connection = getConnection();) {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO ranks (accountId, rank) VALUES (?, ?);")) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO ranks (account_id, rank) VALUES (?, ?);")) {
                 statement.setInt(1, accountId);
                 statement.setString(2, defaultRank.toUpperCase());
                 statement.executeUpdate();
             }
-            try (PreparedStatement statement = connection.prepareStatement("SELECT rank FROM ranks WHERE accountId = ? LIMIT 1;")) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT rank FROM ranks WHERE account_id = ? LIMIT 1;")) {
                 statement.setInt(1, accountId);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while(resultSet.next()) {

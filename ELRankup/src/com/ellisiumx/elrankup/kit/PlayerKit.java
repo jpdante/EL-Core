@@ -10,7 +10,7 @@ public class PlayerKit {
 
     private Player player;
     private int accountId;
-    private HashMap<Kit, Timestamp> kitDelay;
+    private HashMap<Kit, Long> kitDelay;
 
     public PlayerKit(Player player) {
         this.player = player;
@@ -26,7 +26,7 @@ public class PlayerKit {
         return accountId;
     }
 
-    public HashMap<Kit, Timestamp> getKitDelay() {
+    public HashMap<Kit, Long> getKitDelay() {
         return kitDelay;
     }
 }

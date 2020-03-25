@@ -34,11 +34,11 @@ public class DropRepository extends RepositoryBase {
     public PlayerDrops getPlayerDrops(int accountId) {
         PlayerDrops playerDrops = null;
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO drops (accountId, drops) VALUES (?, 0);")) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO drops (account_id, drops) VALUES (?, 0);")) {
                 statement.setInt(1, accountId);
                 statement.executeUpdate();
             }
-            try (PreparedStatement statement = connection.prepareStatement("SELECT drops FROM drops WHERE accountId = ? LIMIT 1;")) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT block_drops FROM drops WHERE account_id = ? LIMIT 1;")) {
                 statement.setInt(1, accountId);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while(resultSet.next()) {
@@ -55,11 +55,11 @@ public class DropRepository extends RepositoryBase {
     public void updatePlayerDrops(Stack<PlayerDrops> playerDrops) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("UPDATE drops SET drops = ? WHERE accountId = ?;");
+                PreparedStatement statement = connection.prepareStatement("UPDATE drops SET block_drops = ? WHERE account_id = ?;");
         ) {
             while (!playerDrops.isEmpty()) {
                 PlayerDrops drops = playerDrops.pop();
-                statement.setLong(1, drops.getDrops());
+                statement.setLong(1, drops.getBlockDrops());
                 statement.setInt(2, drops.getAccountId());
                 statement.addBatch();
             }

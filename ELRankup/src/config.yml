@@ -32,6 +32,32 @@ drops:
     laser-upgrade: 50000.0
     nuke-upgrade: 100000.0
     weasel-upgrade: 50000.0
+  farm:
+    worlds:
+      - "Plotworld"
+    wheat:
+      enabled: true
+      replant-fully-grown-only: true
+    reeds:
+      enabled: true
+    netherwart:
+      enabled: true
+      replant-fully-grown-only: true
+    cocoa-beans:
+      enabled: true
+      replant-fully-grown-only: true
+    carrots:
+      enabled: true
+      replant-fully-grown-only: true
+    potatoes:
+      enabled: true
+      replant-fully-grown-only: true
+    pumpkin:
+      enabled: true
+      replant-fully-grown-only: true
+    melon:
+      enabled: true
+      replant-fully-grown-only: true
   menus:
     drops:
       name: "&3&lDrops"

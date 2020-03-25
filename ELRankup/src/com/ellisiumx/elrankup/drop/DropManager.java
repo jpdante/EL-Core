@@ -497,13 +497,13 @@ public class DropManager implements Listener {
                 if (command.equalsIgnoreCase("sell-mobs")) {
 
                 } else if (command.equalsIgnoreCase("sell-ores")) {
-                    long dropsQuantity = get(player).getDrops();
+                    long dropsQuantity = get(player).getBlockDrops();
                     double sellPrice = dropsQuantity * RankupManager.get(player).oresPrice;
                     double boostPrice = sellPrice * (boostPercentage / 100.0d);
                     EconomyResponse response = EconomyManager.economy.depositPlayer(player, sellPrice + boostPrice);
                     if(response.transactionSuccess()) {
                         PlayerDrops playerDrops = get(player);
-                        playerDrops.setDrops(0);
+                        playerDrops.setBlockDrops(0);
                         if (!updateBuffer.contains(playerDrops)) {
                             updateBuffer.push(playerDrops);
                         }
@@ -596,7 +596,7 @@ public class DropManager implements Listener {
                 double boostPrice = 0;
                 if(command.equalsIgnoreCase("sell-mobs")) {
                 } else if(command.equalsIgnoreCase("sell-ores")) {
-                    dropsQuantity = get(player).getDrops();
+                    dropsQuantity = get(player).getBlockDrops();
                     sellPrice = dropsQuantity * RankupManager.get(player).oresPrice;
                     boostPrice = sellPrice * (boostPercentage / 100.0d);
                 } else if(command.equalsIgnoreCase("sell-drops")) {
@@ -610,7 +610,7 @@ public class DropManager implements Listener {
                     }
                 } else if(command.equalsIgnoreCase("sell-farms")) {
                 } else if(command.equalsIgnoreCase("sell-all")) {
-                    long oresDrops = get(player).getDrops();
+                    long oresDrops = get(player).getBlockDrops();
                     double oresSellPrice = dropsQuantity * RankupManager.get(player).oresPrice;
                     double oresBoostPrice = sellPrice * (boostPercentage / 100.0d);
 
@@ -753,7 +753,7 @@ public class DropManager implements Listener {
                 totalDrops = normalBreak(event.getPlayer(), event.getBlock(), i);
             }
             PlayerDrops playerDrops = get(event.getPlayer());
-            playerDrops.addDrops(totalDrops);
+            playerDrops.addBlockDrops(totalDrops);
             if (!updateBuffer.contains(playerDrops)) {
                 updateBuffer.push(playerDrops);
             }

@@ -33,7 +33,7 @@ public class MachineRepository extends RepositoryBase {
         ArrayList<Machine> machines = new ArrayList<>();
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT id, type, owner, level, drops, fuel, lastMenuOpen, lastRefuel FROM machines;");
+                PreparedStatement statement = connection.prepareStatement("SELECT id, type, account_id, level, drops, fuel, last_menu_open, last_refuel FROM machines;");
                 ResultSet resultSet = statement.executeQuery()
         ){
             while(resultSet.next()) {
@@ -58,7 +58,7 @@ public class MachineRepository extends RepositoryBase {
         Machine machine = null;
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT type, owner, level, drops, fuel, location, lastMenuOpen, lastRefuel FROM machines WHERE id = ? LIMIT 1;");
+                PreparedStatement statement = connection.prepareStatement("SELECT type, account_id, level, drops, fuel, location, last_menu_open, last_refuel FROM machines WHERE id = ? LIMIT 1;");
         ){
             statement.setInt(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -82,7 +82,7 @@ public class MachineRepository extends RepositoryBase {
     public void createMachine(Machine machine) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO machines (type, owner, level, drops, fuel, lastMenuOpen, lastRefuel) VALUES (?, ?, ?, ?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO machines (type, account_id, level, drops, fuel, last_menu_open, last_refuel) VALUES (?, ?, ?, ?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS);
         ){
             statement.setString(1, machine.getType().getKey());
             statement.setInt(2, machine.getOwner());
@@ -117,7 +117,7 @@ public class MachineRepository extends RepositoryBase {
     public void updateMachine(Machine machine) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("UPDATE machines SET level = ?, drops = ?, fuel = ?, lastMenuOpen = ?, lastRefuel = ? WHERE id = ?");
+                PreparedStatement statement = connection.prepareStatement("UPDATE machines SET level = ?, drops = ?, fuel = ?, last_menu_open = ?, last_refuel = ? WHERE id = ?");
         ){
             statement.setInt(1, machine.getLevel());
             statement.setInt(2, machine.getDrops());
@@ -134,7 +134,7 @@ public class MachineRepository extends RepositoryBase {
     public void updateMachines(Stack<Machine> machines) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("UPDATE machines SET level = ?, drops = ?, fuel = ?, lastMenuOpen = ?, lastRefuel = ? WHERE id = ?");
+                PreparedStatement statement = connection.prepareStatement("UPDATE machines SET level = ?, drops = ?, fuel = ?, last_menu_open = ?, last_refuel = ? WHERE id = ?");
         ){
             while(!machines.empty()) {
                 Machine machine = machines.pop();
@@ -155,7 +155,7 @@ public class MachineRepository extends RepositoryBase {
     /*public void createMachines(Stack<Machine> machines) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO machines (type, owner, level, drops, fuel, location, lastMenuOpen, lastRefuel) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+                PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO machines (type, owner, level, drops, fuel, location, last_menu_open, lastRefuel) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
         ){
             while (!machines.empty()) {
                 Machine machine = machines.pop();

@@ -52,7 +52,7 @@ public class AccountRepository extends RepositoryBase {
             }
 
             if (client.getAccountId() == -1) {
-                try (PreparedStatement statement = connection.prepareStatement("INSERT INTO accounts (uuid, name, creationDate) values(?, ?, now());", Statement.RETURN_GENERATED_KEYS)) {
+                try (PreparedStatement statement = connection.prepareStatement("INSERT INTO accounts (uuid, name, creation_date) values(?, ?, now());", Statement.RETURN_GENERATED_KEYS)) {
                     statement.setString(1, uuid);
                     statement.setString(2, client.getPlayerName());
                     statement.executeUpdate();
@@ -65,7 +65,7 @@ public class AccountRepository extends RepositoryBase {
                 }
             }
 
-            StringBuilder sql = new StringBuilder("UPDATE accounts SET name = '" + client.getPlayerName() + "', lastLogin = now() WHERE id = '" + client.getAccountId() + "';");
+            StringBuilder sql = new StringBuilder("UPDATE accounts SET name = '" + client.getPlayerName() + "', last_login = now() WHERE id = '" + client.getAccountId() + "';");
             for (ILoginProcessor loginProcessor : loginProcessors.values()) {
                 sql.append(loginProcessor.getQuery(client.getAccountId(), uuid, client.getPlayerName()));
             }

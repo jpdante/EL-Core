@@ -76,8 +76,6 @@ public class PreferencesManager implements Listener {
                 }
                 if (preferences == null) {
                     preferences = new UserPreferences(
-                            event.getPlayer().getUniqueId().toString(),
-                            CoreClientManager.get(event.getPlayer()).getAccountId(),
                             ((CraftPlayer) event.getPlayer()).getHandle().locale,
                             false,
                             false,
@@ -95,6 +93,7 @@ public class PreferencesManager implements Listener {
                     );
                 }
                 preferences.setUUID(event.getPlayer().getUniqueId().toString());
+                preferences.setAccountId(CoreClientManager.get(event.getPlayer()).getAccountId());
                 cacheDataRepository.addElement(preferences, 3600);
                 if (userPreferences.containsKey(event.getPlayer().getName())) {
                     userPreferences.replace(event.getPlayer().getName(), preferences);

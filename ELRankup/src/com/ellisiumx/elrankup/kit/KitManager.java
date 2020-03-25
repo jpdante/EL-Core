@@ -28,6 +28,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.util.*;
 
 public class KitManager implements Listener {
@@ -47,7 +48,8 @@ public class KitManager implements Listener {
             languageDB.insertTranslation("KitDontExists", "&f[&aKits&f] &cThe kit '%KitName%' does not exist!");
             languageDB.insertTranslation("KitNoSpace", "&f[&aKits&f] &cYou don't have enough space to get the kit!");
             languageDB.insertTranslation("KitNoRank", "&f[&aKits&f] &cYou do not have the necessary rank to open this kit!");
-            languageDB.insertTranslation("KitWaitDelay", "&f[&aKits&f] &cYou need to wait to be able to get this kit again!");
+            languageDB.insertTranslation("KitWaitDelay", "&f[&aKits&f] &cYou need to wait %TimeLeft% to be able to get this kit again.");
+            languageDB.insertTranslation("KitOneUse", "&f[&aKits&f] &cThis kit is for single use and cannot be obtained again.");
             languageDB.insertTranslation("KitsMessage", "&f[&aKits&f] &6Kits: &f%kits%");
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
@@ -142,8 +144,9 @@ public class KitManager implements Listener {
             player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "KitNoSpace").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
+        final Calendar time = new GregorianCalendar();
         if(!playerKit.getKitDelay().containsKey(kit)) {
-            playerKit.getKitDelay().put(kit, getCurrentTimeStamp());
+            playerKit.getKitDelay().put(kit, time.getTimeInMillis() / 1000);
             for(ItemStack item : kit.getItems()) {
                 player.getInventory().addItem(item);
             }
@@ -151,26 +154,47 @@ public class KitManager implements Listener {
                 updateBuffer.push(playerKit);
             }
         } else {
-            Timestamp oldTimestamp = playerKit.getKitDelay().get(kit);
-            long diference = (getCurrentTimeStamp().getTime() - oldTimestamp.getTime()) / 1000;
-            if(diference >= kit.getDelay()) {
-                playerKit.getKitDelay().put(kit, getCurrentTimeStamp());
+            long nextUse = getNextUse(playerKit, kit);
+            if (nextUse == 0L) {
+                playerKit.getKitDelay().put(kit, time.getTimeInMillis() / 1000);
                 for(ItemStack item : kit.getItems()) {
                     player.getInventory().addItem(item);
                 }
                 if(!updateBuffer.contains(playerKit)) {
                     updateBuffer.push(playerKit);
                 }
+            } else if (nextUse < 0L) {
+                player.sendMessage(
+                        LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "KitOneUse")
+                                .replace('&', ChatColor.COLOR_CHAR)
+                );
             } else {
-                player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "KitWaitDelay").replace('&', ChatColor.COLOR_CHAR));
+                player.sendMessage(
+                        LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "KitWaitDelay")
+                                .replace("%TimeLeft%", UtilDate.formatDateDiff(nextUse, player))
+                                .replace('&', ChatColor.COLOR_CHAR)
+                );
             }
         }
     }
 
-    public Timestamp getCurrentTimeStamp() {
-        Date date= new Date();
-        long time = date.getTime();
-        return new Timestamp(time);
+    public long getNextUse(PlayerKit playerKit, Kit kit) {
+        long lastTime = playerKit.getKitDelay().get(kit);
+        long delay = kit.getDelay();
+        final Calendar time = new GregorianCalendar();
+        final Calendar delayTime = new GregorianCalendar();
+        delayTime.setTimeInMillis(lastTime);
+        delayTime.add(Calendar.SECOND, (int) delay);
+        delayTime.add(Calendar.MILLISECOND, (int) ((delay * 1000.0) % 1000.0));
+        if (lastTime == 0L || lastTime > time.getTimeInMillis()) {
+            return 0L;
+        } else if (delay < 0L) {
+            return -1;
+        } else if (delayTime.before(time)) {
+            return 0L;
+        } else {
+            return delayTime.getTimeInMillis();
+        }
     }
 
     @EventHandler

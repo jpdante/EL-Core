@@ -193,7 +193,7 @@ public class RankupConfiguration {
         if(config.contains("kits")) {
             for (String key : config.getConfigurationSection("kits").getKeys(false)) {
                 String displayName = config.getString("kits." + key + ".display-name");
-                int delay = config.getInt("kits." + key + ".delay");
+                long delay = config.getLong("kits." + key + ".delay");
                 Rank rank = Rank.valueOf(config.getString("kits." + key + ".rank"));
                 List<String> itemsRaw = config.getStringList("kits." + key + ".items");
                 ArrayList<ItemStack> items = new ArrayList<>();

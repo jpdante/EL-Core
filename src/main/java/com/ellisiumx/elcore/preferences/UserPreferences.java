@@ -2,23 +2,39 @@ package com.ellisiumx.elcore.preferences;
 
 import com.ellisiumx.elcore.redis.Data;
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 public class UserPreferences implements Data {
 
+    @SerializedName("lang")
     private String language = "en-US";
+    @SerializedName("a")
     private boolean filterChat = true;
-    private boolean hubGames = true;
+    @SerializedName("b")
+    private boolean autoLanguage = true;
+    @SerializedName("c")
     private boolean showPlayers = true;
+    @SerializedName("d")
     private boolean showChat = true;
+    @SerializedName("e")
     private boolean friendChat = true;
+    @SerializedName("f")
     private boolean privateMessaging = true;
+    @SerializedName("g")
     private boolean partyRequests = true;
+    @SerializedName("h")
     private boolean invisibility = false;
+    @SerializedName("i")
     private boolean hubForceField = false;
+    @SerializedName("j")
     private boolean showMacReports = false;
+    @SerializedName("k")
     private boolean ignoreVelocity = false;
+    @SerializedName("l")
     private boolean pendingFriendRequests = true;
+    @SerializedName("m")
     private boolean friendDisplayInventoryUI = true;
+    @SerializedName("n")
     @Expose(serialize = false)
     private boolean updated = false;
     @Expose(serialize = false)
@@ -26,14 +42,12 @@ public class UserPreferences implements Data {
     @Expose(serialize = false)
     private int accountId = -1;
 
-    public UserPreferences() {}
+    public UserPreferences() { }
 
-    public UserPreferences(String uuid, int accountId, String lang, boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean g, boolean h, boolean i, boolean j, boolean k, boolean l, boolean m) {
-        this.uuid = uuid;
-        this.accountId = accountId;
+    public UserPreferences(String lang, boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean g, boolean h, boolean i, boolean j, boolean k, boolean l, boolean m) {
         language = lang;
         filterChat = a;
-        hubGames = b;
+        autoLanguage = b;
         showPlayers = c;
         showChat = d;
         friendChat = e;
@@ -65,13 +79,13 @@ public class UserPreferences implements Data {
         this.filterChat = filterChat;
     }
 
-    public boolean getHubGames() {
-        return hubGames;
+    public boolean getAutoLanguage() {
+        return autoLanguage;
     }
 
     public void setHubGames(boolean hubGames) {
         this.updated = true;
-        this.hubGames = hubGames;
+        this.autoLanguage = hubGames;
     }
 
     public boolean getShowPlayers() {
@@ -181,12 +195,20 @@ public class UserPreferences implements Data {
         this.updated = false;
     }
 
-    public void setUUID(String uuid) {
+    protected void setUUID(String uuid) {
         this.uuid = uuid;
     }
 
+    protected void setAccountId(int accountId) {
+        this.accountId = accountId;
+    }
+
     public int getAccountId() {
-        return accountId;
+        return this.accountId;
+    }
+
+    public String getUUID() {
+        return this.uuid;
     }
 
     @Override

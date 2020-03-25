@@ -10,11 +10,11 @@ public class Kit {
 
     private String key;
     private String displayName;
-    private int delay;
+    private long delay;
     private Rank rank;
     private List<ItemStack> items;
 
-    public Kit(String key, String displayName, int delay, Rank rank, ArrayList<ItemStack> items) {
+    public Kit(String key, String displayName, long delay, Rank rank, ArrayList<ItemStack> items) {
         this.key = key;
         this.displayName = displayName;
         this.delay = delay;
@@ -30,7 +30,7 @@ public class Kit {
         return displayName;
     }
 
-    public int getDelay() {
+    public long getDelay() {
         return delay;
     }
 

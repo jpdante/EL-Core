@@ -96,6 +96,15 @@ public class CrateCommand extends CommandBase {
                     RankupConfiguration.save();
                     caller.sendMessage(ChatColor.GREEN + "Chest deleted successfully!");
                 } else caller.sendMessage(ChatColor.RED + "The block must be a chest!");
+            } else if (args[0].equalsIgnoreCase("give")) {
+                if (args.length < 2) return;
+                for (CrateType crateType : RankupConfiguration.CrateTypes) {
+                    if(crateType.name.equalsIgnoreCase(args[1])) {
+                        caller.getInventory().addItem(CrateManager.getCrateKey(crateType));
+                        caller.sendMessage(ChatColor.GREEN + "Key for " + crateType.name + "gived successfully!");
+                        return;
+                    }
+                }
             }
         }
     }

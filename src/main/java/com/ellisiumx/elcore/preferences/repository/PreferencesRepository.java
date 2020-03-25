@@ -30,11 +30,11 @@ public class PreferencesRepository extends RepositoryBase {
     public void saveUserPreferences(Stack<UserPreferences> buffer) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO account_preferences (accountId, preferences) VALUES (?, ?) ON DUPLICATE KEY UPDATE preferences = ?;");
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO account_preferences (uuid, preferences) VALUES (?, ?) ON DUPLICATE KEY UPDATE preferences = ?;");
         ){
             while (!buffer.empty()) {
                 UserPreferences preferences = buffer.pop();
-                preparedStatement.setInt(1, preferences.getAccountId());
+                preparedStatement.setString(1, preferences.getUUID());
                 String json = UtilGson.serialize(preferences);
                 preparedStatement.setString(2, json);
                 preparedStatement.setString(3, json);
@@ -61,7 +61,6 @@ public class PreferencesRepository extends RepositoryBase {
         } catch (Exception exception) {
             exception.printStackTrace();
         }
-        if(userPreferences == null) userPreferences = new UserPreferences();
         return userPreferences;
     }
 }

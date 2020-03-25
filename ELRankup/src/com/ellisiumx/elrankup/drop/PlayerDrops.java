@@ -3,22 +3,22 @@ package com.ellisiumx.elrankup.drop;
 public class PlayerDrops {
 
     private int accountId;
-    private long drops;
+    private long block_drops;
 
-    public PlayerDrops(int accountId, long drops) {
+    public PlayerDrops(int accountId, long blockDrops) {
         this.accountId = accountId;
-        this.drops = drops;
+        this.block_drops = blockDrops;
     }
 
     public int getAccountId() { return accountId; }
 
     public void setAccountId(int accountId) { this.accountId = accountId; }
 
-    public long getDrops() { return drops; }
+    public long getBlockDrops() { return block_drops; }
 
-    public void setDrops(long drops) { this.drops = drops; }
+    public void setBlockDrops(long drops) { this.block_drops = drops; }
 
-    public void addDrops(long drops) {
-        this.drops += drops;
+    public void addBlockDrops(long drops) {
+        this.block_drops += drops;
     }
 }

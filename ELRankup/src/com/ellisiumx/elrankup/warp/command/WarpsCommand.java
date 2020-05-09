@@ -8,6 +8,8 @@ import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.preferences.PreferencesManager;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.warp.Warp;
+import com.ellisiumx.elrankup.warp.WarpManager;
+import com.ellisiumx.elrankup.warp.holder.WarpMenuHolder;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,7 +30,8 @@ public class WarpsCommand extends CommandBase {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "WarpsCommand").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
-        StringBuilder message = new StringBuilder();
+        WarpManager.context.openMenu(caller);
+        /*StringBuilder message = new StringBuilder();
         Rank playerRank = CoreClientManager.get(caller).getRank();
         for(Map.Entry<String, Warp> warp : RankupConfiguration.Warps.entrySet()) {
             if(playerRank.has(warp.getValue().getRank())) {
@@ -39,6 +42,6 @@ public class WarpsCommand extends CommandBase {
                 LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "WarpsMessage")
                         .replaceAll("%warps%", message.toString())
                         .replace('&', ChatColor.COLOR_CHAR)
-        );
+        );*/
     }
 }

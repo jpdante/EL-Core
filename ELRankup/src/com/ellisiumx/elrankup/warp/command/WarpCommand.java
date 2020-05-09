@@ -25,7 +25,7 @@ public class WarpCommand extends CommandBase {
     @Override
     public void execute(Player caller, String[] args) {
         if(args == null || args.length == 0) {
-            ShowCommands(caller);
+            WarpManager.context.openMenu(caller);
         } else if (args.length == 1) {
             WarpManager.context.warpPlayer(caller, args[0].toLowerCase());
         } else if (args.length == 2 && CoreClientManager.get(caller).getRank().has(Rank.DEVELOPER)) {

@@ -61,6 +61,7 @@ public class RankupConfiguration {
 
     public static HashMap<Rank, Integer> WarpDelay;
     public static HashMap<String, Warp> Warps;
+    public static ArrayList<MenuConfig> WarpMenus;
 
     public static Location SpawnLocation;
 
@@ -215,6 +216,10 @@ public class RankupConfiguration {
             Location location = UtilConvert.getLocationFromString(config.getString("warp.warps." + key + ".location"));
             Rank rank = Rank.valueOf(config.getString("warp.warps." + key + ".rank"));
             Warps.put(key.toLowerCase(), new Warp(key, location, rank));
+        }
+        WarpMenus = new ArrayList<>();
+        for (String key : config.getConfigurationSection("warp.menus").getKeys(false)) {
+            WarpMenus.add(new MenuConfig(config.getConfigurationSection("warp.menus." + key)));
         }
 
         SpawnLocation = UtilConvert.getLocationFromString(config.getString("spawn"));

@@ -1,8 +1,10 @@
 package com.ellisiumx.elcore.lang;
 
 import com.google.gson.annotations.Expose;
+import org.bukkit.ChatColor;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class LanguageDB {
 
@@ -85,5 +87,11 @@ public class LanguageDB {
 
     public void resetUpdate() {
         this.updated = false;
+    }
+
+    public void fixColor() {
+        for(Map.Entry<String, String> entry : translations.entrySet()) {
+            translations.replace(entry.getKey(), entry.getValue().replace('&', ChatColor.COLOR_CHAR));
+        }
     }
 }

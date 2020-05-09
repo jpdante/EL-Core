@@ -182,6 +182,38 @@ warp:
   rank-delay:
     ALL: 5
   warps: {}
+  menus:
+    warps:
+      name: "&6&lWarps"
+      size: 54
+      items:
+        - "0,160:15,1,false,,&l,"
+        - "1,160:15,1,false,,&l,"
+        - "2,160:15,1,false,,&l,"
+        - "3,160:15,1,false,,&l,"
+        - "4,160:15,1,false,,&l,"
+        - "5,160:15,1,false,,&l,"
+        - "6,160:15,1,false,,&l,"
+        - "7,160:15,1,false,,&l,"
+        - "8,160:15,1,false,,&l,"
+        - "9,160:15,1,false,,&l,"
+        - "17,160:15,1,false,,&l,"
+        - "18,160:15,1,false,,&l,"
+        - "19,160:15,1,false,,&l,"
+        - "26,160:15,1,false,,&l,"
+        - "27,160:15,1,false,,&l,"
+        - "35,160:15,1,false,,&l,"
+        - "36,160:15,1,false,,&l,"
+        - "44,160:15,1,false,,&l,"
+        - "45,160:14,1,true,open main,&4&lGo Back,"
+        - "46,160:15,1,false,,&l,"
+        - "47,160:15,1,false,,&l,"
+        - "48,160:15,1,false,,&l,"
+        - "49,160:15,1,false,,&l,"
+        - "50,160:15,1,false,,&l,"
+        - "51,160:15,1,false,,&l,"
+        - "52,160:15,1,false,,&l,"
+        - "53,160:14,1,true,open main,&4&lGo Forward,"
 mine-reseter:
   enabled: true
   alert-times:

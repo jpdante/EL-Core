@@ -1,41 +1,56 @@
 package com.ellisiumx.elrankup.warp;
 
-import com.ellisiumx.elcore.ELCore;
-import com.ellisiumx.elcore.account.CoreClient;
 import com.ellisiumx.elcore.account.CoreClientManager;
 import com.ellisiumx.elcore.lang.LanguageDB;
 import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.permissions.Rank;
 import com.ellisiumx.elcore.preferences.PreferencesManager;
+import com.ellisiumx.elcore.recharge.Recharge;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elcore.utils.UtilChat;
 import com.ellisiumx.elcore.utils.UtilConvert;
 import com.ellisiumx.elcore.utils.UtilMessage;
+import com.ellisiumx.elcore.utils.UtilNBT;
+import com.ellisiumx.elrankup.configuration.MenuConfig;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
+import com.ellisiumx.elrankup.machine.holder.MachineDropsMenuHolder;
+import com.ellisiumx.elrankup.machine.holder.MachineFuelMenuHolder;
+import com.ellisiumx.elrankup.machine.holder.MachineInfoMenuHolder;
+import com.ellisiumx.elrankup.machine.holder.MachineMenuHolder;
 import com.ellisiumx.elrankup.warp.command.SpawnCommand;
 import com.ellisiumx.elrankup.warp.command.WarpCommand;
 import com.ellisiumx.elrankup.warp.command.WarpsCommand;
+import com.ellisiumx.elrankup.warp.holder.WarpMenuHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class WarpManager implements Listener {
 
     public static WarpManager context;
     public final HashMap<String, PlayerWarp> playerWarps;
+    public ArrayList<Inventory> menus;
 
     public WarpManager(JavaPlugin plugin) {
         context = this;
         playerWarps = new HashMap<>();
+        menus = new ArrayList<>();
         Bukkit.getPluginManager().registerEvents(this, plugin);
         for (LanguageDB languageDB : LanguageManager.getLanguages()) {
             // Errors
@@ -55,6 +70,47 @@ public class WarpManager implements Listener {
         new WarpCommand(plugin);
         new WarpsCommand(plugin);
         new SpawnCommand(plugin);
+        WarpMenuHolder warpMenuHolder = new WarpMenuHolder();
+        for(MenuConfig menuConfig : RankupConfiguration.WarpMenus) {
+            menuConfig.createMenu(warpMenuHolder);
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        InventoryHolder holder = event.getInventory().getHolder();
+        if (holder == null) return;
+        if (!(holder instanceof WarpMenuHolder)) return;
+        event.setCancelled(true);
+        if (!Recharge.use((Player) event.getWhoClicked(), "Warp", 400, false, false)) {
+            event.getWhoClicked().sendMessage(UtilMessage.main("Warp", "You can't spam commands that fast."));
+            return;
+        }
+        ItemStack itemStack = event.getCurrentItem();
+        if(itemStack == null || itemStack.getType() == Material.AIR) return;
+        if (!UtilNBT.contains(itemStack, "MenuItem")) return;
+        String command = UtilNBT.getString(itemStack, "MenuCommand");
+        if (command == null) return;
+        String[] args = command.split(" ", 2);
+        if(args[0].equals("open")) {
+            if (args.length < 2) return;
+            int index = Integer.parseInt(args[1]);
+            openMenu((Player) event.getWhoClicked(), index);
+        } else if(args[0].equals("warp")) {
+            if (args.length < 2) return;
+            warpPlayer((Player) event.getWhoClicked(), args[1]);
+        } else if(args[0].equals("close")) {
+            event.getWhoClicked().closeInventory();
+        }
+    }
+
+    public void openMenu(Player player) {
+        openMenu(player, 0);
+    }
+
+    public void openMenu(Player player, int index) {
+        player.closeInventory();
+        player.openInventory(menus.get(index));
     }
 
     public void warpPlayer(Player player, String warp) {

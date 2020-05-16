@@ -25,7 +25,7 @@ public class WarpCommand extends CommandBase {
     @Override
     public void execute(Player caller, String[] args) {
         if(args == null || args.length == 0) {
-            WarpManager.context.openMenu(caller);
+            WarpManager.context.openMenu(caller, 0);
         } else if (args.length == 1) {
             WarpManager.context.warpPlayer(caller, args[0].toLowerCase());
         } else if (args.length == 2 && CoreClientManager.get(caller).getRank().has(Rank.DEVELOPER)) {
@@ -38,7 +38,7 @@ public class WarpCommand extends CommandBase {
         } else if (args.length == 3 && CoreClientManager.get(caller).getRank().has(Rank.DEVELOPER)) {
             if(args[0].equalsIgnoreCase("set")) {
                 try {
-                    Rank rank = Rank.valueOf(args[2]);
+                    Rank rank = Rank.valueOf(args[2].toUpperCase());
                     WarpManager.context.setWarp(caller, args[1], rank);
                     RankupConfiguration.save();
                 } catch (Exception ex) {

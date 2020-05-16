@@ -2,17 +2,13 @@ package com.ellisiumx.elrankup.machine.repository;
 
 import com.ellisiumx.elcore.database.DBPool;
 import com.ellisiumx.elcore.database.RepositoryBase;
-import com.ellisiumx.elcore.utils.UtilConvert;
-import com.ellisiumx.elrankup.clan.Clan;
 import com.ellisiumx.elrankup.configuration.RankupConfiguration;
 import com.ellisiumx.elrankup.machine.Machine;
-import com.ellisiumx.elrankup.machine.MachineManager;
-import org.bukkit.Location;
+import com.ellisiumx.elrankup.machine.MachineFriend;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Stack;
 
 public class MachineRepository extends RepositoryBase {
@@ -35,8 +31,8 @@ public class MachineRepository extends RepositoryBase {
                 Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement("SELECT id, type, account_id, level, drops, fuel, last_menu_open, last_refuel FROM machines;");
                 ResultSet resultSet = statement.executeQuery()
-        ){
-            while(resultSet.next()) {
+        ) {
+            while (resultSet.next()) {
                 int id = resultSet.getInt(1);
                 String type = resultSet.getString(2);
                 int owner = resultSet.getInt(3);
@@ -54,15 +50,63 @@ public class MachineRepository extends RepositoryBase {
         return machines;
     }
 
+    public ArrayList<MachineFriend> getMachineFriends(int accountId) {
+        ArrayList<MachineFriend> machineFriends = new ArrayList<>();
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("SELECT machine_friends.friend_id, elcore.accounts.name FROM machine_friends INNER JOIN elcore.accounts ON elcore.accounts.id = account_id WHERE account_id = ?;")
+        ) {
+            statement.setInt(1, accountId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    int id = resultSet.getInt(1);
+                    String name = resultSet.getString(2);
+                    machineFriends.add(new MachineFriend(id, name));
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return machineFriends;
+    }
+
+    public void addMachineFriend(int id, int friendId) {
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO machine_friends (account_id, friend_id) VALUES (?, ?);");
+        ) {
+            statement.setInt(1, id);
+            statement.setInt(2, friendId);
+            statement.executeUpdate();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void removeMachineFriend(int id, int friendId) {
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("DELETE FROM machine_friends WHERE account_id = ? AND friend_id = ?;");
+        ) {
+            statement.setInt(1, id);
+            statement.setInt(2, friendId);
+            statement.executeUpdate();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public Machine getMachine(int id) {
         Machine machine = null;
         try (
                 Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement("SELECT type, account_id, level, drops, fuel, location, last_menu_open, last_refuel FROM machines WHERE id = ? LIMIT 1;");
-        ){
+        ) {
             statement.setInt(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
-                while(resultSet.next()) {
+                while (resultSet.next()) {
                     String type = resultSet.getString(1);
                     int owner = resultSet.getInt(2);
                     int level = resultSet.getInt(3);
@@ -83,7 +127,7 @@ public class MachineRepository extends RepositoryBase {
         try (
                 Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO machines (type, account_id, level, drops, fuel, last_menu_open, last_refuel) VALUES (?, ?, ?, ?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS);
-        ){
+        ) {
             statement.setString(1, machine.getType().getKey());
             statement.setInt(2, machine.getOwner());
             statement.setInt(3, machine.getLevel());
@@ -106,7 +150,7 @@ public class MachineRepository extends RepositoryBase {
         try (
                 Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement("DELETE FROM machines WHERE id = ?");
-        ){
+        ) {
             statement.setInt(1, machine.getId());
             statement.executeUpdate();
         } catch (Exception ex) {
@@ -118,7 +162,7 @@ public class MachineRepository extends RepositoryBase {
         try (
                 Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement("UPDATE machines SET level = ?, drops = ?, fuel = ?, last_menu_open = ?, last_refuel = ? WHERE id = ?");
-        ){
+        ) {
             statement.setInt(1, machine.getLevel());
             statement.setInt(2, machine.getDrops());
             statement.setInt(3, machine.getFuel());
@@ -135,8 +179,8 @@ public class MachineRepository extends RepositoryBase {
         try (
                 Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement("UPDATE machines SET level = ?, drops = ?, fuel = ?, last_menu_open = ?, last_refuel = ? WHERE id = ?");
-        ){
-            while(!machines.empty()) {
+        ) {
+            while (!machines.empty()) {
                 Machine machine = machines.pop();
                 statement.setInt(1, machine.getLevel());
                 statement.setInt(2, machine.getDrops());

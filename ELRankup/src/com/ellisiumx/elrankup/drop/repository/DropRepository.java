@@ -34,7 +34,7 @@ public class DropRepository extends RepositoryBase {
     public PlayerDrops getPlayerDrops(int accountId) {
         PlayerDrops playerDrops = null;
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO drops (account_id, drops) VALUES (?, 0);")) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT IGNORE INTO drops (account_id, block_drops) VALUES (?, 0);")) {
                 statement.setInt(1, accountId);
                 statement.executeUpdate();
             }

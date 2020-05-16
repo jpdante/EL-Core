@@ -30,7 +30,7 @@ public class WarpsCommand extends CommandBase {
             caller.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(caller).getLanguage(), "WarpsCommand").replace('&', ChatColor.COLOR_CHAR));
             return;
         }
-        WarpManager.context.openMenu(caller);
+        WarpManager.context.openMenu(caller, 0);
         /*StringBuilder message = new StringBuilder();
         Rank playerRank = CoreClientManager.get(caller).getRank();
         for(Map.Entry<String, Warp> warp : RankupConfiguration.Warps.entrySet()) {

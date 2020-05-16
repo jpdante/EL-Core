@@ -7,6 +7,7 @@ import com.ellisiumx.elrankup.chat.ChatChannel;
 import com.ellisiumx.elrankup.crate.CrateType;
 import com.ellisiumx.elrankup.kit.Kit;
 import com.ellisiumx.elrankup.machine.MachineType;
+import com.ellisiumx.elrankup.machine.menu.FriendsMenuConfig;
 import com.ellisiumx.elrankup.mapedit.BlockData;
 import com.ellisiumx.elrankup.mine.MineData;
 import com.ellisiumx.elcore.utils.UtilConvert;
@@ -38,7 +39,7 @@ public class RankupConfiguration {
     public static MenuConfig MachineDropsMenu;
     public static MenuConfig MachineFuelMenu;
     public static MenuConfig MachinePermissionsMenu;
-    public static MenuConfig MachineFriendsMenu;
+    public static FriendsMenuConfig MachineFriendsMenu;
 
     public static String DefaultRank;
     public static List<RankLevel> Ranks;
@@ -132,6 +133,7 @@ public class RankupConfiguration {
         MachineInfoMenu = new MenuConfig(config.getConfigurationSection("machines.menus.machine"));
         MachineDropsMenu = new MenuConfig(config.getConfigurationSection("machines.menus.drops"));
         MachineFuelMenu = new MenuConfig(config.getConfigurationSection("machines.menus.fuel"));
+        MachineFriendsMenu = new FriendsMenuConfig(config.getConfigurationSection("machines.menus.friends"));
 
         DefaultRank = config.getString("rankup.default-rank");
         Ranks = new ArrayList<>();

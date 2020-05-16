@@ -30,6 +30,7 @@ public class LanguageManager {
         boolean saved = false;
         for(LanguageDB languageDB : context.languages.values()) {
             if(!languageDB.wasUpdated()) continue;
+            languageDB.resetUpdate();
             BufferedWriter writer = null;
             try {
                 writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Paths.get(ELCore.getContext().getDataFolder().getPath(), languageDB.getFilename()).toString(), false), StandardCharsets.UTF_8));

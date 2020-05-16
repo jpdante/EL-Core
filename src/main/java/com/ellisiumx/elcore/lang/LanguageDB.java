@@ -1,10 +1,12 @@
 package com.ellisiumx.elcore.lang;
 
 import com.google.gson.annotations.Expose;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class LanguageDB {
 
@@ -13,20 +15,20 @@ public class LanguageDB {
     private String language;
     private HashMap<String, String> translations;
     @Expose(serialize = false)
-    private boolean updated;
+    private boolean updated = false;
 
     public LanguageDB() {
         this.locale = "en_US";
         this.language = "English";
         this.translations = new HashMap<>();
-        updated = false;
+        this.updated = false;
     }
 
     public LanguageDB(String locale, String language) {
         this.locale = locale;
         this.language = language;
         this.translations = new HashMap<>();
-        updated = false;
+        this.updated = false;
     }
 
     public boolean insertTranslation(String key, String value) {
@@ -87,11 +89,5 @@ public class LanguageDB {
 
     public void resetUpdate() {
         this.updated = false;
-    }
-
-    public void fixColor() {
-        for(Map.Entry<String, String> entry : translations.entrySet()) {
-            translations.replace(entry.getKey(), entry.getValue().replace('&', ChatColor.COLOR_CHAR));
-        }
     }
 }

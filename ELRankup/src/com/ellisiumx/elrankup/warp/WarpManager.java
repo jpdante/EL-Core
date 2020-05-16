@@ -58,6 +58,7 @@ public class WarpManager implements Listener {
             languageDB.insertTranslation("WarpingCancelled", "&f[&3Warp&f] &cTeleport canceled, you moved!");
             languageDB.insertTranslation("WarpDontExist", "&f[&3Warp&f] &cThis warp does not exist!");
             languageDB.insertTranslation("WarpDontHasRank", "&f[&3Warp&f] &cYou don't have enough rank (%rank%) to teleport!");
+            languageDB.insertTranslation("WarpsNoMenu", "&f[&3Warp&f] &cIt was not possible to find this menu!");
             // Messages
             languageDB.insertTranslation("Warping", "&f[&3Warp&f] &aTeleporting in %delay% seconds");
             languageDB.insertTranslation("WarpCommand", " &6/warp <warp name> - Teleport to the specified warp");
@@ -72,7 +73,7 @@ public class WarpManager implements Listener {
         new SpawnCommand(plugin);
         WarpMenuHolder warpMenuHolder = new WarpMenuHolder();
         for(MenuConfig menuConfig : RankupConfiguration.WarpMenus) {
-            menuConfig.createMenu(warpMenuHolder);
+            menus.add(menuConfig.createMenu(warpMenuHolder));
         }
     }
 
@@ -99,17 +100,18 @@ public class WarpManager implements Listener {
         } else if(args[0].equals("warp")) {
             if (args.length < 2) return;
             warpPlayer((Player) event.getWhoClicked(), args[1]);
+            event.getWhoClicked().closeInventory();
         } else if(args[0].equals("close")) {
             event.getWhoClicked().closeInventory();
         }
     }
 
-    public void openMenu(Player player) {
-        openMenu(player, 0);
-    }
-
     public void openMenu(Player player, int index) {
-        player.closeInventory();
+        if(index < 0 || index > menus.size() - 1) {
+            player.sendMessage(LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "WarpsNoMenu").replace('&', ChatColor.COLOR_CHAR));
+            player.closeInventory();
+            return;
+        }
         player.openInventory(menus.get(index));
     }
 

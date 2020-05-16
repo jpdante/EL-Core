@@ -100,7 +100,7 @@ public class MachineManager implements Listener {
             return;
         }
         ItemStack itemStack = event.getCurrentItem();
-        if(itemStack == null || itemStack.getType() == Material.AIR) return;
+        if (itemStack == null || itemStack.getType() == Material.AIR) return;
         if (holder instanceof MachineFuelMenuHolder) {
             refuelMachine(event, itemStack, (MachineFuelMenuHolder) holder);
             return;
@@ -109,24 +109,24 @@ public class MachineManager implements Listener {
         String command = UtilNBT.getString(itemStack, "MenuCommand");
         if (command == null) return;
         String[] args = command.split(" ", 2);
-        if(args[0].equals("open")) {
+        if (args[0].equals("open")) {
             if (args.length < 2) return;
             openMenu((Player) event.getWhoClicked(), args[1], holder);
-        } else if(args[0].equals("buymachine")) {
+        } else if (args[0].equals("buymachine")) {
             if (args.length < 2) return;
             buyMachine((Player) event.getWhoClicked(), args[1]);
-        } else if(args[0].equals("buyfuel")) {
+        } else if (args[0].equals("buyfuel")) {
             if (args.length < 2) return;
             buyFuel((Player) event.getWhoClicked(), args[1]);
-        } else if(args[0].equals("upgrademachine")) {
+        } else if (args[0].equals("upgrademachine")) {
             if (holder instanceof MachineInfoMenuHolder) {
                 upgradeMachine((Player) event.getWhoClicked(), (MachineInfoMenuHolder) holder);
             }
-        } else if(args[0].equals("selldrops")) {
+        } else if (args[0].equals("selldrops")) {
             if (holder instanceof MachineDropsMenuHolder) {
                 sellDrops((Player) event.getWhoClicked(), (MachineDropsMenuHolder) holder);
             }
-        } else if(args[0].equals("close")) {
+        } else if (args[0].equals("close")) {
             event.getWhoClicked().closeInventory();
         }
     }
@@ -215,11 +215,11 @@ public class MachineManager implements Listener {
     public void openMenu(Player player, String menu, InventoryHolder holder) {
         player.closeInventory();
         String[] menuData = menu.split(" ", 2);
-        if(menuData[0].equals("shop")) {
+        if (menuData[0].equals("shop")) {
             player.openInventory(shopMenu);
-        } else if(menuData[0].equals("machines")) {
+        } else if (menuData[0].equals("machines")) {
             int accountID = CoreClientManager.get(player).getAccountId();
-            if(!ownerMachines.containsKey(accountID)) {
+            if (!ownerMachines.containsKey(accountID)) {
                 player.sendMessage(
                         LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineNoMenu")
                                 .replace('&', ChatColor.COLOR_CHAR)
@@ -227,7 +227,7 @@ public class MachineManager implements Listener {
                 return;
             }
             MachineOwner machineOwner = ownerMachines.get(CoreClientManager.get(player).getAccountId());
-            if(machineOwner.getMachinesMenu() == null) {
+            if (machineOwner.getMachinesMenu() == null) {
                 player.sendMessage(
                         LanguageManager.getTranslation(PreferencesManager.get(player).getLanguage(), "MachineNoMenu")
                                 .replace('&', ChatColor.COLOR_CHAR)
@@ -235,7 +235,7 @@ public class MachineManager implements Listener {
                 return;
             }
             player.openInventory(machineOwner.getMachinesMenu());
-        } else if(menuData[0].equals("machine")) {
+        } else if (menuData[0].equals("machine")) {
             Bukkit.getLogger().log(Level.INFO, "[1] Maquina");
             if (holder instanceof MachineFuelMenuHolder) {
                 Bukkit.getLogger().log(Level.INFO, "[4] Maquina");
@@ -254,19 +254,24 @@ public class MachineManager implements Listener {
             Bukkit.getLogger().log(Level.INFO, "[3] Maquina");
             updateMachine(machine, player);
             player.openInventory(machine.getMachineMenu());
-        } else if(menuData[0].equals("permissions")) {
+        } else if (menuData[0].equals("permissions")) {
             //player.openInventory(mainMenu);
-        } else if(menuData[0].equals("friends")) {
-            //player.openInventory(mainMenu);
-        } else if(menuData[0].equals("fuel")) {
+        } else if (menuData[0].equals("friends")) {
+            player.closeInventory();
+            Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
+                int accountId = CoreClientManager.get(player).getAccountId();
+                ArrayList<MachineFriend> machineFriends = repository.getMachineFriends(accountId);
+                player.openInventory(RankupConfiguration.MachineFriendsMenu.getInventory(machineFriends));
+            });
+        } else if (menuData[0].equals("fuel")) {
             if (holder instanceof MachineInfoMenuHolder) {
                 player.openInventory(((MachineInfoMenuHolder) holder).machine.getFuelMenu());
             }
-        } else if(menuData[0].equals("drops")) {
+        } else if (menuData[0].equals("drops")) {
             if (holder instanceof MachineInfoMenuHolder) {
                 player.openInventory(((MachineInfoMenuHolder) holder).machine.getDropsMenu());
             }
-        } else if(menuData[0].equals("main")) {
+        } else if (menuData[0].equals("main")) {
             player.openInventory(mainMenu);
         }
     }
@@ -309,7 +314,7 @@ public class MachineManager implements Listener {
 
     public void upgradeMachine(Player player, MachineInfoMenuHolder holder) {
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
-            if(holder.machine.getLevel() >= holder.machine.getType().getLevels().size() - 1) return;
+            if (holder.machine.getLevel() >= holder.machine.getType().getLevels().size() - 1) return;
             double price = holder.machine.getType().getLevels().get(holder.machine.getLevel()).getUpgradeCost();
             if (price > 0) {
                 if (!EconomyManager.economy.has(player, price)) {

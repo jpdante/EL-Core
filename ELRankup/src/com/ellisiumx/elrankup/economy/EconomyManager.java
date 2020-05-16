@@ -1,6 +1,8 @@
 package com.ellisiumx.elrankup.economy;
 
 import com.ellisiumx.elcore.ELCore;
+import com.ellisiumx.elcore.lang.LanguageDB;
+import com.ellisiumx.elcore.lang.LanguageManager;
 import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elcore.utils.UtilLog;
@@ -47,6 +49,14 @@ public class EconomyManager implements Listener {
         economy = new VaultEconomy();
         playerMonies = new HashMap<>();
         updateBuffer = new Stack<>();
+        for (LanguageDB languageDB : LanguageManager.getLanguages()) {
+            languageDB.insertTranslation("GetMoney", "&f[&aEconomy&f] &3Money&f: %FormattedBalance%");
+            languageDB.insertTranslation("GetPlayerMoney", "&f[&aEconomy&f] &b%Player% &3Money&f: %FormattedBalance%");
+            languageDB.insertTranslation("GetMoneyError", "&f[&aEconomy&f] &cFailed to get your balance right now, please try later.");
+            languageDB.insertTranslation("GetMoneyInvalidArgs", "&f[&aEconomy&f] &cInvalid arguments!");
+            languageDB.insertTranslation("GetMoneyPlayerNotExists", "&f[&aEconomy&f] &cPlayer &f'%Player%' &cdoes not exist!");
+        }
+        if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         Bukkit.getServer().getServicesManager().register(Economy.class, economy, plugin, ServicePriority.Highest);
         new MoneyCommand(plugin);
         new PayCommand(plugin);

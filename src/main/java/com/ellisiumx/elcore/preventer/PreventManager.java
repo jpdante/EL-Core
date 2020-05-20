@@ -16,7 +16,7 @@ import java.util.logging.Level;
 public class PreventManager implements Listener {
 
     public PreventManager(JavaPlugin plugin) {
-        Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
+    //    Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

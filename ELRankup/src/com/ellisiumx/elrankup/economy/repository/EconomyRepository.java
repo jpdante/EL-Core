@@ -91,6 +91,24 @@ public class EconomyRepository extends RepositoryBase {
         return balance;
     }
 
+    public Double getCashByUUID(String uuid) {
+        Double cash = null;
+        try (
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement("SELECT cash FROM economy WHERE uuid = ? LIMIT 1;")
+        ) {
+            statement.setString(1, uuid);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while(resultSet.next()) {
+                    cash = resultSet.getDouble(1);
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return cash;
+    }
+
     public void depositAmountByName(String playerName, double amount) {
         try (
                 Connection connection = getConnection();
@@ -197,12 +215,13 @@ public class EconomyRepository extends RepositoryBase {
     public void updateAccounts(Stack<PlayerMoney> playerMonies) {
         try (
                 Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("UPDATE economy SET balance = ? WHERE uuid = ?;");
+                PreparedStatement statement = connection.prepareStatement("UPDATE economy SET balance = ?, cash = ? WHERE uuid = ?;");
         ){
             while (!playerMonies.empty()) {
                 PlayerMoney data = playerMonies.pop();
                 statement.setDouble(1, data.money);
-                statement.setString(2, data.player.getUniqueId().toString());
+                statement.setDouble(2, data.cash);
+                statement.setString(3, data.player.getUniqueId().toString());
                 statement.addBatch();
             }
             statement.executeBatch();

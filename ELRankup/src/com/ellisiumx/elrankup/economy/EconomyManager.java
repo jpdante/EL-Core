@@ -7,6 +7,7 @@ import com.ellisiumx.elcore.updater.UpdateType;
 import com.ellisiumx.elcore.updater.event.UpdateEvent;
 import com.ellisiumx.elcore.utils.UtilLog;
 import com.ellisiumx.elcore.utils.UtilServer;
+import com.ellisiumx.elrankup.economy.command.CashCommand;
 import com.ellisiumx.elrankup.economy.command.EcoCommand;
 import com.ellisiumx.elrankup.economy.command.MoneyCommand;
 import com.ellisiumx.elrankup.economy.command.PayCommand;
@@ -31,6 +32,7 @@ public class EconomyManager implements Listener {
     public static EconomyManager context;
     public static EconomyRepository repository;
     public static VaultEconomy economy;
+    public static CashEconomy casheco;
 
     public HashMap<String, PlayerMoney> playerMonies;
 
@@ -49,18 +51,22 @@ public class EconomyManager implements Listener {
         economy = new VaultEconomy();
         playerMonies = new HashMap<>();
         updateBuffer = new Stack<>();
+        casheco = new CashEconomy();
         for (LanguageDB languageDB : LanguageManager.getLanguages()) {
             languageDB.insertTranslation("GetMoney", "&f[&aEconomy&f] &3Money&f: %FormattedBalance%");
             languageDB.insertTranslation("GetPlayerMoney", "&f[&aEconomy&f] &b%Player% &3Money&f: %FormattedBalance%");
             languageDB.insertTranslation("GetMoneyError", "&f[&aEconomy&f] &cFailed to get your balance right now, please try later.");
             languageDB.insertTranslation("GetMoneyInvalidArgs", "&f[&aEconomy&f] &cInvalid arguments!");
             languageDB.insertTranslation("GetMoneyPlayerNotExists", "&f[&aEconomy&f] &cPlayer &f'%Player%' &cdoes not exist!");
+            languageDB.insertTranslation("GetCash", "&aCash: %Cash%");
+            languageDB.insertTranslation("GetCashPlayer", "&b%Player% &aCash: %Cash%");
         }
         if (LanguageManager.saveLanguages()) LanguageManager.reloadLanguages();
         Bukkit.getServer().getServicesManager().register(Economy.class, economy, plugin, ServicePriority.Highest);
         new MoneyCommand(plugin);
         new PayCommand(plugin);
         new EcoCommand(plugin);
+        new CashCommand(plugin);
     }
 
     @EventHandler
@@ -77,7 +83,8 @@ public class EconomyManager implements Listener {
         Bukkit.getServer().getScheduler().runTaskAsynchronously(ELCore.getContext(), () -> {
             repository.createEconomyAccount(event.getPlayer().getUniqueId().toString(), event.getPlayer().getName());
             double balance = repository.getBalanceByUUID(event.getPlayer().getUniqueId().toString());
-            playerMonies.put(event.getPlayer().getName(), new PlayerMoney(event.getPlayer(), balance));
+            double cash = repository.getCashByUUID(event.getPlayer().getUniqueId().toString());
+            playerMonies.put(event.getPlayer().getName(), new PlayerMoney(event.getPlayer(), balance, cash));
         });
     }
 }
